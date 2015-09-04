@@ -1,6 +1,8 @@
 Incident Response Triage: Scripted collection of system information. (Run As ADMINISTRATOR!)  
 Original source was Triage-ir a script written by Michael Ahrendt https://code.google.com/p/triage-ir/ 
+Michael's last changes were posted November 2012
 
+I have since changed and updated the project.
 
 What if having a full disk image is not an option during an incident?
 Imagine that you are investigating a dozen or more possibly infected or compromised systems. 
