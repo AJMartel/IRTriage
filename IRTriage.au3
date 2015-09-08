@@ -1548,7 +1548,7 @@ Func Directory()						;Get list of directory structure
 EndFunc
 
 Func ScheduledTasks()					;List any scheduled tasks
-   Local $schedtask1 = $shellex & ' at > "' & $RptsDir & '\Scheduled Tasks.txt"'
+   Local $schedtask1 = $shellex & ' schtasks /query /FO CSV /V > "' & $RptsDir & '\Scheduled Tasks.csv"'
 
    RunWait($schedtask1, "", @SW_HIDE)
 	  FileWriteLine($Log, @YEAR&"-"&@MON&"-"&@MDAY&"  "&@HOUR&":"&@MIN&":"&@SEC&":"&@MSEC&"  >  "&"Executed command: " & $schedtask1 & @CRLF)
