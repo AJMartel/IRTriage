@@ -1,30 +1,33 @@
+#Region ;**** Directives created by AutoIt3Wrapper_GUI ****
+#AutoIt3Wrapper_Compile_Both=y
+#EndRegion ;**** Directives created by AutoIt3Wrapper_GUI ****
 ;==========================================================================================================================================
-;	Tool:			Incident ResponeTriage:    (GUI)
+;	Tool:			Incident Respone Triage:    (GUI)
 ;
-;	Version:		0.0.1
+;	Version:		0.0.1.5
 ;
-;	Author:			Michael Ahrendt
-;   Modified by:    Alain Martel
+;	Author:			Michael Ahrendt (Nov 2012)
+;   Modified by:                Alain Martel (Sept 2015)
 ;
-;	Description:	Triage is intended for incident responders who need host data rapidly.
-;					The tool will run a plethora of commands automatically based on selection.
-;					It has the ability to copy data to a drive as well.  Data will copy to wherever the script is stored.
-;					Triage is intended to be ran off a flash drive locally on the machine, or via network location.
+;	Description:	IRTriage is intended for incident responders who need to gather host data rapidly.
+;			The tool will run a plethora of commands automatically based on selection.
+;			It has the ability to copy data to a drive as well.  Data will copy to wherever the script is stored.
+;			IRTriage is intended to be run off a flash drive locally on the machine, or via a network location.
 ;
-; 	Tools used:		Fast Dump pro by HBGary
-;						-http://www.countertack.com/
+; 	Tools used:	Fast Dump pro by HBGary
+;				-http://www.countertack.com/
 ;
-;					Sysinternals Suite from Microsoft and Mark Russinovich
-;						-http://technet.microsoft.com/en-us/sysinternals/bb842062
+;			Sysinternals Suite from Microsoft and Mark Russinovich
+;				-http://technet.microsoft.com/en-us/sysinternals/bb842062
 ;
-;					RegRipper from Harlan Carvey
-;						-http://code.google.com/p/winforensicaanalysis/downloads/list
+;			RegRipper from Harlan Carvey
+;				-http://code.google.com/p/winforensicaanalysis/downloads/list
 ;
-;					md5deep and sha1deep from Jesse Kornblum
-;						-http://md5deep.sourceforge.net/
+;			md5deep and sha1deep from Jesse Kornblum
+;				-http://md5deep.sourceforge.net/
 ;
-;					7zip Command Line
-;						-http://www.7-zip.org/
+;			7zip Command Line
+;				-http://www.7-zip.org/
 ;
 ;===========================================================================================================================================
 
@@ -37,6 +40,7 @@
 Global 	$tStamp = @YEAR & @MON & @MDAY & @HOUR & @MIN & @SEC
 Global	$RptsDir = @ScriptDir & "\" & $tStamp & " - " & @ComputerName
 Global	$EvDir = $RptsDir & "\Evidence\"
+Global	$MemDir = $EvDir & "Memory\"
 Global 	$HashDir = $RptsDir & "\Evidence"
 Global	$JmpLst = $EvDir & "Jump Lists"
 Global	$shell = '"' & @ScriptDir & '\Tools\cmd.exe"'
@@ -49,6 +53,7 @@ Global 	$fcnt
 Global  $p_chkc = 1
 Global  $r_chk = 0
 Global  $r_ini = 0
+Global  $Version = "0.0.1.5"
 
 $ini_file = "IRTriage.ini"
 
@@ -159,7 +164,7 @@ Func TriageGUI()						;Creates a graphical user interface for Triage
    Global	$VS_PF_chk, $VS_RF_chk, $VS_JmpLst_chk, $VS_EvtCpy_chk, $VS_SYSREG_chk, $VS_SECREG_chk, $VS_SAMREG_chk, $VS_SOFTREG_chk, $VS_USERREG_chk
    Global	$MFTg_chk
 
-   GUICreate("Incident Response Triage: ", 810, 300)
+   GUICreate("Incident Response Triage: version "& $Version, 810, 300)
 
 	  $font = "Arial"
 
@@ -356,7 +361,7 @@ Func TriageGUI()						;Creates a graphical user interface for Triage
 		 If $msg = $helpitem1 Then ShellExecute('"' & @ScriptDir & '\Triage Help.pdf"')
 
 		 If $msg = $helpitem2 Then MsgBox _
-			(64, "About:", "Incident Response Triage: " & @CRLF & @CRLF & "Version:  0.0.1" & @CRLF & @CRLF & "IRTriage is a utility to help incident responders collect information quickly from a live system.  It is highly customizable to meet the needs of modern investigative processes.")
+			(64, "About:", "Incident Response Triage: " & @CRLF & @CRLF & "Version: " & $Version & @CRLF & @CRLF & "IRTriage is a utility to help incident responders collect information quickly from a live system.  It is highly customizable to meet the needs of modern investigative processes.")
 
 		 If $msg = $GUI_EVENT_CLOSE Then ExitLoop
 
@@ -364,6 +369,7 @@ Func TriageGUI()						;Creates a graphical user interface for Triage
 
 			If Not FileExists($RptsDir) Then DirCreate($RptsDir)
 			If Not FileExists($EvDir) Then DirCreate($EvDir)
+			If Not FileExists($MemDir) Then DirCreate($MemDir)
 
 			If Not FileExists(@ScriptDir & "\Tools\") Then
 			   Do
@@ -537,7 +543,7 @@ Func TriageGUI()						;Creates a graphical user interface for Triage
 
 			Else
 			   MsgBox(11, "VSC", "Problem with Volume Shadow Mounts")
-			   FileWriteLine($Log, @YEAR&"-"&@MON&"-"&@MDAY&"  "&@HOUR&":"&@MIN&":"&@SEC&":"&@MSEC&"  >  "&"Failed to execute Volume Shadow Copy Functions." & @CRLF)
+			   FileWriteLine($Log, @YEAR&"-"&@MON&"-"&@MDAY&"  "&@HOUR&":"&@MIN&":"&@SEC&":"&@MSEC&"  >  "&"Did NOT execute Volume Shadow Copy Functions." & @CRLF)
 			EndIf
 
 			If $r_chk >= 1 Then
@@ -1088,7 +1094,7 @@ Func INI2Command()						;Correlate the INI file into executing the selected func
 		 If $VS_USERREG_ini = "Yes" Then VSC_NTUser()
 
 	  Else
-		 FileWriteLine($Log, @YEAR&"-"&@MON&"-"&@MDAY&"  "&@HOUR&":"&@MIN&":"&@SEC&":"&@MSEC&"  >  "&"Failed to execute Volume Shadow Copy Functions." & @CRLF)
+		 FileWriteLine($Log, @YEAR&"-"&@MON&"-"&@MDAY&"  "&@HOUR&":"&@MIN&":"&@SEC&":"&@MSEC&"  >  "&"Did NOT execute Volume Shadow Copy Functions." & @CRLF)
 	  EndIf
 
 	  If $r_ini >= 1 Then
@@ -1156,15 +1162,13 @@ Func INI2Command()						;Correlate the INI file into executing the selected func
 
    CommandROSLOG()
 
-;   MsgBox(0, "Incident Response Triage: ", "Your selected tasks have completed.")
-
 EndFunc
 
 Func MemDump()
 
    Local $dmpN = @ComputerName & @YEAR & @MON & @MDAY & @HOUR & @MIN & @SEC & @MSEC & '.bin'
    Local $dmpl = @ComputerName & @YEAR & @MON & @MDAY & @HOUR & @MIN & @SEC & @MSEC & '.txt'
-   Local $memFL = '-mem -md5 -o "' & $EvDir & $dmpN & '" -log "' & $EvDir & $dmpL & '"'
+   Local $memFL = '-mem -md5 -o "' & $MemDir & $dmpN & '" -log "' & $MemDir & $dmpL & '"'
 
    $windd = "FDpro.exe"
 
@@ -1179,7 +1183,7 @@ Func MemDump()
 EndFunc
 
 Func Processes()						;Gather running process information
-   Local $proc1 = $shellex & ' tasklist /svc > "' & $RptsDir & '\Processes.txt"'
+   Local $proc1 = $shellex & ' tasklist /V /FO CSV > "' & $RptsDir & '\Processes.csv"'
    Local $proc2 = $shellex & ' .\Tools\SysinternalsSuite\pslist -accepteula >> "' & $RptsDir & '\Processes.txt"'
    Local $proc3 = $shellex & ' .\Tools\SysinternalsSuite\pslist -t -accepteula >> "' & $RptsDir & '\Processes.txt"'
 
@@ -1221,7 +1225,7 @@ Func Routes()							;Gather list of active routes
 EndFunc
 
 Func NetBIOS()							;Get NetBIOS information
-   Local $nbt1 = $shellex & ' .\Tools\nbtstat.exe -A 127.0.0.1 > "' & $RptsDir & '\NBTstat.txt"'
+   Local $nbt1 = $shellex & ' nbtstat.exe -A 127.0.0.1 > "' & $RptsDir & '\NBTstat.txt"'
 
    RunWait($nbt1, "", @SW_HIDE)
 	  FileWriteLine($Log, @YEAR&"-"&@MON&"-"&@MDAY&"  "&@HOUR&":"&@MIN&":"&@SEC&":"&@MSEC&"  >  "&"Executed command: " & $nbt1 & @CRLF)
@@ -1496,7 +1500,7 @@ EndFunc
 Func AutoRun()							;Information regarding startup
    Local $autorun1 = $shellex & ' .\Tools\SysinternalsSuite\autorunsc.exe -accepteula > "' & $RptsDir & '\AutoRun Info.txt"'
    Local $autorun2 = $shellex & ' wmic startup list full > "' & $RptsDir & '\Start Up WMI Info.txt"'
-   Local $autorun3 = $shellex & ' .\Tools\SysinternalsSuite\autorunsc.exe -accepteula -a * -c > "' & $RptsDir & '\AutoRun Info.csv"'
+   Local $autorun3 = $shellex & ' .\Tools\SysinternalsSuite\autorunsc.exe -accepteula -a * -s -c > "' & $RptsDir & '\AutoRun Info.csv"'
 
    RunWait($autorun1, "", @SW_HIDE)
 	  FileWriteLine($Log, @YEAR&"-"&@MON&"-"&@MDAY&"  "&@HOUR&":"&@MIN&":"&@SEC&":"&@MSEC&"  >  "&"Executed command: " & $autorun1 & @CRLF)
@@ -1508,7 +1512,7 @@ EndFunc
 
 Func LoggedOn()							;Gather information on users logged on
    Local $logon1 = $shellex & ' .\Tools\SysinternalsSuite\PsLoggedon -accepteula > "' & $RptsDir & '\Logged On.txt"'
-   Local $logon2 = $shellex & ' .\Tools\SysinternalsSuite\logonsessions -accepteula c >> "' & $RptsDir & '\Logged On Users.txt"'
+   Local $logon2 = $shellex & ' .\Tools\SysinternalsSuite\logonsessions -accepteula -c >> "' & $RptsDir & '\Logged On Users.txt"'
 
    RunWait($logon1, "", @SW_HIDE)
 	  FileWriteLine($Log, @YEAR&"-"&@MON&"-"&@MDAY&"  "&@HOUR&":"&@MIN&":"&@SEC&":"&@MSEC&"  >  "&"Executed command: " & $logon1 & @CRLF)
@@ -1518,7 +1522,7 @@ EndFunc
 
 Func NTFSInfo()							;Gather information regarding NTFS
    Local $ntfs1 = $shellex & ' .\Tools\SysinternalsSuite\ntfsinfo c > "' & $RptsDir & '\NTFS Info.txt"'
-   Local $ntfs2 = $shellex & ' .\Tools\sleuthkit-win32-4.1.3\bin\fsutil fsinfo ntfsinfo C: >> "' & $RptsDir & '\NTFS Info.txt"'
+   Local $ntfs2 = $shellex & ' fsutil fsinfo ntfsinfo C: >> "' & $RptsDir & '\NTFS Info.txt"'
 
    RunWait($ntfs1, "", @SW_HIDE)
 	  FileWriteLine($Log, @YEAR&"-"&@MON&"-"&@MDAY&"  "&@HOUR&":"&@MIN&":"&@SEC&":"&@MSEC&"  >  "&"Executed command: " & $ntfs1 & @CRLF)
@@ -1527,7 +1531,7 @@ Func NTFSInfo()							;Gather information regarding NTFS
 EndFunc
 
 Func VolInfo()							;Gather volume information with the Sleuth Kit
-	  Local $vol1 = $shellex & ' .\Tools\sleuthkit-win32-4.1.3\bin\fsutil fsinfo volumeinfo C: >> "' & $RptsDir & '\Volume Info.txt"'
+	  Local $vol1 = $shellex & ' fsutil fsinfo volumeinfo C: >> "' & $RptsDir & '\Volume Info.txt"'
 
    RunWait($vol1, "", @SW_HIDE)
 	  FileWriteLine($Log, @YEAR&"-"&@MON&"-"&@MDAY&"  "&@HOUR&":"&@MIN&":"&@SEC&":"&@MSEC&"  >  "&"Executed command: " & $vol1 & @CRLF)
@@ -1738,7 +1742,7 @@ Func RegRipper()						;Special thanks to Harlan Carvey for his excellent tool.
 EndFunc
 
 Func SysIntAdd()						;Add registry key to accept Sysinternals
-   Local $RegAdd1 = $shellex & 'REG ADD HKCU\Software\Sysinternals\NTFSInfo /v EulaAccepted /t REG_DWORD /d 1 /f'
+   Local $RegAdd1 = $shellex & ' REG ADD HKCU\Software\Sysinternals\NTFSInfo /v EulaAccepted /t REG_DWORD /d 1 /f'
 
    RunWait($RegAdd1, "", @SW_HIDE)
 	  FileWriteLine($Log, @YEAR&"-"&@MON&"-"&@MDAY&"  "&@HOUR&":"&@MIN&":"&@SEC&":"&@MSEC&"  >  "&"Executed command: " & $RegAdd1 & @CRLF)
@@ -1752,9 +1756,9 @@ Func EvtCopy()							;Copy all event logs from local machine
    Local $robocopy = '"' & @ScriptDir & '\Tools\robocopy.exe"'
    Local $robo7 = '"' & @ScriptDir & '\Tools\robo7.exe"'
 
-   Local $evtc1 = $shellex & ' .\Tools\SysinternalsSuite\psloglist.exe -accepteula Application > "' & $RptsDir & '\Application Log.csv"'
-   Local $evtc2 = $shellex & ' .\Tools\SysinternalsSuite\psloglist.exe -accepteula System > "' & $RptsDir & '\System Log.csv"'
-   Local $evtc3 = $shellex & ' .\Tools\SysinternalsSuite\psloglist.exe -accepteula Security > "' & $RptsDir & '\Security Log.csv"'
+   Local $evtc1 = $shellex & ' .\Tools\SysinternalsSuite\psloglist.exe -accepteula -s Application > "' & $RptsDir & '\Application Log.csv"'
+   Local $evtc2 = $shellex & ' .\Tools\SysinternalsSuite\psloglist.exe -accepteula -s System > "' & $RptsDir & '\System Log.csv"'
+   Local $evtc3 = $shellex & ' .\Tools\SysinternalsSuite\psloglist.exe -accepteula -s Security > "' & $RptsDir & '\Security Log.csv"'
 
    RunWait($evtc1, "", @SW_HIDE)
 	  FileWriteLine($Log, @YEAR&"-"&@MON&"-"&@MDAY&"  "&@HOUR&":"&@MIN&":"&@SEC&":"&@MSEC&"  >  "&"Executed command: " & $evtc1 & @CRLF)
@@ -1827,21 +1831,29 @@ EndFunc
 
 Func _Usrclass($prof)					;Performs the function of copying the USRCLASS.dat
 
-   Local $usrce = $shellex & ' .\Tools\sleuthkit-win32-4.1.3\bin\ifind.exe -n /users/' & $prof & '/appdata/local/microsoft/windows/usrclass.dat \\.\C: > MFTEntries.log'
+   Local $profUsrCls = '/users/' & $prof & '/appdata/local/microsoft/windows/usrclass.dat'
 
-   RunWait($usrce)
+   If FileExists($profUsrCls) = 1 Then
 
-	  FileWriteLine($Log, @YEAR&"-"&@MON&"-"&@MDAY&"  "&@HOUR&":"&@MIN&":"&@SEC&":"&@MSEC&"  >  "&"Executed command: " & $usrce & @CRLF)
+		Local $usrce = $shellex & ' .\Tools\sleuthkit-win32-4.1.3\bin\ifind.exe -n /users/' & $prof & '/appdata/local/microsoft/windows/usrclass.dat \\.\C: > MFTEntries.log'
 
-   $log = FileReadLine("MFTEntries.log")
+		RunWait($usrce)
 
-   Local $catusrce = $shellex & ' .\Tools\sleuthkit-win32-4.1.3\bin\icat.exe \\.\c: ' & $log & ' > "' & $EvDir & $prof & '-usrclass.dat1"'
+			FileWriteLine($Log, @YEAR&"-"&@MON&"-"&@MDAY&"  "&@HOUR&":"&@MIN&":"&@SEC&":"&@MSEC&"  >  "&"Executed command: " & $usrce & @CRLF)
 
-   RunWait($catusrce, "", @SW_HIDE)
+		$MFTlog = FileReadLine("MFTEntries.log")
 
-	  FileWriteLine($Log, @YEAR&"-"&@MON&"-"&@MDAY&"  "&@HOUR&":"&@MIN&":"&@SEC&":"&@MSEC&"  >  "&"Executed command: " & $catusrce & @CRLF)
+		Local $catusrce = $shellex & ' .\Tools\sleuthkit-win32-4.1.3\bin\icat.exe \\.\c: ' & $MFTlog & ' > "' & $EvDir & $prof & '-usrclass.dat1"'
 
-   FileDelete("MFTEntries.log")
+		RunWait($catusrce, "", @SW_HIDE)
+
+			FileWriteLine($Log, @YEAR&"-"&@MON&"-"&@MDAY&"  "&@HOUR&":"&@MIN&":"&@SEC&":"&@MSEC&"  >  "&"Executed command: " & $catusrce & @CRLF)
+
+		FileDelete("MFTEntries.log")
+
+   Else
+		FileWriteLine($Log, @YEAR&"-"&@MON&"-"&@MDAY&"  "&@HOUR&":"&@MIN&":"&@SEC&":"&@MSEC&"  >  "& "File NOT Found. "& $profUsrCls & @CRLF)
+   EndIf
 
 EndFunc
 
