@@ -1,21 +1,28 @@
 #Region ;**** Directives created by AutoIt3Wrapper_GUI ****
 #AutoIt3Wrapper_Compile_Both=y
 #EndRegion ;**** Directives created by AutoIt3Wrapper_GUI ****
+#Region ;**** Directives created by AutoIt3Wrapper_GUI ****
+#AutoIt3Wrapper_Compile_Both=y
+#EndRegion ;**** Directives created by AutoIt3Wrapper_GUI ****
 ;==========================================================================================================================================
 ;	Tool:			Incident Respone Triage:    (GUI)
 ;
-;	Version:		0.0.1.5
+;	Version:		0.0.1.6
 ;
 ;	Author:			Michael Ahrendt (Nov 2012)
-;   Modified by:                Alain Martel (Sept 2015)
+;   Modified by:                Alain Martel (Oct 2015)
 ;
 ;	Description:	IRTriage is intended for incident responders who need to gather host data rapidly.
 ;			The tool will run a plethora of commands automatically based on selection.
-;			It has the ability to copy data to a drive as well.  Data will copy to wherever the script is stored.
+;			It has the ability to copy data to an external USB drive as well.  
+			Data will copy to wherever the script is stored.
 ;			IRTriage is intended to be run off a flash drive locally on the machine, or via a network location.
 ;
 ; 	Tools used:	Fast Dump pro by HBGary
 ;				-http://www.countertack.com/
+;
+;		       **Win(32|64)DD from MoonSols (Replaced by Fast Dump pro, code was commented out not removed.)
+;						-http://www.moonsols.com/
 ;
 ;			Sysinternals Suite from Microsoft and Mark Russinovich
 ;				-http://technet.microsoft.com/en-us/sysinternals/bb842062
@@ -40,7 +47,7 @@
 Global 	$tStamp = @YEAR & @MON & @MDAY & @HOUR & @MIN & @SEC
 Global	$RptsDir = @ScriptDir & "\" & $tStamp & " - " & @ComputerName
 Global	$EvDir = $RptsDir & "\Evidence\"
-Global	$MemDir = $EvDir & "Memory\"
+Global	$MemDir = $EvDir & "Memory\"                                 ;added to make finding the memory image easier
 Global 	$HashDir = $RptsDir & "\Evidence"
 Global	$JmpLst = $EvDir & "Jump Lists"
 Global	$shell = '"' & @ScriptDir & '\Tools\cmd.exe"'
@@ -50,10 +57,10 @@ Global 	$RecentPath = RegRead("HKEY_CURRENT_USER\Software\Microsoft\Windows\Curr
 Global	$Log = $RptsDir & "\Incident Log.txt"
 Global 	$ini_file
 Global 	$fcnt
-Global  $p_chkc = 1
-Global  $r_chk = 0
-Global  $r_ini = 0
-Global  $Version = "0.0.1.5"
+Global  $p_chkc = 1                                                  ;fixed missing value that killed command logging
+Global  $r_chk = 0                                                   ;fixed missing value that killed command logging
+Global  $r_ini = 0                                                   ;fixed missing value that killed command logging
+Global  $Version = "0.0.1.6"                                         ;Added to facilitate display of version info
 
 $ini_file = "IRTriage.ini"
 
@@ -381,6 +388,19 @@ Func TriageGUI()						;Creates a graphical user interface for Triage
 			   If Not FileExists(@ScriptDir & "\Tools\FDpro.exe") Then
 				   FileInstall("C:\Code\IRTriage\Tools\FDpro.exe", @ScriptDir & "\Tools\", 0)
 			   EndIf
+
+;  **Win(32|64)DD from MoonSols**
+;			   If @OSArch = "X86" Then
+;				  If Not FileExists(@ScriptDir & "\Tools\win32dd.exe") Then
+;					 FileInstall("C:\Code\TriageIR v.85\Tools\win32dd.sys", @ScriptDir & "\Tools\", 0)
+;					 FileInstall("C:\Code\TriageIR v.85\Tools\win32dd.exe", @ScriptDir & "\Tools\", 0)
+;				  EndIf
+;			   Else
+;				  If Not FileExists(@ScriptDir & "\Tools\win64dd.exe") Then
+;					 FileInstall("C:\Code\TriageIR v.85\Tools\win64dd.sys", @ScriptDir & "\Tools\", 0)
+;					 FileInstall("C:\Code\TriageIR v.85\Tools\win64dd.exe", @ScriptDir & "\Tools\", 0)
+;				  EndIf
+;			   EndIf
 			   MemDump()
 			EndIf
 
@@ -1040,6 +1060,19 @@ Func INI2Command()						;Correlate the INI file into executing the selected func
 	   FileInstall("C:\Code\IRTriage\Tools\FDpro.exe", @ScriptDir & "\Tools\", 0)
    EndIf
 
+;  **Win(32|64)DD from MoonSols**
+;   If @OSArch = "X86" Then
+;	  If Not FileExists(@ScriptDir & "\Tools\win32dd.exe") Then
+;		 FileInstall("C:\Code\TriageIR v.85\Tools\win32dd.sys", @ScriptDir & "\Tools\", 0)
+;		 FileInstall("C:\Code\TriageIR v.85\Tools\win32dd.exe", @ScriptDir & "\Tools\", 0)
+;	  EndIf
+;   Else
+;	  If Not FileExists(@ScriptDir & "\Tools\win64dd.exe") Then
+;		 FileInstall("C:\Code\TriageIR v.85\Tools\win64dd.sys", @ScriptDir & "\Tools\", 0)
+;		 FileInstall("C:\Code\TriageIR v.85\Tools\win64dd.exe", @ScriptDir & "\Tools\", 0)
+;	  EndIf
+;   EndIf
+
    If $md_ini = "Yes" Then MemDump()
 
    Install()
@@ -1167,10 +1200,19 @@ EndFunc
 Func MemDump()
 
    Local $dmpN = @ComputerName & @YEAR & @MON & @MDAY & @HOUR & @MIN & @SEC & @MSEC & '.bin'
-   Local $dmpl = @ComputerName & @YEAR & @MON & @MDAY & @HOUR & @MIN & @SEC & @MSEC & '.txt'
+   Local $dmpl = @ComputerName & @YEAR & @MON & @MDAY & @HOUR & @MIN & @SEC & @MSEC & '.txt'     ;Added Memory Dump Log
    Local $memFL = '-mem -md5 -o "' & $MemDir & $dmpN & '" -log "' & $MemDir & $dmpL & '"'
 
    $windd = "FDpro.exe"
+
+;  **Win(32|64)DD from MoonSols**
+;  Local $memFL = '/a /f "' & $MemDir & $dmpN & '"'
+;
+;  If @OSArch = "X86" Then 
+;		 $windd = "win32dd.exe"
+;	  Else
+;		 $windd = "win64dd.exe"
+;	  EndIf
 
    ShellExecuteWait($windd, $memFL, '.\Tools\')
 
