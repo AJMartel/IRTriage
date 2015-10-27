@@ -16,19 +16,20 @@
 ;				-http://www.countertack.com/
 ;
 ;		       **Win(32|64)DD from MoonSols (Replaced by Fast Dump pro, code was commented out not removed.)
-;						-http://www.moonsols.com/
+;				-http://www.moonsols.com/
 ;
 ;			Sysinternals Suite from Microsoft and Mark Russinovich
 ;				-http://technet.microsoft.com/en-us/sysinternals/bb842062
+;                               -https://download.sysinternals.com/files/SysinternalsSuite.zip
 ;
 ;			RegRipper from Harlan Carvey
-;				-http://code.google.com/p/winforensicaanalysis/downloads/list
+;				-https://github.com/keydet89/RegRipper2.8/archive/master.zip
 ;
 ;			md5deep and sha1deep from Jesse Kornblum
-;				-http://md5deep.sourceforge.net/
+;				-http://sourceforge.net/projects/md5deep/files/md5deep/md5deep-4.3/md5deep-4.3.zip/download?use_mirror=kent
 ;
 ;			7zip Command Line
-;				-http://www.7-zip.org/
+;				-http://www.7-zip.org/download.html  (standalone console version)
 ;
 ;===========================================================================================================================================
 
