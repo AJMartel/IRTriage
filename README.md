@@ -35,4 +35,4 @@ Once you launch the application you can select which information you would like 
 Each category is in a separate tab. 
 All the collected information will be dumped into a new folder labled with date-time and the hostname.
 
- 
+http://www.researchgate.net/profile/Stavros_Shiaeles/publication/236681282_On-scene_Triage_open_source_forensic_tool_chests_Are_they_effective/links/00b4953ac91d0d0086000000.pdf?inViewer=true&pdfJsDownload=true&disableCoverPage=true&origin=publication_detail
