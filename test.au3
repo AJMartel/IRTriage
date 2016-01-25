@@ -9,7 +9,7 @@
 ;	Description:	IRTriage is intended for incident responders who need to gather host data rapidly.
 ;			The tool will run a plethora of commands automatically based on selection.
 ;			It has the ability to copy data to an external USB drive as well.
-			Data will copy to wherever the script is stored.
+;			Data will copy to wherever the script is stored.
 ;			IRTriage is intended to be run off a flash drive locally on the machine, or via a network location.
 ;
 ; 	Tools used:	Fast Dump pro by HBGary
@@ -1247,7 +1247,7 @@ EndFunc
 
 Func Connections()						;Discover any network connections on the PC
    Local $Conn1 = $shellex & ' netstat -nao > "' & $RptsDir & '\NetworkConnections.txt"'
-   Local $Conn2 = $shellex & ' netstat -naob >> "' & $RptsDir & '\NetworkConnectionsProcesses.txt"'
+   Local $Conn2 = $shellex & ' netstat -naob > "' & $RptsDir & '\NetworkConnectionsProcesses.txt"'
 
    RunWait($Conn1, "", @SW_HIDE)
 	  FileWriteLine($Log, @YEAR&"-"&@MON&"-"&@MDAY&@TAB&@HOUR&":"&@MIN&":"&@SEC&":"&@MSEC&@TAB&"Executed command:" &@TAB& $Conn1 & @CRLF)
@@ -1257,7 +1257,7 @@ EndFunc
 
 Func Routes()							;Gather list of active routes
    Local $route1 = $shellex & ' route PRINT > "' & $RptsDir & '\RoutesPrint.txt"'
-   Local $route2 = $shellex & ' netstat -r >> "' & $RptsDir & '\RoutesNetstat.txt"'
+   Local $route2 = $shellex & ' netstat -r > "' & $RptsDir & '\RoutesNetstat.txt"'
    RunWait($route1, "", @SW_HIDE)
 	  FileWriteLine($Log, @YEAR&"-"&@MON&"-"&@MDAY&@TAB&@HOUR&":"&@MIN&":"&@SEC&":"&@MSEC&@TAB&"Executed command:" &@TAB& $route1 & @CRLF)
    RunWait($route2, "", @SW_HIDE)
@@ -1280,7 +1280,7 @@ EndFunc
 
 Func DNS()								;Gather DNS information
    Local $dns1 = $shellex & ' ipconfig /displaydns > "' & $RptsDir & '\DNSInfo.txt"'
-   Local $dns2 = $shellex & ' nslookup host server >> "' & $RptsDir & '\DNSnslookup.txt"'
+   Local $dns2 = $shellex & ' nslookup host server > "' & $RptsDir & '\DNSnslookup.txt"'
 
    RunWait($dns1, "", @SW_HIDE)
 	  FileWriteLine($Log, @YEAR&"-"&@MON&"-"&@MDAY&@TAB&@HOUR&":"&@MIN&":"&@SEC&":"&@MSEC&@TAB&"Executed command:" &@TAB& $dns1 & @CRLF)
@@ -1311,7 +1311,7 @@ EndFunc
 
 Func Firewall()							;Get the firewall information
    Local $fw1 = $shellex & ' netsh firewall show state > "' & $RptsDir & '\FirewallConfig.txt"'
-   Local $fw2 = $shellex & ' netsh advfirewall show allprofiles >> "' & $RptsDir & '\FirewallConfig.txt"'
+   Local $fw2 = $shellex & ' netsh advfirewall show allprofiles > "' & $RptsDir & '\FirewallAdvConfig.txt"'
 
    RunWait($fw1, "", @SW_HIDE)
 	  FileWriteLine($Log, @YEAR&"-"&@MON&"-"&@MDAY&@TAB&@HOUR&":"&@MIN&":"&@SEC&":"&@MSEC&@TAB&"Executed command:" &@TAB& $fw1 & @CRLF)
@@ -1335,8 +1335,8 @@ EndFunc
 
 Func SystemInfo()						;Gather valuable information regarding type of PC
    Local $sysinfo1 = $shellex & ' .\Tools\SysinternalsSuite\PsInfo -accepteula -s -d > "' & $RptsDir & '\SystemDetails.txt"'
-   Local $sysinfo2 = $shellex & ' systeminfo >> "' & $RptsDir & '\SystemInfo.txt"'
-   Local $sysinfo3 = $shellex & ' set >> "' & $RptsDir & '\SystemVariables.txt"'
+   Local $sysinfo2 = $shellex & ' systeminfo > "' & $RptsDir & '\SystemInfo.txt"'
+   Local $sysinfo3 = $shellex & ' set > "' & $RptsDir & '\SystemVariables.txt"'
 
    RunWait($sysinfo1, "", @SW_HIDE)
 	  FileWriteLine($Log, @YEAR&"-"&@MON&"-"&@MDAY&@TAB&@HOUR&":"&@MIN&":"&@SEC&":"&@MSEC&@TAB&"Executed command:" &@TAB& $sysinfo1 & @CRLF)
@@ -1349,7 +1349,7 @@ EndFunc
 Func Services()							;Pertinent services information
    Local $serv1 = $shellex & ' .\Tools\SysinternalsSuite\psservice -accepteula > "' & $RptsDir & '\ServiceProcesses.txt"'
    Local $serv2 = $shellex & ' sc queryex > "' & $RptsDir & '\ServiceQuery.txt"'
-   Local $serv3 = $shellex & ' net start >> "' & $RptsDir & '\ServicesStarted.txt"'
+   Local $serv3 = $shellex & ' net start > "' & $RptsDir & '\ServicesStarted.txt"'
 
    RunWait($serv1, "", @SW_HIDE)
 	  FileWriteLine($Log, @YEAR&"-"&@MON&"-"&@MDAY&@TAB&@HOUR&":"&@MIN&":"&@SEC&":"&@MSEC&@TAB&"Executed command:" &@TAB& $serv1 & @CRLF)
@@ -1552,7 +1552,7 @@ EndFunc
 
 Func LoggedOn()							;Gather information on users logged on
    Local $logon1 = $shellex & ' .\Tools\SysinternalsSuite\PsLoggedon -accepteula > "' & $RptsDir & '\LoggedOn.txt"'
-   Local $logon2 = $shellex & ' .\Tools\SysinternalsSuite\logonsessions -accepteula -c >> "' & $RptsDir & '\LoggedOnUsers.txt"'
+   Local $logon2 = $shellex & ' .\Tools\SysinternalsSuite\logonsessions -accepteula -c > "' & $RptsDir & '\LogonSessions.txt"'
 
    RunWait($logon1, "", @SW_HIDE)
 	  FileWriteLine($Log, @YEAR&"-"&@MON&"-"&@MDAY&@TAB&@HOUR&":"&@MIN&":"&@SEC&":"&@MSEC&@TAB&"Executed command:" &@TAB& $logon1 & @CRLF)
@@ -1571,7 +1571,7 @@ Func NTFSInfo()							;Gather information regarding NTFS
 EndFunc
 
 Func VolInfo()							;Gather volume information with the Sleuth Kit
-	  Local $vol1 = $shellex & ' fsutil fsinfo volumeinfo C: >> "' & $RptsDir & '\VolumeInfo.txt"'
+	  Local $vol1 = $shellex & ' fsutil fsinfo volumeinfo C: > "' & $RptsDir & '\VolumeInfo.txt"'
 
    RunWait($vol1, "", @SW_HIDE)
 	  FileWriteLine($Log, @YEAR&"-"&@MON&"-"&@MDAY&@TAB&@HOUR&":"&@MIN&":"&@SEC&":"&@MSEC&@TAB&"Executed command:" &@TAB& $vol1 & @CRLF)
@@ -2591,12 +2591,12 @@ Func RegRipperTools()
 				  DirCreate(@ScriptDir & "\Tools\RegRipper\")
 			   Until FileExists(@ScriptDir & "\Tools\RegRipper\")
 			EndIf
-			   FileInstall(".\Compile\Tools\RegRipper2.8\p2x588.dll", @ScriptDir & "\Tools\RegRipper\", 0)
+			   FileInstall(".\Compile\Tools\RegRipper2.8\p2x5124.dll", @ScriptDir & "\Tools\RegRipper\", 0)
 			   FileInstall(".\Compile\Tools\RegRipper2.8\rip.exe", @ScriptDir & "\Tools\RegRipper\", 0)
 			   FileInstall(".\Compile\Tools\RegRipper2.8\rip.pl", @ScriptDir & "\Tools\RegRipper\", 0)
 			   FileInstall(".\Compile\Tools\RegRipper2.8\rr.exe", @ScriptDir & "\Tools\RegRipper\", 0)
 			   FileInstall(".\Compile\Tools\RegRipper2.8\rr.pl", @ScriptDir & "\Tools\RegRipper\", 0)
-			   FileInstall(".\Compile\Tools\RegRipper2.8\shelltimes.pl", @ScriptDir & "\Tools\RegRipper\", 0)
+			   FileInstall(".\Compile\Tools\RegRipper2.8\shellitems.pl", @ScriptDir & "\Tools\RegRipper\", 0)
 			   FileInstall(".\Compile\Tools\RegRipper2.8\time.pl", @ScriptDir & "\Tools\RegRipper\", 0)
 
 			If Not FileExists(@ScriptDir & "\Tools\RegRipper\plugins\") Then
@@ -2614,7 +2614,7 @@ Func RegRipperTools()
 			   FileInstall(".\Compile\Tools\RegRipper2.8\plugins\aports.pl", @ScriptDir & "\Tools\RegRipper\plugins\", 0)
 			   FileInstall(".\Compile\Tools\RegRipper2.8\plugins\appcertdlls.pl", @ScriptDir & "\Tools\RegRipper\plugins\", 0)
 			   FileInstall(".\Compile\Tools\RegRipper2.8\plugins\appcompatcache.pl", @ScriptDir & "\Tools\RegRipper\plugins\", 0)
-			   FileInstall(".\Compile\Tools\RegRipper2.8\plugins\appcompatcashe_tln.pl", @ScriptDir & "\Tools\RegRipper\plugins\", 0)
+			   FileInstall(".\Compile\Tools\RegRipper2.8\plugins\appcompatcache_tln.pl", @ScriptDir & "\Tools\RegRipper\plugins\", 0)
 			   FileInstall(".\Compile\Tools\RegRipper2.8\plugins\appcompatflags.pl", @ScriptDir & "\Tools\RegRipper\plugins\", 0)
 			   FileInstall(".\Compile\Tools\RegRipper2.8\plugins\appinitdlls.pl", @ScriptDir & "\Tools\RegRipper\plugins\", 0)
 			   FileInstall(".\Compile\Tools\RegRipper2.8\plugins\applets.pl", @ScriptDir & "\Tools\RegRipper\plugins\", 0)
@@ -2645,7 +2645,7 @@ Func RegRipperTools()
 			   FileInstall(".\Compile\Tools\RegRipper2.8\plugins\btconfig.pl", @ScriptDir & "\Tools\RegRipper\plugins\", 0)
 			   FileInstall(".\Compile\Tools\RegRipper2.8\plugins\bthport.pl", @ScriptDir & "\Tools\RegRipper\plugins\", 0)
 			   FileInstall(".\Compile\Tools\RegRipper2.8\plugins\cached.pl", @ScriptDir & "\Tools\RegRipper\plugins\", 0)
-			   FileInstall(".\Compile\Tools\RegRipper2.8\plugins\cashed_tln.pl", @ScriptDir & "\Tools\RegRipper\plugins\", 0)
+			   FileInstall(".\Compile\Tools\RegRipper2.8\plugins\cached_tln.pl", @ScriptDir & "\Tools\RegRipper\plugins\", 0)
 			   FileInstall(".\Compile\Tools\RegRipper2.8\plugins\cain.pl", @ScriptDir & "\Tools\RegRipper\plugins\", 0)
 			   FileInstall(".\Compile\Tools\RegRipper2.8\plugins\ccleaner.pl", @ScriptDir & "\Tools\RegRipper\plugins\", 0)
 			   FileInstall(".\Compile\Tools\RegRipper2.8\plugins\cdstaginginfo.pl", @ScriptDir & "\Tools\RegRipper\plugins\", 0)
@@ -2689,7 +2689,7 @@ Func RegRipperTools()
 			   FileInstall(".\Compile\Tools\RegRipper2.8\plugins\emdmgmt.pl", @ScriptDir & "\Tools\RegRipper\plugins\", 0)
 			   FileInstall(".\Compile\Tools\RegRipper2.8\plugins\environment.pl", @ScriptDir & "\Tools\RegRipper\plugins\", 0)
 			   FileInstall(".\Compile\Tools\RegRipper2.8\plugins\esent.pl", @ScriptDir & "\Tools\RegRipper\plugins\", 0)
-			   FileInstall(".\Compile\Tools\RegRipper2.8\plugins\entos.pl", @ScriptDir & "\Tools\RegRipper\plugins\", 0)
+			   FileInstall(".\Compile\Tools\RegRipper2.8\plugins\etos.pl", @ScriptDir & "\Tools\RegRipper\plugins\", 0)
 			   FileInstall(".\Compile\Tools\RegRipper2.8\plugins\eventlog.pl", @ScriptDir & "\Tools\RegRipper\plugins\", 0)
 			   FileInstall(".\Compile\Tools\RegRipper2.8\plugins\eventlogs.pl", @ScriptDir & "\Tools\RegRipper\plugins\", 0)
 			   FileInstall(".\Compile\Tools\RegRipper2.8\plugins\fileexts.pl", @ScriptDir & "\Tools\RegRipper\plugins\", 0)
@@ -2789,7 +2789,7 @@ Func RegRipperTools()
 			   FileInstall(".\Compile\Tools\RegRipper2.8\plugins\pagefile.pl", @ScriptDir & "\Tools\RegRipper\plugins\", 0)
 			   FileInstall(".\Compile\Tools\RegRipper2.8\plugins\pending.pl", @ScriptDir & "\Tools\RegRipper\plugins\", 0)
 			   FileInstall(".\Compile\Tools\RegRipper2.8\plugins\phdet.pl", @ScriptDir & "\Tools\RegRipper\plugins\", 0)
-			   FileInstall(".\Compile\Tools\RegRipper2.8\plugins\photo.pl", @ScriptDir & "\Tools\RegRipper\plugins\", 0)
+			   FileInstall(".\Compile\Tools\RegRipper2.8\plugins\photos.pl", @ScriptDir & "\Tools\RegRipper\plugins\", 0)
 			   FileInstall(".\Compile\Tools\RegRipper2.8\plugins\polacdms.pl", @ScriptDir & "\Tools\RegRipper\plugins\", 0)
 			   FileInstall(".\Compile\Tools\RegRipper2.8\plugins\policies_u.pl", @ScriptDir & "\Tools\RegRipper\plugins\", 0)
 			   FileInstall(".\Compile\Tools\RegRipper2.8\plugins\port_dev.pl", @ScriptDir & "\Tools\RegRipper\plugins\", 0)
@@ -2822,7 +2822,7 @@ Func RegRipperTools()
 			   FileInstall(".\Compile\Tools\RegRipper2.8\plugins\regtime_tln.pl", @ScriptDir & "\Tools\RegRipper\plugins\", 0)
 			   FileInstall(".\Compile\Tools\RegRipper2.8\plugins\removdev.pl", @ScriptDir & "\Tools\RegRipper\plugins\", 0)
 			   FileInstall(".\Compile\Tools\RegRipper2.8\plugins\renocide.pl", @ScriptDir & "\Tools\RegRipper\plugins\", 0)
-			   FileInstall(".\Compile\Tools\RegRipper2.8\plugins\revton.pl", @ScriptDir & "\Tools\RegRipper\plugins\", 0)
+			   FileInstall(".\Compile\Tools\RegRipper2.8\plugins\reveton.pl", @ScriptDir & "\Tools\RegRipper\plugins\", 0)
 			   FileInstall(".\Compile\Tools\RegRipper2.8\plugins\rlo.pl", @ScriptDir & "\Tools\RegRipper\plugins\", 0)
 			   FileInstall(".\Compile\Tools\RegRipper2.8\plugins\rootkit_revealer.pl", @ScriptDir & "\Tools\RegRipper\plugins\", 0)
 			   FileInstall(".\Compile\Tools\RegRipper2.8\plugins\routes.pl", @ScriptDir & "\Tools\RegRipper\plugins\", 0)
@@ -2834,10 +2834,10 @@ Func RegRipperTools()
 			   FileInstall(".\Compile\Tools\RegRipper2.8\plugins\samparse_tln.pl", @ScriptDir & "\Tools\RegRipper\plugins\", 0)
 			   FileInstall(".\Compile\Tools\RegRipper2.8\plugins\schedagent.pl", @ScriptDir & "\Tools\RegRipper\plugins\", 0)
 			   FileInstall(".\Compile\Tools\RegRipper2.8\plugins\secctr.pl", @ScriptDir & "\Tools\RegRipper\plugins\", 0)
-			   FileInstall(".\Compile\Tools\RegRipper2.8\plugins\secrets", @ScriptDir & "\Tools\RegRipper\plugins\", 0)
-			   FileInstall(".\Compile\Tools\RegRipper2.8\plugins\secrets_tln", @ScriptDir & "\Tools\RegRipper\plugins\", 0)
+			   FileInstall(".\Compile\Tools\RegRipper2.8\plugins\secrets.pl", @ScriptDir & "\Tools\RegRipper\plugins\", 0)
+			   FileInstall(".\Compile\Tools\RegRipper2.8\plugins\secrets_tln.pl", @ScriptDir & "\Tools\RegRipper\plugins\", 0)
 			   FileInstall(".\Compile\Tools\RegRipper2.8\plugins\security", @ScriptDir & "\Tools\RegRipper\plugins\", 0)
-			   FileInstall(".\Compile\Tools\RegRipper2.8\plugins\securityproviders", @ScriptDir & "\Tools\RegRipper\plugins\", 0)
+			   FileInstall(".\Compile\Tools\RegRipper2.8\plugins\securityproviders.pl", @ScriptDir & "\Tools\RegRipper\plugins\", 0)
 			   FileInstall(".\Compile\Tools\RegRipper2.8\plugins\services.pl", @ScriptDir & "\Tools\RegRipper\plugins\", 0)
 			   FileInstall(".\Compile\Tools\RegRipper2.8\plugins\sevenzip.pl", @ScriptDir & "\Tools\RegRipper\plugins\", 0)
 			   FileInstall(".\Compile\Tools\RegRipper2.8\plugins\sfc.pl", @ScriptDir & "\Tools\RegRipper\plugins\", 0)
@@ -2878,19 +2878,20 @@ Func RegRipperTools()
 			   FileInstall(".\Compile\Tools\RegRipper2.8\plugins\sysinternals.pl", @ScriptDir & "\Tools\RegRipper\plugins\", 0)
 			   FileInstall(".\Compile\Tools\RegRipper2.8\plugins\sysinternals_tln.pl", @ScriptDir & "\Tools\RegRipper\plugins\", 0)
 			   FileInstall(".\Compile\Tools\RegRipper2.8\plugins\system", @ScriptDir & "\Tools\RegRipper\plugins\", 0)
-			   FileInstall(".\Compile\Tools\RegRipper2.8\plugins\systemindex", @ScriptDir & "\Tools\RegRipper\plugins\", 0)
-			   FileInstall(".\Compile\Tools\RegRipper2.8\plugins\teamviewer", @ScriptDir & "\Tools\RegRipper\plugins\", 0)
+			   FileInstall(".\Compile\Tools\RegRipper2.8\plugins\systemindex.pl", @ScriptDir & "\Tools\RegRipper\plugins\", 0)
+			   FileInstall(".\Compile\Tools\RegRipper2.8\plugins\teamviewer.pl", @ScriptDir & "\Tools\RegRipper\plugins\", 0)
 			   FileInstall(".\Compile\Tools\RegRipper2.8\plugins\termcert.pl", @ScriptDir & "\Tools\RegRipper\plugins\", 0)
 			   FileInstall(".\Compile\Tools\RegRipper2.8\plugins\termserv.pl", @ScriptDir & "\Tools\RegRipper\plugins\", 0)
 			   FileInstall(".\Compile\Tools\RegRipper2.8\plugins\timezone.pl", @ScriptDir & "\Tools\RegRipper\plugins\", 0)
-			   FileInstall(".\Compile\Tools\RegRipper2.8\plugins\tracing", @ScriptDir & "\Tools\RegRipper\plugins\", 0)
-			   FileInstall(".\Compile\Tools\RegRipper2.8\plugins\tracing_tln", @ScriptDir & "\Tools\RegRipper\plugins\", 0)
-			   FileInstall(".\Compile\Tools\RegRipper2.8\plugins\trappoll", @ScriptDir & "\Tools\RegRipper\plugins\", 0)
-			   FileInstall(".\Compile\Tools\RegRipper2.8\plugins\trustrecords", @ScriptDir & "\Tools\RegRipper\plugins\", 0)
-			   FileInstall(".\Compile\Tools\RegRipper2.8\plugins\trustrecords_tln", @ScriptDir & "\Tools\RegRipper\plugins\", 0)
+			   FileInstall(".\Compile\Tools\RegRipper2.8\plugins\tracing.pl", @ScriptDir & "\Tools\RegRipper\plugins\", 0)
+			   FileInstall(".\Compile\Tools\RegRipper2.8\plugins\tracing_tln.pl", @ScriptDir & "\Tools\RegRipper\plugins\", 0)
+			   FileInstall(".\Compile\Tools\RegRipper2.8\plugins\trappoll.pl", @ScriptDir & "\Tools\RegRipper\plugins\", 0)
+			   FileInstall(".\Compile\Tools\RegRipper2.8\plugins\trustrecords.pl", @ScriptDir & "\Tools\RegRipper\plugins\", 0)
+			   FileInstall(".\Compile\Tools\RegRipper2.8\plugins\trustrecords_tln.pl", @ScriptDir & "\Tools\RegRipper\plugins\", 0)
 			   FileInstall(".\Compile\Tools\RegRipper2.8\plugins\tsclient.pl", @ScriptDir & "\Tools\RegRipper\plugins\", 0)
 			   FileInstall(".\Compile\Tools\RegRipper2.8\plugins\tsclient_tln.pl", @ScriptDir & "\Tools\RegRipper\plugins\", 0)
 			   FileInstall(".\Compile\Tools\RegRipper2.8\plugins\typedpaths.pl", @ScriptDir & "\Tools\RegRipper\plugins\", 0)
+			   FileInstall(".\Compile\Tools\RegRipper2.8\plugins\typedpaths_tln.pl", @ScriptDir & "\Tools\RegRipper\plugins\", 0)
 			   FileInstall(".\Compile\Tools\RegRipper2.8\plugins\typedurls.pl", @ScriptDir & "\Tools\RegRipper\plugins\", 0)
 			   FileInstall(".\Compile\Tools\RegRipper2.8\plugins\typedurls_tln.pl", @ScriptDir & "\Tools\RegRipper\plugins\", 0)
 			   FileInstall(".\Compile\Tools\RegRipper2.8\plugins\typedurlstime.pl", @ScriptDir & "\Tools\RegRipper\plugins\", 0)
@@ -2912,7 +2913,7 @@ Func RegRipperTools()
 			   FileInstall(".\Compile\Tools\RegRipper2.8\plugins\userassist_tln.pl", @ScriptDir & "\Tools\RegRipper\plugins\", 0)
 			   FileInstall(".\Compile\Tools\RegRipper2.8\plugins\userinfo.pl", @ScriptDir & "\Tools\RegRipper\plugins\", 0)
 			   FileInstall(".\Compile\Tools\RegRipper2.8\plugins\userlocsvc.pl", @ScriptDir & "\Tools\RegRipper\plugins\", 0)
-			   FileInstall(".\Compile\Tools\RegRipper2.8\plugins\userclass.pl", @ScriptDir & "\Tools\RegRipper\plugins\", 0)
+			   FileInstall(".\Compile\Tools\RegRipper2.8\plugins\usrclass", @ScriptDir & "\Tools\RegRipper\plugins\", 0)
 			   FileInstall(".\Compile\Tools\RegRipper2.8\plugins\vawtrak.pl", @ScriptDir & "\Tools\RegRipper\plugins\", 0)
 			   FileInstall(".\Compile\Tools\RegRipper2.8\plugins\virut.pl", @ScriptDir & "\Tools\RegRipper\plugins\", 0)
 			   FileInstall(".\Compile\Tools\RegRipper2.8\plugins\vista_bitbucket.pl", @ScriptDir & "\Tools\RegRipper\plugins\", 0)
@@ -2935,7 +2936,7 @@ Func RegRipperTools()
 			   FileInstall(".\Compile\Tools\RegRipper2.8\plugins\winrar_tln.pl", @ScriptDir & "\Tools\RegRipper\plugins\", 0)
 			   FileInstall(".\Compile\Tools\RegRipper2.8\plugins\winrar2.pl", @ScriptDir & "\Tools\RegRipper\plugins\", 0)
 			   FileInstall(".\Compile\Tools\RegRipper2.8\plugins\winscp.pl", @ScriptDir & "\Tools\RegRipper\plugins\", 0)
-			   FileInstall(".\Compile\Tools\RegRipper2.8\plugins\winscp_sessionst.pl", @ScriptDir & "\Tools\RegRipper\plugins\", 0)
+			   FileInstall(".\Compile\Tools\RegRipper2.8\plugins\winscp_sessions.pl", @ScriptDir & "\Tools\RegRipper\plugins\", 0)
 			   FileInstall(".\Compile\Tools\RegRipper2.8\plugins\winver.pl", @ScriptDir & "\Tools\RegRipper\plugins\", 0)
 			   FileInstall(".\Compile\Tools\RegRipper2.8\plugins\winvnc.pl", @ScriptDir & "\Tools\RegRipper\plugins\", 0)
 			   FileInstall(".\Compile\Tools\RegRipper2.8\plugins\winzip.pl", @ScriptDir & "\Tools\RegRipper\plugins\", 0)
