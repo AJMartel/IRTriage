@@ -52,7 +52,7 @@ Global	$shell = '"' & @ScriptDir & '\Tools\cmd.exe"'
 Global 	$shellex = '"' & @ScriptDir & '\Tools\cmd.exe" /c'
 Global 	$tools = '"' &@ScriptDir & '\Tools\'
 Global 	$RecentPath = RegRead("HKEY_CURRENT_USER\Software\Microsoft\Windows\CurrentVersion\Explorer\User Shell Folders", "Recent")
-Global	$Log = $RptsDir & "\Incident Log.csv"
+Global	$Log = $RptsDir & "\IncidentLog.csv"
 Global 	$ini_file
 Global 	$fcnt
 Global  $p_chkc = 1                                                  ;fixed missing value that killed command logging
@@ -62,7 +62,7 @@ Global  $Version = "0.0.1.7"                                         ;Added to f
 
 $ini_file = "IRTriage.ini"
 
-If IsAdmin() = 0 Then MsgBox(64, "Admin", 'Admin rights are required.  Please restart with "RunAs /user:[admin] C:\Dir\To\IRTriage\IRTriage.exe" or Right-Click "Run As Administrator".')
+If IsAdmin() = 0 Then MsgBox($MB_ICONERROR, "IRTriage " & $Version, 'Admin rights are required.' & @LF & 'Please restart with: ' & @LF & '"RunAs /user:[admin] ' & @ScriptDir & '\IRTriage.exe" ' & @LF & 'or Right-Click "Run As Administrator".')
 
 INI_Check($ini_file)
 
@@ -561,7 +561,7 @@ Func TriageGUI()						;Creates a graphical user interface for Triage
 
 			Else
 			   MsgBox(11, "VSC", "Problem with Volume Shadow Mounts")
-			   FileWriteLine($Log, @YEAR&"-"&@MON&"-"&@MDAY&@TAB&@HOUR&":"&@MIN&":"&@SEC&":"&@MSEC&@TAB&"Did NOT execute Volume Shadow Copy Functions." & @CRLF)
+			   FileWriteLine($Log, @YEAR&"-"&@MON&"-"&@MDAY&@TAB&@HOUR&":"&@MIN&":"&@SEC&":"&@MSEC&@TAB&"Did NOT execute VSC" &@TAB& "Volume Shadow Copy Functions NOT performed." & @CRLF)
 			EndIf
 
 			If $r_chk >= 1 Then
@@ -1125,7 +1125,7 @@ Func INI2Command()						;Correlate the INI file into executing the selected func
 		 If $VS_USERREG_ini = "Yes" Then VSC_NTUser()
 
 	  Else
-		 FileWriteLine($Log, @YEAR&"-"&@MON&"-"&@MDAY&@TAB&@HOUR&":"&@MIN&":"&@SEC&":"&@MSEC&@TAB&"Did NOT execute Volume Shadow Copy Functions." & @CRLF)
+		 FileWriteLine($Log, @YEAR&"-"&@MON&"-"&@MDAY&@TAB&@HOUR&":"&@MIN&":"&@SEC&":"&@MSEC&@TAB&"Did NOT execute VSC" &@TAB& "Volume Shadow Copy Functions NOT performed." & @CRLF)
 	  EndIf
 
 	  If $r_ini >= 1 Then
@@ -1831,7 +1831,7 @@ Func EvtCopy()							;Copy all event logs from local machine
    If $OS = "Users" Then $EvtCmd = $robo7 & " " & $evtdir & ' "' & $LogDir & '" /copyall /ZB /TS /r:4 /w:3 /FP /NP /log:"' & $RptsDir & '\EventLogCopy.txt"'
 
    RunWait($EvtCmd, "", @SW_HIDE)
-	  FileWriteLine($Log, @YEAR&"-"&@MON&"-"&@MDAY&@TAB&@HOUR&":"&@MIN&":"&@SEC&":"&@MSEC&@TAB&"Copied ." & $evtext & " files from " & $evtdir & "." & @CRLF)
+	  FileWriteLine($Log, @YEAR&"-"&@MON&"-"&@MDAY&@TAB&@HOUR&":"&@MIN&":"&@SEC&":"&@MSEC&@TAB&"Copied ." & $evtext & " files " &@TAB& $EvtCmd & @CRLF)
 EndFunc
 
 Func UsrclassE()  						;Search for profiles and initiate the copy of USRCLASS.dat
@@ -1875,6 +1875,8 @@ Func _Usrclass($prof)					;Performs the function of copying the USRCLASS.dat
 
    If FileExists($profUsrCls) = 1 Then
 
+	   ;ifind.exe: Finds the meta data structure that has a given file name pointing to it or the meta data structure that points to a given data unit.
+
 		Local $usrce = $shellex & ' .\Tools\sleuthkit-4.2.0\bin\ifind.exe -n /users/' & $prof & '/appdata/local/microsoft/windows/usrclass.dat \\.\C: > MFTEntries.log'
 
 		RunWait($usrce)
@@ -1882,6 +1884,8 @@ Func _Usrclass($prof)					;Performs the function of copying the USRCLASS.dat
 			FileWriteLine($Log, @YEAR&"-"&@MON&"-"&@MDAY&@TAB&@HOUR&":"&@MIN&":"&@SEC&":"&@MSEC&@TAB&"Executed command:" &@TAB& $usrce & @CRLF)
 
 		$MFTlog = FileReadLine("MFTEntries.log")
+
+		;icat.exe: Extracts the data units of a file, which is specified by its meta data address (instead of the file name).
 
 		Local $catusrce = $shellex & ' .\Tools\sleuthkit-4.2.0\bin\icat.exe \\.\c: ' & $MFTlog & ' > "' & $EvDir & $prof & '-usrclass.dat1"'
 
@@ -1892,7 +1896,7 @@ Func _Usrclass($prof)					;Performs the function of copying the USRCLASS.dat
 		FileDelete("MFTEntries.log")
 
    Else
-		FileWriteLine($Log, @YEAR&"-"&@MON&"-"&@MDAY&@TAB&@HOUR&":"&@MIN&":"&@SEC&":"&@MSEC&@TAB& "File NOT Found."&@TAB& $profUsrCls & @CRLF)
+		FileWriteLine($Log, @YEAR&"-"&@MON&"-"&@MDAY&@TAB&@HOUR&":"&@MIN&":"&@SEC&":"&@MSEC&@TAB& "File NOT Found" & @TAB & $profUsrCls & @CRLF)
    EndIf
 
 EndFunc
@@ -2115,7 +2119,7 @@ Func VSC_EvtCopy()						;Copy all event logs from local machine (Volume Shadow C
 		 Local $VSC_EvtCmd = $robo7 & ' "C:\VSC_' & $vevc & '\Windows\system32\winevt\Logs" "' & $EvDir & "VSC_" & $vevc & '\Logs' & '" /copyall /ZB /TS /r:4 /w:3 /FP /NP /log:"' & $EvDir & "VSC_" & $vevc & '\EventLogCopy.txt"'
 
 		 RunWait($VSC_EvtCmd, "", @SW_HIDE)
-			FileWriteLine($Log, @YEAR&"-"&@MON&"-"&@MDAY&@TAB&@HOUR&":"&@MIN&":"&@SEC&":"&@MSEC&@TAB&"Copied ." & $evtext & " files from " & $evtdir & "." & @CRLF)
+			FileWriteLine($Log, @YEAR&"-"&@MON&"-"&@MDAY&@TAB&@HOUR&":"&@MIN&":"&@SEC&":"&@MSEC&@TAB&"Copied ." & $evtext & " files " &@TAB& $VSC_EvtCmd & @CRLF)
 
 		 $vevc = $vevc + 1
 
