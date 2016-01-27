@@ -1,15 +1,15 @@
 ;==========================================================================================================================================
 ;	Tool:			Incident Respone Triage:    (GUI)
 ;
-;	Version:		0.0.1.6
+;	Version:		0.0.1.7
 ;
 ;	Author:			Michael Ahrendt (Nov 2012)
-;   Modified by:                Alain Martel (Oct 2015)
+;   Modified by:		Alain Martel (Oct 2015)
 ;
 ;	Description:	IRTriage is intended for incident responders who need to gather host data rapidly.
 ;			The tool will run a plethora of commands automatically based on selection.
-;			It has the ability to copy data to an external USB drive as well.  
-			Data will copy to wherever the script is stored.
+;			It has the ability to copy data to an external USB drive as well.
+;			Data will copy to wherever the script is stored.
 ;			IRTriage is intended to be run off a flash drive locally on the machine, or via a network location.
 ;
 ; 	Tools used:	Fast Dump pro by HBGary
@@ -20,7 +20,10 @@
 ;
 ;			Sysinternals Suite from Microsoft and Mark Russinovich
 ;				-http://technet.microsoft.com/en-us/sysinternals/bb842062
-;                               -https://download.sysinternals.com/files/SysinternalsSuite.zip
+;               -https://download.sysinternals.com/files/sysinternalssuite.zip
+;
+;           The SleuthKit
+;                -http://sourceforge.net/projects/sleuthkit/files/sleuthkit/4.2.0/sleuthkit-4.2.0-win32.zip/download
 ;
 ;			RegRipper from Harlan Carvey
 ;				-https://github.com/keydet89/RegRipper2.8/archive/master.zip
@@ -49,17 +52,17 @@ Global	$shell = '"' & @ScriptDir & '\Tools\cmd.exe"'
 Global 	$shellex = '"' & @ScriptDir & '\Tools\cmd.exe" /c'
 Global 	$tools = '"' &@ScriptDir & '\Tools\'
 Global 	$RecentPath = RegRead("HKEY_CURRENT_USER\Software\Microsoft\Windows\CurrentVersion\Explorer\User Shell Folders", "Recent")
-Global	$Log = $RptsDir & "\Incident Log.txt"
+Global	$Log = $RptsDir & "\IncidentLog.csv"
 Global 	$ini_file
 Global 	$fcnt
 Global  $p_chkc = 1                                                  ;fixed missing value that killed command logging
 Global  $r_chk = 0                                                   ;fixed missing value that killed command logging
 Global  $r_ini = 0                                                   ;fixed missing value that killed command logging
-Global  $Version = "0.0.1.6"                                         ;Added to facilitate display of version info
+Global  $Version = "0.0.1.7"                                         ;Added to facilitate display of version info
 
 $ini_file = "IRTriage.ini"
 
-If IsAdmin() = 0 Then MsgBox(64, "Admin", 'Admin rights are required.  Please restart with "RunAs /user:[admin] C:\Dir\To\IRTriage\IRTriage.exe" or Right-Click "Run As Administrator".')
+If IsAdmin() = 0 Then MsgBox($MB_ICONERROR, "IRTriage " & $Version, 'Admin rights are required.' & @LF & 'Please restart with: ' & @LF & '"RunAs /user:[admin] ' & @ScriptDir & '\IRTriage.exe" ' & @LF & 'or Right-Click "Run As Administrator".')
 
 INI_Check($ini_file)
 
@@ -381,19 +384,19 @@ Func TriageGUI()						;Creates a graphical user interface for Triage
 
 			If (GUICtrlRead($MemDmp_chk) = 1) Then
 			   If Not FileExists(@ScriptDir & "\Tools\FDpro.exe") Then
-				   FileInstall("C:\Code\IRTriage\Tools\FDpro.exe", @ScriptDir & "\Tools\", 0)
+				   FileInstall(".\Compile\Tools\FDpro.exe", @ScriptDir & "\Tools\", 0)
 			   EndIf
 
 ;  **Win(32|64)DD from MoonSols**
 ;			   If @OSArch = "X86" Then
 ;				  If Not FileExists(@ScriptDir & "\Tools\win32dd.exe") Then
-;					 FileInstall("C:\Code\TriageIR v.85\Tools\win32dd.sys", @ScriptDir & "\Tools\", 0)
-;					 FileInstall("C:\Code\TriageIR v.85\Tools\win32dd.exe", @ScriptDir & "\Tools\", 0)
+;					 FileInstall(".\Compile\Tools\win32dd.sys", @ScriptDir & "\Tools\", 0)
+;					 FileInstall(".\Compile\Tools\win32dd.exe", @ScriptDir & "\Tools\", 0)
 ;				  EndIf
 ;			   Else
 ;				  If Not FileExists(@ScriptDir & "\Tools\win64dd.exe") Then
-;					 FileInstall("C:\Code\TriageIR v.85\Tools\win64dd.sys", @ScriptDir & "\Tools\", 0)
-;					 FileInstall("C:\Code\TriageIR v.85\Tools\win64dd.exe", @ScriptDir & "\Tools\", 0)
+;					 FileInstall(".\Compile\Tools\win64dd.sys", @ScriptDir & "\Tools\", 0)
+;					 FileInstall(".\Compile\Tools\win64dd.exe", @ScriptDir & "\Tools\", 0)
 ;				  EndIf
 ;			   EndIf
 			   MemDump()
@@ -558,7 +561,7 @@ Func TriageGUI()						;Creates a graphical user interface for Triage
 
 			Else
 			   MsgBox(11, "VSC", "Problem with Volume Shadow Mounts")
-			   FileWriteLine($Log, @YEAR&"-"&@MON&"-"&@MDAY&"  "&@HOUR&":"&@MIN&":"&@SEC&":"&@MSEC&"  >  "&"Did NOT execute Volume Shadow Copy Functions." & @CRLF)
+			   FileWriteLine($Log, @YEAR&"-"&@MON&"-"&@MDAY&@TAB&@HOUR&":"&@MIN&":"&@SEC&":"&@MSEC&@TAB&"Did NOT execute VSC" &@TAB& "Volume Shadow Copy Functions NOT performed." & @CRLF)
 			EndIf
 
 			If $r_chk >= 1 Then
@@ -1052,19 +1055,19 @@ Func INI2Command()						;Correlate the INI file into executing the selected func
    If Not FileExists($EvDir) Then DirCreate($EvDir)
 
    If Not FileExists(@ScriptDir & "\Tools\FDpro.exe") Then
-	   FileInstall("C:\Code\IRTriage\Tools\FDpro.exe", @ScriptDir & "\Tools\", 0)
+	   FileInstall(".\Compile\Tools\FDpro.exe", @ScriptDir & "\Tools\", 0)
    EndIf
 
 ;  **Win(32|64)DD from MoonSols**
 ;   If @OSArch = "X86" Then
 ;	  If Not FileExists(@ScriptDir & "\Tools\win32dd.exe") Then
-;		 FileInstall("C:\Code\TriageIR v.85\Tools\win32dd.sys", @ScriptDir & "\Tools\", 0)
-;		 FileInstall("C:\Code\TriageIR v.85\Tools\win32dd.exe", @ScriptDir & "\Tools\", 0)
+;		 FileInstall(".\Compile\Tools\win32dd.sys", @ScriptDir & "\Tools\", 0)
+;		 FileInstall(".\Compile\Tools\win32dd.exe", @ScriptDir & "\Tools\", 0)
 ;	  EndIf
 ;   Else
 ;	  If Not FileExists(@ScriptDir & "\Tools\win64dd.exe") Then
-;		 FileInstall("C:\Code\TriageIR v.85\Tools\win64dd.sys", @ScriptDir & "\Tools\", 0)
-;		 FileInstall("C:\Code\TriageIR v.85\Tools\win64dd.exe", @ScriptDir & "\Tools\", 0)
+;		 FileInstall(".\Compile\Tools\win64dd.sys", @ScriptDir & "\Tools\", 0)
+;		 FileInstall(".\Compile\Tools\win64dd.exe", @ScriptDir & "\Tools\", 0)
 ;	  EndIf
 ;   EndIf
 
@@ -1122,7 +1125,7 @@ Func INI2Command()						;Correlate the INI file into executing the selected func
 		 If $VS_USERREG_ini = "Yes" Then VSC_NTUser()
 
 	  Else
-		 FileWriteLine($Log, @YEAR&"-"&@MON&"-"&@MDAY&"  "&@HOUR&":"&@MIN&":"&@SEC&":"&@MSEC&"  >  "&"Did NOT execute Volume Shadow Copy Functions." & @CRLF)
+		 FileWriteLine($Log, @YEAR&"-"&@MON&"-"&@MDAY&@TAB&@HOUR&":"&@MIN&":"&@SEC&":"&@MSEC&@TAB&"Did NOT execute VSC" &@TAB& "Volume Shadow Copy Functions NOT performed." & @CRLF)
 	  EndIf
 
 	  If $r_ini >= 1 Then
@@ -1203,7 +1206,7 @@ Func MemDump()
 ;  **Win(32|64)DD from MoonSols**
 ;  Local $memFL = '/a /f "' & $MemDir & $dmpN & '"'
 ;
-;  If @OSArch = "X86" Then 
+;  If @OSArch = "X86" Then
 ;		 $windd = "win32dd.exe"
 ;	  Else
 ;		 $windd = "win64dd.exe"
@@ -1213,7 +1216,7 @@ Func MemDump()
 
    ProcessClose($windd)
 
-   	  FileWriteLine($Log, @YEAR&"-"&@MON&"-"&@MDAY&"  "&@HOUR&":"&@MIN&":"&@SEC&":"&@MSEC&"  >  "&"Executed command: " & $windd & $memFL & @CRLF)
+   	  FileWriteLine($Log, @YEAR&"-"&@MON&"-"&@MDAY&@TAB&@HOUR&":"&@MIN&":"&@SEC&":"&@MSEC&@TAB&"Executed command:" &@TAB& $windd & $memFL & @CRLF)
 
    ProcessWaitClose($windd)
 
@@ -1222,152 +1225,152 @@ EndFunc
 Func Processes()						;Gather running process information
    Local $proc1 = $shellex & ' tasklist /V /FO CSV > "' & $RptsDir & '\Processes.csv"'
    Local $proc2 = $shellex & ' .\Tools\SysinternalsSuite\pslist -accepteula >> "' & $RptsDir & '\Processes.txt"'
-   Local $proc3 = $shellex & ' .\Tools\SysinternalsSuite\pslist -t -accepteula >> "' & $RptsDir & '\Processes.txt"'
+   Local $proc3 = $shellex & ' .\Tools\SysinternalsSuite\pslist -t -accepteula >> "' & $RptsDir & '\ProcessTree.txt"'
 
    RunWait($proc1, "", @SW_HIDE)
-	  FileWriteLine($Log, @YEAR&"-"&@MON&"-"&@MDAY&"  "&@HOUR&":"&@MIN&":"&@SEC&":"&@MSEC&"  >  "&"Executed command: " & $proc1 & @CRLF)
+	  FileWriteLine($Log, @YEAR&"-"&@MON&"-"&@MDAY&@TAB&@HOUR&":"&@MIN&":"&@SEC&":"&@MSEC&@TAB&"Executed command:" &@TAB& $proc1 & @CRLF)
    RunWait($proc2, "", @SW_HIDE)
-	  FileWriteLine($Log, @YEAR&"-"&@MON&"-"&@MDAY&"  "&@HOUR&":"&@MIN&":"&@SEC&":"&@MSEC&"  >  "&"Executed command: " & $proc2 & @CRLF)
+	  FileWriteLine($Log, @YEAR&"-"&@MON&"-"&@MDAY&@TAB&@HOUR&":"&@MIN&":"&@SEC&":"&@MSEC&@TAB&"Executed command:" &@TAB& $proc2 & @CRLF)
    RunWait($proc3, "", @SW_HIDE)
-	  FileWriteLine($Log, @YEAR&"-"&@MON&"-"&@MDAY&"  "&@HOUR&":"&@MIN&":"&@SEC&":"&@MSEC&"  >  "&"Executed command: " & $proc3 & @CRLF)
+	  FileWriteLine($Log, @YEAR&"-"&@MON&"-"&@MDAY&@TAB&@HOUR&":"&@MIN&":"&@SEC&":"&@MSEC&@TAB&"Executed command:" &@TAB& $proc3 & @CRLF)
 EndFunc
 
 Func IPs()								;Gather network address for the computer
-   Local $ip1 = $shellex & ' ipconfig /all > "' & $RptsDir & '\IP Info.txt"'
-   Local $ip2 = $shellex & ' netsh int ip show config >> "' & $RptsDir & '\IP Info.txt"'
+   Local $ip1 = $shellex & ' ipconfig /all > "' & $RptsDir & '\IPConfigInfo.txt"'
+   Local $ip2 = $shellex & ' netsh int ip show config > "' & $RptsDir & '\IPInterfaceInfo.txt"'
 
    RunWait($ip1, "", @SW_HIDE)
-	  FileWriteLine($Log, @YEAR&"-"&@MON&"-"&@MDAY&"  "&@HOUR&":"&@MIN&":"&@SEC&":"&@MSEC&"  >  "&"Executed command: " & $ip1 & @CRLF)
+	  FileWriteLine($Log, @YEAR&"-"&@MON&"-"&@MDAY&@TAB&@HOUR&":"&@MIN&":"&@SEC&":"&@MSEC&@TAB&"Executed command:" &@TAB& $ip1 & @CRLF)
    RunWait($ip2, "", @SW_HIDE)
-	  FileWriteLine($Log, @YEAR&"-"&@MON&"-"&@MDAY&"  "&@HOUR&":"&@MIN&":"&@SEC&":"&@MSEC&"  >  "&"Executed command: " & $ip2 & @CRLF)
+	  FileWriteLine($Log, @YEAR&"-"&@MON&"-"&@MDAY&@TAB&@HOUR&":"&@MIN&":"&@SEC&":"&@MSEC&@TAB&"Executed command:" &@TAB& $ip2 & @CRLF)
 EndFunc
 
 Func Connections()						;Discover any network connections on the PC
-   Local $Conn1 = $shellex & ' netstat -nao > "' & $RptsDir & '\Network Connections.txt"'
-   Local $Conn2 = $shellex & ' netstat -naob >> "' & $RptsDir & '\Network Connections.txt"'
+   Local $Conn1 = $shellex & ' netstat -nao > "' & $RptsDir & '\NetworkConnections.txt"'
+   Local $Conn2 = $shellex & ' netstat -naob > "' & $RptsDir & '\NetworkConnectionsProcesses.txt"'
 
    RunWait($Conn1, "", @SW_HIDE)
-	  FileWriteLine($Log, @YEAR&"-"&@MON&"-"&@MDAY&"  "&@HOUR&":"&@MIN&":"&@SEC&":"&@MSEC&"  >  "&"Executed command: " & $Conn1 & @CRLF)
+	  FileWriteLine($Log, @YEAR&"-"&@MON&"-"&@MDAY&@TAB&@HOUR&":"&@MIN&":"&@SEC&":"&@MSEC&@TAB&"Executed command:" &@TAB& $Conn1 & @CRLF)
    RunWait($Conn2, "", @SW_HIDE)
-	  FileWriteLine($Log, @YEAR&"-"&@MON&"-"&@MDAY&"  "&@HOUR&":"&@MIN&":"&@SEC&":"&@MSEC&"  >  "&"Executed command: " & $Conn2 & @CRLF)
+	  FileWriteLine($Log, @YEAR&"-"&@MON&"-"&@MDAY&@TAB&@HOUR&":"&@MIN&":"&@SEC&":"&@MSEC&@TAB&"Executed command:" &@TAB& $Conn2 & @CRLF)
 EndFunc
 
 Func Routes()							;Gather list of active routes
-   Local $route1 = $shellex & ' route PRINT > "' & $RptsDir & '\Routes.txt"'
-   Local $route2 = $shellex & ' netstat -r >> "' & $RptsDir & '\Routes.txt"'
+   Local $route1 = $shellex & ' route PRINT > "' & $RptsDir & '\RoutesPrint.txt"'
+   Local $route2 = $shellex & ' netstat -r > "' & $RptsDir & '\RoutesNetstat.txt"'
    RunWait($route1, "", @SW_HIDE)
-	  FileWriteLine($Log, @YEAR&"-"&@MON&"-"&@MDAY&"  "&@HOUR&":"&@MIN&":"&@SEC&":"&@MSEC&"  >  "&"Executed command: " & $route1 & @CRLF)
+	  FileWriteLine($Log, @YEAR&"-"&@MON&"-"&@MDAY&@TAB&@HOUR&":"&@MIN&":"&@SEC&":"&@MSEC&@TAB&"Executed command:" &@TAB& $route1 & @CRLF)
    RunWait($route2, "", @SW_HIDE)
-	  FileWriteLine($Log, @YEAR&"-"&@MON&"-"&@MDAY&"  "&@HOUR&":"&@MIN&":"&@SEC&":"&@MSEC&"  >  "&"Executed command: " & $route2 & @CRLF)
+	  FileWriteLine($Log, @YEAR&"-"&@MON&"-"&@MDAY&@TAB&@HOUR&":"&@MIN&":"&@SEC&":"&@MSEC&@TAB&"Executed command:" &@TAB& $route2 & @CRLF)
 EndFunc
 
 Func NetBIOS()							;Get NetBIOS information
    Local $nbt1 = $shellex & ' nbtstat.exe -A 127.0.0.1 > "' & $RptsDir & '\NBTstat.txt"'
 
    RunWait($nbt1, "", @SW_HIDE)
-	  FileWriteLine($Log, @YEAR&"-"&@MON&"-"&@MDAY&"  "&@HOUR&":"&@MIN&":"&@SEC&":"&@MSEC&"  >  "&"Executed command: " & $nbt1 & @CRLF)
+	  FileWriteLine($Log, @YEAR&"-"&@MON&"-"&@MDAY&@TAB&@HOUR&":"&@MIN&":"&@SEC&":"&@MSEC&@TAB&"Executed command:" &@TAB& $nbt1 & @CRLF)
 EndFunc
 
 Func Arp()								;Gather information regarding ARP
-   Local $arp1 = $shellex & ' arp -a > "' & $RptsDir & '\ARP Info.txt"'
+   Local $arp1 = $shellex & ' arp -a > "' & $RptsDir & '\ARPTable.txt"'
 
    RunWait($arp1, "", @SW_HIDE)
-	  FileWriteLine($Log, @YEAR&"-"&@MON&"-"&@MDAY&"  "&@HOUR&":"&@MIN&":"&@SEC&":"&@MSEC&"  >  "&"Executed command: " & $arp1 & @CRLF)
+	  FileWriteLine($Log, @YEAR&"-"&@MON&"-"&@MDAY&@TAB&@HOUR&":"&@MIN&":"&@SEC&":"&@MSEC&@TAB&"Executed command:" &@TAB& $arp1 & @CRLF)
 EndFunc
 
 Func DNS()								;Gather DNS information
-   Local $dns1 = $shellex & ' ipconfig /displaydns > "' & $RptsDir & '\DNS Info.txt"'
-   Local $dns2 = $shellex & ' nslookup host server >> "' & $RptsDir & '\DNS Info.txt"'
+   Local $dns1 = $shellex & ' ipconfig /displaydns > "' & $RptsDir & '\DNSInfo.txt"'
+   Local $dns2 = $shellex & ' nslookup host server > "' & $RptsDir & '\DNSnslookup.txt"'
 
    RunWait($dns1, "", @SW_HIDE)
-	  FileWriteLine($Log, @YEAR&"-"&@MON&"-"&@MDAY&"  "&@HOUR&":"&@MIN&":"&@SEC&":"&@MSEC&"  >  "&"Executed command: " & $dns1 & @CRLF)
+	  FileWriteLine($Log, @YEAR&"-"&@MON&"-"&@MDAY&@TAB&@HOUR&":"&@MIN&":"&@SEC&":"&@MSEC&@TAB&"Executed command:" &@TAB& $dns1 & @CRLF)
    RunWait($dns2, "", @SW_HIDE)
-	  FileWriteLine($Log, @YEAR&"-"&@MON&"-"&@MDAY&"  "&@HOUR&":"&@MIN&":"&@SEC&":"&@MSEC&"  >  "&"Executed command: " & $dns2 & @CRLF)
+	  FileWriteLine($Log, @YEAR&"-"&@MON&"-"&@MDAY&@TAB&@HOUR&":"&@MIN&":"&@SEC&":"&@MSEC&@TAB&"Executed command:" &@TAB& $dns2 & @CRLF)
 EndFunc
 
 Func Shares()							;Gather information on any shared folders
    Local $share1 = $shellex & ' net share > "' & $RptsDir & '\LocalShares.txt"'
 
    RunWait($share1, "", @SW_HIDE)
-	  FileWriteLine($Log, @YEAR&"-"&@MON&"-"&@MDAY&"  "&@HOUR&":"&@MIN&":"&@SEC&":"&@MSEC&"  >  "&"Executed command: " & $share1 & @CRLF)
+	  FileWriteLine($Log, @YEAR&"-"&@MON&"-"&@MDAY&@TAB&@HOUR&":"&@MIN&":"&@SEC&":"&@MSEC&@TAB&"Executed command:" &@TAB& $share1 & @CRLF)
 EndFunc
 
 Func SharedFiles()						;Gather information on any shared files
-   Local $sfile1 = $shellex & ' net file > "' & $RptsDir & '\Open Shared Files.txt"'
+   Local $sfile1 = $shellex & ' net file > "' & $RptsDir & '\OpenSharedFiles.txt"'
 
    RunWait($sfile1, "", @SW_HIDE)
-	  FileWriteLine($Log, @YEAR&"-"&@MON&"-"&@MDAY&"  "&@HOUR&":"&@MIN&":"&@SEC&":"&@MSEC&"  >  "&"Executed command: " & $sfile1 & @CRLF)
+	  FileWriteLine($Log, @YEAR&"-"&@MON&"-"&@MDAY&@TAB&@HOUR&":"&@MIN&":"&@SEC&":"&@MSEC&@TAB&"Executed command:" &@TAB& $sfile1 & @CRLF)
 EndFunc
 
 Func ConnectedSessions()				;Gather information on any connected sessions
    Local $ConnSes = $shellex & ' net Session > "' & $RptsDir & '\Sessions.txt"'
 
    RunWait($ConnSes, "", @SW_HIDE)
-	  FileWriteLine($Log, @YEAR&"-"&@MON&"-"&@MDAY&"  "&@HOUR&":"&@MIN&":"&@SEC&":"&@MSEC&"  >  "&"Executed command: " & $ConnSes & @CRLF)
+	  FileWriteLine($Log, @YEAR&"-"&@MON&"-"&@MDAY&@TAB&@HOUR&":"&@MIN&":"&@SEC&":"&@MSEC&@TAB&"Executed command:" &@TAB& $ConnSes & @CRLF)
 EndFunc
 
 Func Firewall()							;Get the firewall information
-   Local $fw1 = $shellex & ' netsh firewall show state > "' & $RptsDir & '\Firewall Config.txt"'
-   Local $fw2 = $shellex & ' netsh advfirewall show allprofiles >> "' & $RptsDir & '\Firewall Config.txt"'
+   Local $fw1 = $shellex & ' netsh firewall show state > "' & $RptsDir & '\FirewallConfig.txt"'
+   Local $fw2 = $shellex & ' netsh advfirewall show allprofiles > "' & $RptsDir & '\FirewallAdvConfig.txt"'
 
    RunWait($fw1, "", @SW_HIDE)
-	  FileWriteLine($Log, @YEAR&"-"&@MON&"-"&@MDAY&"  "&@HOUR&":"&@MIN&":"&@SEC&":"&@MSEC&"  >  "&"Executed command: " & $fw1 & @CRLF)
+	  FileWriteLine($Log, @YEAR&"-"&@MON&"-"&@MDAY&@TAB&@HOUR&":"&@MIN&":"&@SEC&":"&@MSEC&@TAB&"Executed command:" &@TAB& $fw1 & @CRLF)
    RunWait($fw2, "", @SW_HIDE)
-	  FileWriteLine($Log, @YEAR&"-"&@MON&"-"&@MDAY&"  "&@HOUR&":"&@MIN&":"&@SEC&":"&@MSEC&"  >  "&"Executed command: " & $fw2 & @CRLF)
+	  FileWriteLine($Log, @YEAR&"-"&@MON&"-"&@MDAY&@TAB&@HOUR&":"&@MIN&":"&@SEC&":"&@MSEC&@TAB&"Executed command:" &@TAB& $fw2 & @CRLF)
 EndFunc
 
 Func Hosts()							;Gather the HOST file
-   Local $host1 = $shellex & ' type %systemroot%\System32\Drivers\etc\hosts > "' & $RptsDir & '\Hosts Info.txt"'
+   Local $host1 = $shellex & ' type %systemroot%\System32\Drivers\etc\hosts > "' & $RptsDir & '\HostsFile.txt"'
 
    RunWait($host1, "", @SW_HIDE)
-	  FileWriteLine($Log, @YEAR&"-"&@MON&"-"&@MDAY&"  "&@HOUR&":"&@MIN&":"&@SEC&":"&@MSEC&"  >  "&"Executed command: " & $host1 & @CRLF)
+	  FileWriteLine($Log, @YEAR&"-"&@MON&"-"&@MDAY&@TAB&@HOUR&":"&@MIN&":"&@SEC&":"&@MSEC&@TAB&"Executed command:" &@TAB& $host1 & @CRLF)
 EndFunc
 
 Func Workgroups()						;Gather possible information on PC Workgroups
-   Local $wkgrp1 = $shellex & ' net view > "' & $RptsDir & '\Workgroup PC Information.txt"'
+   Local $wkgrp1 = $shellex & ' net view > "' & $RptsDir & '\NetView.txt"'
 
    RunWait($wkgrp1, "", @SW_HIDE)
-	  FileWriteLine($Log, @YEAR&"-"&@MON&"-"&@MDAY&"  "&@HOUR&":"&@MIN&":"&@SEC&":"&@MSEC&"  >  "&"Executed command: " & $wkgrp1 & @CRLF)
+	  FileWriteLine($Log, @YEAR&"-"&@MON&"-"&@MDAY&@TAB&@HOUR&":"&@MIN&":"&@SEC&":"&@MSEC&@TAB&"Executed command:" &@TAB& $wkgrp1 & @CRLF)
 EndFunc
 
 Func SystemInfo()						;Gather valuable information regarding type of PC
-   Local $sysinfo1 = $shellex & ' .\Tools\SysinternalsSuite\PsInfo -accepteula -s -d > "' & $RptsDir & '\System Info.txt"'
-   Local $sysinfo2 = $shellex & ' systeminfo >> "' & $RptsDir & '\System Info.txt"'
-   Local $sysinfo3 = $shellex & ' set >> "' & $RptsDir & '\System Variables.txt"'
+   Local $sysinfo1 = $shellex & ' .\Tools\SysinternalsSuite\PsInfo -accepteula -s -d > "' & $RptsDir & '\SystemDetails.txt"'
+   Local $sysinfo2 = $shellex & ' systeminfo > "' & $RptsDir & '\SystemInfo.txt"'
+   Local $sysinfo3 = $shellex & ' set > "' & $RptsDir & '\SystemVariables.txt"'
 
    RunWait($sysinfo1, "", @SW_HIDE)
-	  FileWriteLine($Log, @YEAR&"-"&@MON&"-"&@MDAY&"  "&@HOUR&":"&@MIN&":"&@SEC&":"&@MSEC&"  >  "&"Executed command: " & $sysinfo1 & @CRLF)
+	  FileWriteLine($Log, @YEAR&"-"&@MON&"-"&@MDAY&@TAB&@HOUR&":"&@MIN&":"&@SEC&":"&@MSEC&@TAB&"Executed command:" &@TAB& $sysinfo1 & @CRLF)
    RunWait($sysinfo2, "", @SW_HIDE)
-	  FileWriteLine($Log, @YEAR&"-"&@MON&"-"&@MDAY&"  "&@HOUR&":"&@MIN&":"&@SEC&":"&@MSEC&"  >  "&"Executed command: " & $sysinfo2 & @CRLF)
+	  FileWriteLine($Log, @YEAR&"-"&@MON&"-"&@MDAY&@TAB&@HOUR&":"&@MIN&":"&@SEC&":"&@MSEC&@TAB&"Executed command:" &@TAB& $sysinfo2 & @CRLF)
    RunWait($sysinfo3, "", @SW_HIDE)
-	  FileWriteLine($Log, @YEAR&"-"&@MON&"-"&@MDAY&"  "&@HOUR&":"&@MIN&":"&@SEC&":"&@MSEC&"  >  "&"Executed command: " & $sysinfo3 & @CRLF)
+	  FileWriteLine($Log, @YEAR&"-"&@MON&"-"&@MDAY&@TAB&@HOUR&":"&@MIN&":"&@SEC&":"&@MSEC&@TAB&"Executed command:" &@TAB& $sysinfo3 & @CRLF)
 EndFunc
 
 Func Services()							;Pertinent services information
-   Local $serv1 = $shellex & ' .\Tools\SysinternalsSuite\psservice -accepteula > "' & $RptsDir & '\Services.txt"'
-   Local $serv2 = $shellex & ' sc queryex >> "' & $RptsDir & '\Services.txt"'
-   Local $serv3 = $shellex & ' net start >> "' & $RptsDir & '\Services.txt"'
+   Local $serv1 = $shellex & ' .\Tools\SysinternalsSuite\psservice -accepteula > "' & $RptsDir & '\ServiceProcesses.txt"'
+   Local $serv2 = $shellex & ' sc queryex > "' & $RptsDir & '\ServiceQuery.txt"'
+   Local $serv3 = $shellex & ' net start > "' & $RptsDir & '\ServicesStarted.txt"'
 
    RunWait($serv1, "", @SW_HIDE)
-	  FileWriteLine($Log, @YEAR&"-"&@MON&"-"&@MDAY&"  "&@HOUR&":"&@MIN&":"&@SEC&":"&@MSEC&"  >  "&"Executed command: " & $serv1 & @CRLF)
+	  FileWriteLine($Log, @YEAR&"-"&@MON&"-"&@MDAY&@TAB&@HOUR&":"&@MIN&":"&@SEC&":"&@MSEC&@TAB&"Executed command:" &@TAB& $serv1 & @CRLF)
    RunWait($serv2, "", @SW_HIDE)
-	  FileWriteLine($Log, @YEAR&"-"&@MON&"-"&@MDAY&"  "&@HOUR&":"&@MIN&":"&@SEC&":"&@MSEC&"  >  "&"Executed command: " & $serv2 & @CRLF)
+	  FileWriteLine($Log, @YEAR&"-"&@MON&"-"&@MDAY&@TAB&@HOUR&":"&@MIN&":"&@SEC&":"&@MSEC&@TAB&"Executed command:" &@TAB& $serv2 & @CRLF)
    RunWait($serv3, "", @SW_HIDE)
-	  FileWriteLine($Log, @YEAR&"-"&@MON&"-"&@MDAY&"  "&@HOUR&":"&@MIN&":"&@SEC&":"&@MSEC&"  >  "&"Executed command: " & $serv3 & @CRLF)
+	  FileWriteLine($Log, @YEAR&"-"&@MON&"-"&@MDAY&@TAB&@HOUR&":"&@MIN&":"&@SEC&":"&@MSEC&@TAB&"Executed command:" &@TAB& $serv3 & @CRLF)
 EndFunc
 
 Func FileAssociation()					;Get information on file associations
    Local $fa1 = $shellex & ' .\Tools\SysinternalsSuite\handle -a -accepteula c > "' & $RptsDir & '\Handles.txt"'
 
    RunWait($fa1, "", @SW_HIDE)
-	  FileWriteLine($Log, @YEAR&"-"&@MON&"-"&@MDAY&"  "&@HOUR&":"&@MIN&":"&@SEC&":"&@MSEC&"  >  "&"Executed command: " & $fa1 & @CRLF)
+	  FileWriteLine($Log, @YEAR&"-"&@MON&"-"&@MDAY&@TAB&@HOUR&":"&@MIN&":"&@SEC&":"&@MSEC&@TAB&"Executed command:" &@TAB& $fa1 & @CRLF)
 EndFunc
 
 Func AccountInfo()						;Gather information pertaining to the user accounts
-   Local $acctinfo1 = $shellex & ' net accounts > "' & $RptsDir & '\Account Details.txt"'
+   Local $acctinfo1 = $shellex & ' net accounts > "' & $RptsDir & '\AccountDetails.txt"'
 
    RunWait($acctinfo1, "", @SW_HIDE)
-	  FileWriteLine($Log, @YEAR&"-"&@MON&"-"&@MDAY&"  "&@HOUR&":"&@MIN&":"&@SEC&":"&@MSEC&"  >  "&"Executed command: " & $acctinfo1 & @CRLF)
+	  FileWriteLine($Log, @YEAR&"-"&@MON&"-"&@MDAY&@TAB&@HOUR&":"&@MIN&":"&@SEC&":"&@MSEC&@TAB&"Executed command:" &@TAB& $acctinfo1 & @CRLF)
 EndFunc
 
 Func Hostname()							;Gather information on the hostname
@@ -1375,19 +1378,19 @@ Func Hostname()							;Gather information on the hostname
    Local $hostn2 = $shellex & ' hostname >> "' & $RptsDir & '\Hostname.txt"'
 
    RunWait($hostn1, "", @SW_HIDE)
-	  FileWriteLine($Log, @YEAR&"-"&@MON&"-"&@MDAY&"  "&@HOUR&":"&@MIN&":"&@SEC&":"&@MSEC&"  >  "&"Executed command: " & $hostn1 & @CRLF)
+	  FileWriteLine($Log, @YEAR&"-"&@MON&"-"&@MDAY&@TAB&@HOUR&":"&@MIN&":"&@SEC&":"&@MSEC&@TAB&"Executed command:" &@TAB& $hostn1 & @CRLF)
    RunWait($hostn2, "", @SW_HIDE)
-	  FileWriteLine($Log, @YEAR&"-"&@MON&"-"&@MDAY&"  "&@HOUR&":"&@MIN&":"&@SEC&":"&@MSEC&"  >  "&"Executed command: " & $hostn2 & @CRLF)
+	  FileWriteLine($Log, @YEAR&"-"&@MON&"-"&@MDAY&@TAB&@HOUR&":"&@MIN&":"&@SEC&":"&@MSEC&@TAB&"Executed command:" &@TAB& $hostn2 & @CRLF)
 EndFunc
 
 Func Prefetch()							;Copy any prefecth data while maintaining metadata
-   Local $robocopy = '"' & @ScriptDir & '\Tools\Robocopy.exe"'
-   Local $pf1 = $shellex & ' ' & $robocopy & ' "' & @WindowsDir & '\Prefetch" "' & $EvDir & '\Prefetch" /copyall /ZB /TS /r:4 /w:3 /FP /NP /log:"' & $RptsDir & '\Prefetch Copy Log.txt"'
+   Local $robocopy = '"' & @ScriptDir & '\Tools\robocopy.exe"'
+   Local $pf1 = $shellex & ' ' & $robocopy & ' "' & @WindowsDir & '\Prefetch" "' & $EvDir & '\Prefetch" /copyall /ZB /TS /r:4 /w:3 /FP /NP /log:"' & $RptsDir & '\PrefetchCopyLog.txt"'
 
    If Not FileExists($EvDir & "\Prefetch") Then DirCreate($EvDir & "\Prefetch")
 
-   ShellExecuteWait($robocopy, ' "' & @WindowsDir & '\Prefetch" "' & $EvDir & '\Prefetch" /copyall /ZB /TS /r:4 /w:3 /FP /NP /log:"' & $RptsDir & '\Prefetch Copy Log.txt"', $tools, "", @SW_HIDE)
-	  FileWriteLine($Log, @YEAR&"-"&@MON&"-"&@MDAY&"  "&@HOUR&":"&@MIN&":"&@SEC&":"&@MSEC&"  >  "&"Executed command: " & $pf1 & @CRLF)
+   ShellExecuteWait($robocopy, ' "' & @WindowsDir & '\Prefetch" "' & $EvDir & '\Prefetch" /copyall /ZB /TS /r:4 /w:3 /FP /NP /log:"' & $RptsDir & '\PrefetchCopyLog.txt"', $tools, "", @SW_HIDE)
+	  FileWriteLine($Log, @YEAR&"-"&@MON&"-"&@MDAY&@TAB&@HOUR&":"&@MIN&":"&@SEC&":"&@MSEC&@TAB&"Executed command:" &@TAB& $pf1 & @CRLF)
 EndFunc
 
 Func RecentFolder()						;Send information to the recent folder copy function
@@ -1460,7 +1463,7 @@ Func _RobocopyRF($path, $output)		;Copy Recent folder from all profiles while ma
    Local $recF1 = $robocopy & " " & $recPATH & ' "' & $EvDir & '\Recent LNKs\' & $output & '" /copyall /ZB /TS /r:4 /w:3 /FP /NP /log:"' & $EvDir & '\Recent LNKs\' & $output & '_Recent_Copy.txt"'
 
    RunWait($recF1, "", @SW_HIDE)
-		 FileWriteLine($Log, @YEAR&"-"&@MON&"-"&@MDAY&"  "&@HOUR&":"&@MIN&":"&@SEC&":"&@MSEC&"  >  "&"Executed command: " & $recF1 & @CRLF)
+		 FileWriteLine($Log, @YEAR&"-"&@MON&"-"&@MDAY&@TAB&@HOUR&":"&@MIN&":"&@SEC&":"&@MSEC&@TAB&"Executed command:" &@TAB& $recF1 & @CRLF)
 EndFunc
 
 Func JumpLists()						;Provide info to the Jumplist copy function
@@ -1528,71 +1531,71 @@ Func _RobocopyJL($path, $output)		;Copy Jumplist information while maintaining m
    Local $jlc1 = $robocopy & " " & $customexe1 & ' "' & $customdest & '" /copyall /ZB /TS /r:4 /w:3 /FP /NP /log:"' & $EvDir & '\Jump Lists\' & $output & '_JumpList_Custom_Copy.txt"'
 
    RunWait($jla1, "", @SW_HIDE)
-	  FileWriteLine($Log, @YEAR&"-"&@MON&"-"&@MDAY&"  "&@HOUR&":"&@MIN&":"&@SEC&":"&@MSEC&"  >  "&"Executed command: " & $jla1 & @CRLF)
+	  FileWriteLine($Log, @YEAR&"-"&@MON&"-"&@MDAY&@TAB&@HOUR&":"&@MIN&":"&@SEC&":"&@MSEC&@TAB&"Executed command:" &@TAB& $jla1 & @CRLF)
    RunWait($jlc1, "", @SW_HIDE)
-	  FileWriteLine($Log, @YEAR&"-"&@MON&"-"&@MDAY&"  "&@HOUR&":"&@MIN&":"&@SEC&":"&@MSEC&"  >  "&"Executed command: " & $jlc1 & @CRLF)
+	  FileWriteLine($Log, @YEAR&"-"&@MON&"-"&@MDAY&@TAB&@HOUR&":"&@MIN&":"&@SEC&":"&@MSEC&@TAB&"Executed command:" &@TAB& $jlc1 & @CRLF)
 
 EndFunc
 
 Func AutoRun()							;Information regarding startup
-   Local $autorun1 = $shellex & ' .\Tools\SysinternalsSuite\autorunsc.exe -accepteula > "' & $RptsDir & '\AutoRun Info.txt"'
-   Local $autorun2 = $shellex & ' wmic startup list full > "' & $RptsDir & '\Start Up WMI Info.txt"'
-   Local $autorun3 = $shellex & ' .\Tools\SysinternalsSuite\autorunsc.exe -accepteula -a * -s -c > "' & $RptsDir & '\AutoRun Info.csv"'
+   Local $autorun1 = $shellex & ' .\Tools\SysinternalsSuite\autorunsc.exe -accepteula > "' & $RptsDir & '\AutoRunInfo.txt"'
+   Local $autorun2 = $shellex & ' wmic startup list full > "' & $RptsDir & '\StartUpWMIInfo.txt"'
+   Local $autorun3 = $shellex & ' .\Tools\SysinternalsSuite\autorunsc.exe -accepteula -a * -s -c > "' & $RptsDir & '\AutoRunInfo.csv"'
 
    RunWait($autorun1, "", @SW_HIDE)
-	  FileWriteLine($Log, @YEAR&"-"&@MON&"-"&@MDAY&"  "&@HOUR&":"&@MIN&":"&@SEC&":"&@MSEC&"  >  "&"Executed command: " & $autorun1 & @CRLF)
+	  FileWriteLine($Log, @YEAR&"-"&@MON&"-"&@MDAY&@TAB&@HOUR&":"&@MIN&":"&@SEC&":"&@MSEC&@TAB&"Executed command:" &@TAB& $autorun1 & @CRLF)
    RunWait($autorun2, "", @SW_HIDE)
-	  FileWriteLine($Log, @YEAR&"-"&@MON&"-"&@MDAY&"  "&@HOUR&":"&@MIN&":"&@SEC&":"&@MSEC&"  >  "&"Executed command: " & $autorun2 & @CRLF)
+	  FileWriteLine($Log, @YEAR&"-"&@MON&"-"&@MDAY&@TAB&@HOUR&":"&@MIN&":"&@SEC&":"&@MSEC&@TAB&"Executed command:" &@TAB& $autorun2 & @CRLF)
    RunWait($autorun3, "", @SW_HIDE)
-	  FileWriteLine($Log, @YEAR&"-"&@MON&"-"&@MDAY&"  "&@HOUR&":"&@MIN&":"&@SEC&":"&@MSEC&"  >  "&"Executed command: " & $autorun3 & @CRLF)
+	  FileWriteLine($Log, @YEAR&"-"&@MON&"-"&@MDAY&@TAB&@HOUR&":"&@MIN&":"&@SEC&":"&@MSEC&@TAB&"Executed command:" &@TAB& $autorun3 & @CRLF)
 EndFunc
 
 Func LoggedOn()							;Gather information on users logged on
-   Local $logon1 = $shellex & ' .\Tools\SysinternalsSuite\PsLoggedon -accepteula > "' & $RptsDir & '\Logged On.txt"'
-   Local $logon2 = $shellex & ' .\Tools\SysinternalsSuite\logonsessions -accepteula -c >> "' & $RptsDir & '\Logged On Users.txt"'
+   Local $logon1 = $shellex & ' .\Tools\SysinternalsSuite\PsLoggedon -accepteula > "' & $RptsDir & '\LoggedOn.txt"'
+   Local $logon2 = $shellex & ' .\Tools\SysinternalsSuite\logonsessions -accepteula -c > "' & $RptsDir & '\LogonSessions.txt"'
 
    RunWait($logon1, "", @SW_HIDE)
-	  FileWriteLine($Log, @YEAR&"-"&@MON&"-"&@MDAY&"  "&@HOUR&":"&@MIN&":"&@SEC&":"&@MSEC&"  >  "&"Executed command: " & $logon1 & @CRLF)
+	  FileWriteLine($Log, @YEAR&"-"&@MON&"-"&@MDAY&@TAB&@HOUR&":"&@MIN&":"&@SEC&":"&@MSEC&@TAB&"Executed command:" &@TAB& $logon1 & @CRLF)
    RunWait($logon2, "", @SW_HIDE)
-	  FileWriteLine($Log, @YEAR&"-"&@MON&"-"&@MDAY&"  "&@HOUR&":"&@MIN&":"&@SEC&":"&@MSEC&"  >  "&"Executed command: " & $logon2 & @CRLF)
+	  FileWriteLine($Log, @YEAR&"-"&@MON&"-"&@MDAY&@TAB&@HOUR&":"&@MIN&":"&@SEC&":"&@MSEC&@TAB&"Executed command:" &@TAB& $logon2 & @CRLF)
 EndFunc
 
 Func NTFSInfo()							;Gather information regarding NTFS
-   Local $ntfs1 = $shellex & ' .\Tools\SysinternalsSuite\ntfsinfo c > "' & $RptsDir & '\NTFS Info.txt"'
-   Local $ntfs2 = $shellex & ' fsutil fsinfo ntfsinfo C: >> "' & $RptsDir & '\NTFS Info.txt"'
+   Local $ntfs1 = $shellex & ' .\Tools\SysinternalsSuite\ntfsinfo c > "' & $RptsDir & '\NTFSInfo.txt"'
+   Local $ntfs2 = $shellex & ' fsutil fsinfo ntfsinfo C: >> "' & $RptsDir & '\NTFSInfo.txt"'
 
    RunWait($ntfs1, "", @SW_HIDE)
-	  FileWriteLine($Log, @YEAR&"-"&@MON&"-"&@MDAY&"  "&@HOUR&":"&@MIN&":"&@SEC&":"&@MSEC&"  >  "&"Executed command: " & $ntfs1 & @CRLF)
+	  FileWriteLine($Log, @YEAR&"-"&@MON&"-"&@MDAY&@TAB&@HOUR&":"&@MIN&":"&@SEC&":"&@MSEC&@TAB&"Executed command:" &@TAB& $ntfs1 & @CRLF)
    RunWait($ntfs2, "", @SW_HIDE)
-	  FileWriteLine($Log, @YEAR&"-"&@MON&"-"&@MDAY&"  "&@HOUR&":"&@MIN&":"&@SEC&":"&@MSEC&"  >  "&"Executed command: " & $ntfs2 & @CRLF)
+	  FileWriteLine($Log, @YEAR&"-"&@MON&"-"&@MDAY&@TAB&@HOUR&":"&@MIN&":"&@SEC&":"&@MSEC&@TAB&"Executed command:" &@TAB& $ntfs2 & @CRLF)
 EndFunc
 
 Func VolInfo()							;Gather volume information with the Sleuth Kit
-	  Local $vol1 = $shellex & ' fsutil fsinfo volumeinfo C: >> "' & $RptsDir & '\Volume Info.txt"'
+	  Local $vol1 = $shellex & ' fsutil fsinfo volumeinfo C: > "' & $RptsDir & '\VolumeInfo.txt"'
 
    RunWait($vol1, "", @SW_HIDE)
-	  FileWriteLine($Log, @YEAR&"-"&@MON&"-"&@MDAY&"  "&@HOUR&":"&@MIN&":"&@SEC&":"&@MSEC&"  >  "&"Executed command: " & $vol1 & @CRLF)
+	  FileWriteLine($Log, @YEAR&"-"&@MON&"-"&@MDAY&@TAB&@HOUR&":"&@MIN&":"&@SEC&":"&@MSEC&@TAB&"Executed command:" &@TAB& $vol1 & @CRLF)
 EndFunc
 
 Func MountedDisk()						;Mounted Disk Information
-   Local $md1 = $shellex & ' .\Tools\SysinternalsSuite\diskext -accepteula > "' & $RptsDir & '\Disk Mounts.txt"'
+   Local $md1 = $shellex & ' .\Tools\SysinternalsSuite\diskext -accepteula > "' & $RptsDir & '\DiskMounts.txt"'
 
    RunWait($md1, "", @SW_HIDE)
-	  FileWriteLine($Log, @YEAR&"-"&@MON&"-"&@MDAY&"  "&@HOUR&":"&@MIN&":"&@SEC&":"&@MSEC&"  >  "&"Executed command: " & $md1 & @CRLF)
+	  FileWriteLine($Log, @YEAR&"-"&@MON&"-"&@MDAY&@TAB&@HOUR&":"&@MIN&":"&@SEC&":"&@MSEC&@TAB&"Executed command:" &@TAB& $md1 & @CRLF)
 EndFunc
 
 Func Directory()						;Get list of directory structure
-   Local $dir1 = $shellex & ' tree c:\ /f /a > "' & $RptsDir & '\Directory Info.txt"'
+   Local $dir1 = $shellex & ' tree c:\ /f /a > "' & $RptsDir & '\DirectoryInfo.txt"'
 
    RunWait($dir1, "", @SW_HIDE)
-	  FileWriteLine($Log, @YEAR&"-"&@MON&"-"&@MDAY&"  "&@HOUR&":"&@MIN&":"&@SEC&":"&@MSEC&"  >  "&"Executed command: " & $dir1 & @CRLF)
+	  FileWriteLine($Log, @YEAR&"-"&@MON&"-"&@MDAY&@TAB&@HOUR&":"&@MIN&":"&@SEC&":"&@MSEC&@TAB&"Executed command:" &@TAB& $dir1 & @CRLF)
 EndFunc
 
 Func ScheduledTasks()					;List any scheduled tasks
-   Local $schedtask1 = $shellex & ' schtasks /query /FO CSV /V > "' & $RptsDir & '\Scheduled Tasks.csv"'
+   Local $schedtask1 = $shellex & ' schtasks /query /FO CSV /V > "' & $RptsDir & '\ScheduledTasks.csv"'
 
    RunWait($schedtask1, "", @SW_HIDE)
-	  FileWriteLine($Log, @YEAR&"-"&@MON&"-"&@MDAY&"  "&@HOUR&":"&@MIN&":"&@SEC&":"&@MSEC&"  >  "&"Executed command: " & $schedtask1 & @CRLF)
+	  FileWriteLine($Log, @YEAR&"-"&@MON&"-"&@MDAY&@TAB&@HOUR&":"&@MIN&":"&@SEC&":"&@MSEC&@TAB&"Executed command:" &@TAB& $schedtask1 & @CRLF)
 EndFunc
 
 Func SystemRRip()						;Copy the SYSTEM HIV for analysis
@@ -1605,7 +1608,7 @@ Func SystemRRip()						;Copy the SYSTEM HIV for analysis
    EndIf
 
    RunWait($sysrip, "", @SW_HIDE)
-	  FileWriteLine($Log, @YEAR&"-"&@MON&"-"&@MDAY&"  "&@HOUR&":"&@MIN&":"&@SEC&":"&@MSEC&"  >  "&"Executed command: " & $sysrip & @CRLF)
+	  FileWriteLine($Log, @YEAR&"-"&@MON&"-"&@MDAY&@TAB&@HOUR&":"&@MIN&":"&@SEC&":"&@MSEC&@TAB&"Executed command:" &@TAB& $sysrip & @CRLF)
 EndFunc
 
 Func SecurityRRip()						;Copy the SECURITY HIV for analysis
@@ -1618,7 +1621,7 @@ Func SecurityRRip()						;Copy the SECURITY HIV for analysis
    EndIf
 
    RunWait($secrip, "", @SW_HIDE)
-	  FileWriteLine($Log, @YEAR&"-"&@MON&"-"&@MDAY&"  "&@HOUR&":"&@MIN&":"&@SEC&":"&@MSEC&"  >  "&"Executed command: " & $secrip & @CRLF)
+	  FileWriteLine($Log, @YEAR&"-"&@MON&"-"&@MDAY&@TAB&@HOUR&":"&@MIN&":"&@SEC&":"&@MSEC&@TAB&"Executed command:" &@TAB& $secrip & @CRLF)
 EndFunc
 
 Func SAMRRip()							;Copy the SAM HIV for analysis
@@ -1631,7 +1634,7 @@ Func SAMRRip()							;Copy the SAM HIV for analysis
    EndIf
 
    RunWait($samrip, "", @SW_HIDE)
-	  FileWriteLine($Log, @YEAR&"-"&@MON&"-"&@MDAY&"  "&@HOUR&":"&@MIN&":"&@SEC&":"&@MSEC&"  >  "&"Executed command: " & $samrip & @CRLF)
+	  FileWriteLine($Log, @YEAR&"-"&@MON&"-"&@MDAY&@TAB&@HOUR&":"&@MIN&":"&@SEC&":"&@MSEC&@TAB&"Executed command:" &@TAB& $samrip & @CRLF)
 EndFunc
 
 Func SoftwareRRip()						;Copy the SOFTWARE HIV for analysis
@@ -1644,7 +1647,7 @@ Func SoftwareRRip()						;Copy the SOFTWARE HIV for analysis
    EndIf
 
    RunWait($softrip, "", @SW_HIDE)
-	  FileWriteLine($Log, @YEAR&"-"&@MON&"-"&@MDAY&"  "&@HOUR&":"&@MIN&":"&@SEC&":"&@MSEC&"  >  "&"Executed command: " & $softrip & @CRLF)
+	  FileWriteLine($Log, @YEAR&"-"&@MON&"-"&@MDAY&@TAB&@HOUR&":"&@MIN&":"&@SEC&":"&@MSEC&@TAB&"Executed command:" &@TAB& $softrip & @CRLF)
 EndFunc
 
 Func HKCURRip()							;Copy the HKCU HIV for analysis
@@ -1657,7 +1660,7 @@ Func HKCURRip()							;Copy the HKCU HIV for analysis
    EndIf
 
    RunWait($hkcurip, "", @SW_HIDE)
-	  FileWriteLine($Log, @YEAR&"-"&@MON&"-"&@MDAY&"  "&@HOUR&":"&@MIN&":"&@SEC&":"&@MSEC&"  >  "&"Executed command: " & $hkcurip & @CRLF)
+	  FileWriteLine($Log, @YEAR&"-"&@MON&"-"&@MDAY&@TAB&@HOUR&":"&@MIN&":"&@SEC&":"&@MSEC&@TAB&"Executed command:" &@TAB& $hkcurip & @CRLF)
 EndFunc
 
 Func NTUserRRip()						;Copy all NTUSER.dat files from each profile
@@ -1687,14 +1690,14 @@ Func NTUserRRip()						;Copy all NTUSER.dat files from each profile
 			EndIf
 
 			RunWait($nturip, "", @SW_HIDE)
-			FileWriteLine($Log, @YEAR&"-"&@MON&"-"&@MDAY&"  "&@HOUR&":"&@MIN&":"&@SEC&":"&@MSEC&"  >  "&"Executed command: " & $nturip & @CRLF)
+			FileWriteLine($Log, @YEAR&"-"&@MON&"-"&@MDAY&@TAB&@HOUR&":"&@MIN&":"&@SEC&":"&@MSEC&@TAB&"Executed command:" &@TAB& $nturip & @CRLF)
 	  Next
    EndIf
 EndFunc
 
 Func MD5()								;Special thanks to Jesse Kornblum for his amazing hashing tools
-   Local $md51 = $shellex & ' .\Tools\md5deep -rbtk "' & $HashDir & '" >> "' & $RptsDir & '\MD5 Hashes.txt"'
-   Local $md52 = $shellex & ' .\Tools\md5deep64 -rbtk "' & $HashDir & '" >> "' & $RptsDir & '\MD5 Hashes.txt"'
+   Local $md51 = $shellex & ' .\Tools\md5deep -rbtk "' & $HashDir & '" >> "' & $RptsDir & '\MD5Hashes.txt"'
+   Local $md52 = $shellex & ' .\Tools\md5deep64 -rbtk "' & $HashDir & '" >> "' & $RptsDir & '\MD5Hashes.txt"'
 
    If @OSArch = "X86" Then
 	  $arch = "32"
@@ -1704,18 +1707,18 @@ Func MD5()								;Special thanks to Jesse Kornblum for his amazing hashing tool
 
    If $arch = "32" Then
 	  RunWait($md51, "", @SW_HIDE)
-		 FileWriteLine($Log, @YEAR&"-"&@MON&"-"&@MDAY&"  "&@HOUR&":"&@MIN&":"&@SEC&":"&@MSEC&"  >  "&"Executed command: " & $md51 & @CRLF)
+		 FileWriteLine($Log, @YEAR&"-"&@MON&"-"&@MDAY&@TAB&@HOUR&":"&@MIN&":"&@SEC&":"&@MSEC&@TAB&"Executed command:" &@TAB& $md51 & @CRLF)
    EndIf
 
    If $arch = "64" Then
 	  RunWait($md52, "", @SW_HIDE)
-		 FileWriteLine($Log, @YEAR&"-"&@MON&"-"&@MDAY&"  "&@HOUR&":"&@MIN&":"&@SEC&":"&@MSEC&"  >  "&"Executed command: " & $md52 & @CRLF)
+		 FileWriteLine($Log, @YEAR&"-"&@MON&"-"&@MDAY&@TAB&@HOUR&":"&@MIN&":"&@SEC&":"&@MSEC&@TAB&"Executed command:" &@TAB& $md52 & @CRLF)
    EndIf
 EndFunc
 
 Func SHA1()								;Special thanks to Jesse Kornblum for his amazing hashing tools
-   Local $sha11 = $shellex & ' .\Tools\sha1deep -rbtk "' & $HashDir & '" >> "' & $RptsDir & '\SHA1 Hashes.txt"'
-   Local $sha12 = $shellex & ' .\Tools\sha1deep64 -rbtk "' & $HashDir & '" >> "' & $RptsDir & '\SHA1 Hashes.txt"'
+   Local $sha11 = $shellex & ' .\Tools\sha1deep -rbtk "' & $HashDir & '" >> "' & $RptsDir & '\SHA1Hashes.txt"'
+   Local $sha12 = $shellex & ' .\Tools\sha1deep64 -rbtk "' & $HashDir & '" >> "' & $RptsDir & '\SHA1Hashes.txt"'
 
    If @OSArch = "X86" Then
 	  $arch = "32"
@@ -1725,12 +1728,12 @@ Func SHA1()								;Special thanks to Jesse Kornblum for his amazing hashing too
 
    If $arch = "32" Then
 	  RunWait($sha11, "", @SW_HIDE)
-		 FileWriteLine($Log, @YEAR&"-"&@MON&"-"&@MDAY&"  "&@HOUR&":"&@MIN&":"&@SEC&":"&@MSEC&"  >  "&"Executed command: " & $sha11 & @CRLF)
+		 FileWriteLine($Log, @YEAR&"-"&@MON&"-"&@MDAY&@TAB&@HOUR&":"&@MIN&":"&@SEC&":"&@MSEC&@TAB&"Executed command:" &@TAB& $sha11 & @CRLF)
    EndIf
 
    If $arch = "64" Then
 	  RunWait($sha12, "", @SW_HIDE)
-		 FileWriteLine($Log, @YEAR&"-"&@MON&"-"&@MDAY&"  "&@HOUR&":"&@MIN&":"&@SEC&":"&@MSEC&"  >  "&"Executed command: " & $sha12 & @CRLF)
+		 FileWriteLine($Log, @YEAR&"-"&@MON&"-"&@MDAY&@TAB&@HOUR&":"&@MIN&":"&@SEC&":"&@MSEC&@TAB&"Executed command:" &@TAB& $sha12 & @CRLF)
    EndIf
 EndFunc
 
@@ -1752,15 +1755,15 @@ Func RegRipper()						;Special thanks to Harlan Carvey for his excellent tool.
    Local $ntuexe1 = $shellex & ' .\Tools\RegRipper\rip.exe -r "' & $EvDir & $hkcuhiv & '" -f NTUSER > "' & $EvDir & 'NTUSER_Ripped_Report.txt"'
 
    RunWait($sysexe1, "", @SW_HIDE)
-   	  FileWriteLine($Log, @YEAR&"-"&@MON&"-"&@MDAY&"  "&@HOUR&":"&@MIN&":"&@SEC&":"&@MSEC&"  >  "&"Executed command: " & $sysexe1 & @CRLF)
+   	  FileWriteLine($Log, @YEAR&"-"&@MON&"-"&@MDAY&@TAB&@HOUR&":"&@MIN&":"&@SEC&":"&@MSEC&@TAB&"Executed command:" &@TAB& $sysexe1 & @CRLF)
    RunWait($softexe1, "", @SW_HIDE)
-	  FileWriteLine($Log, @YEAR&"-"&@MON&"-"&@MDAY&"  "&@HOUR&":"&@MIN&":"&@SEC&":"&@MSEC&"  >  "&"Executed command: " & $softexe1 & @CRLF)
+	  FileWriteLine($Log, @YEAR&"-"&@MON&"-"&@MDAY&@TAB&@HOUR&":"&@MIN&":"&@SEC&":"&@MSEC&@TAB&"Executed command:" &@TAB& $softexe1 & @CRLF)
    RunWait($samexe1, "", @SW_HIDE)
-	  FileWriteLine($Log, @YEAR&"-"&@MON&"-"&@MDAY&"  "&@HOUR&":"&@MIN&":"&@SEC&":"&@MSEC&"  >  "&"Executed command: " & $samexe1 & @CRLF)
+	  FileWriteLine($Log, @YEAR&"-"&@MON&"-"&@MDAY&@TAB&@HOUR&":"&@MIN&":"&@SEC&":"&@MSEC&@TAB&"Executed command:" &@TAB& $samexe1 & @CRLF)
    RunWait($secexe1, "", @SW_HIDE)
- 	  FileWriteLine($Log, @YEAR&"-"&@MON&"-"&@MDAY&"  "&@HOUR&":"&@MIN&":"&@SEC&":"&@MSEC&"  >  "&"Executed command: " & $secexe1 & @CRLF)
+ 	  FileWriteLine($Log, @YEAR&"-"&@MON&"-"&@MDAY&@TAB&@HOUR&":"&@MIN&":"&@SEC&":"&@MSEC&@TAB&"Executed command:" &@TAB& $secexe1 & @CRLF)
    RunWait($ntuexe1, "", @SW_HIDE)
-	  FileWriteLine($Log, @YEAR&"-"&@MON&"-"&@MDAY&"  "&@HOUR&":"&@MIN&":"&@SEC&":"&@MSEC&"  >  "&"Executed command: " & $ntuexe1 & @CRLF)
+	  FileWriteLine($Log, @YEAR&"-"&@MON&"-"&@MDAY&@TAB&@HOUR&":"&@MIN&":"&@SEC&":"&@MSEC&@TAB&"Executed command:" &@TAB& $ntuexe1 & @CRLF)
 
 	  Local $dat = FileFindFirstFile($EvDir & "*.dat")
 
@@ -1772,7 +1775,7 @@ Func RegRipper()						;Special thanks to Harlan Carvey for his excellent tool.
 		 If @Error Then ExitLoop
 
 		 RunWait($ntuexe2, "", @SW_HIDE)
-			FileWriteLine($Log, @YEAR&"-"&@MON&"-"&@MDAY&"  "&@HOUR&":"&@MIN&":"&@SEC&":"&@MSEC&"  >  "&"Executed command: " & $ntuexe2 & @CRLF)
+			FileWriteLine($Log, @YEAR&"-"&@MON&"-"&@MDAY&@TAB&@HOUR&":"&@MIN&":"&@SEC&":"&@MSEC&@TAB&"Executed command:" &@TAB& $ntuexe2 & @CRLF)
 
 	  WEnd
 
@@ -1782,7 +1785,7 @@ Func SysIntAdd()						;Add registry key to accept Sysinternals
    Local $RegAdd1 = $shellex & ' REG ADD HKCU\Software\Sysinternals\NTFSInfo /v EulaAccepted /t REG_DWORD /d 1 /f'
 
    RunWait($RegAdd1, "", @SW_HIDE)
-	  FileWriteLine($Log, @YEAR&"-"&@MON&"-"&@MDAY&"  "&@HOUR&":"&@MIN&":"&@SEC&":"&@MSEC&"  >  "&"Executed command: " & $RegAdd1 & @CRLF)
+	  FileWriteLine($Log, @YEAR&"-"&@MON&"-"&@MDAY&@TAB&@HOUR&":"&@MIN&":"&@SEC&":"&@MSEC&@TAB&"Executed command:" &@TAB& $RegAdd1 & @CRLF)
 EndFunc
 
 Func EvtCopy()							;Copy all event logs from local machine
@@ -1793,18 +1796,18 @@ Func EvtCopy()							;Copy all event logs from local machine
    Local $robocopy = '"' & @ScriptDir & '\Tools\robocopy.exe"'
    Local $robo7 = '"' & @ScriptDir & '\Tools\robo7.exe"'
 
-   Local $evtc1 = $shellex & ' .\Tools\SysinternalsSuite\psloglist.exe -accepteula -s Application > "' & $RptsDir & '\Application Log.csv"'
-   Local $evtc2 = $shellex & ' .\Tools\SysinternalsSuite\psloglist.exe -accepteula -s System > "' & $RptsDir & '\System Log.csv"'
-   Local $evtc3 = $shellex & ' .\Tools\SysinternalsSuite\psloglist.exe -accepteula -s Security > "' & $RptsDir & '\Security Log.csv"'
+   Local $evtc1 = $shellex & ' .\Tools\SysinternalsSuite\psloglist.exe -accepteula -s Application > "' & $RptsDir & '\ApplicationLog.csv"'
+   Local $evtc2 = $shellex & ' .\Tools\SysinternalsSuite\psloglist.exe -accepteula -s System > "' & $RptsDir & '\SystemLog.csv"'
+   Local $evtc3 = $shellex & ' .\Tools\SysinternalsSuite\psloglist.exe -accepteula -s Security > "' & $RptsDir & '\SecurityLog.csv"'
 
    RunWait($evtc1, "", @SW_HIDE)
-	  FileWriteLine($Log, @YEAR&"-"&@MON&"-"&@MDAY&"  "&@HOUR&":"&@MIN&":"&@SEC&":"&@MSEC&"  >  "&"Executed command: " & $evtc1 & @CRLF)
+	  FileWriteLine($Log, @YEAR&"-"&@MON&"-"&@MDAY&@TAB&@HOUR&":"&@MIN&":"&@SEC&":"&@MSEC&@TAB&"Executed command:" &@TAB& $evtc1 & @CRLF)
 
    RunWait($evtc2, "", @SW_HIDE)
-	  FileWriteLine($Log, @YEAR&"-"&@MON&"-"&@MDAY&"  "&@HOUR&":"&@MIN&":"&@SEC&":"&@MSEC&"  >  "&"Executed command: " & $evtc2 & @CRLF)
+	  FileWriteLine($Log, @YEAR&"-"&@MON&"-"&@MDAY&@TAB&@HOUR&":"&@MIN&":"&@SEC&":"&@MSEC&@TAB&"Executed command:" &@TAB& $evtc2 & @CRLF)
 
    RunWait($evtc3, "", @SW_HIDE)
-	  FileWriteLine($Log, @YEAR&"-"&@MON&"-"&@MDAY&"  "&@HOUR&":"&@MIN&":"&@SEC&":"&@MSEC&"  >  "&"Executed command: " & $evtc3 & @CRLF)
+	  FileWriteLine($Log, @YEAR&"-"&@MON&"-"&@MDAY&@TAB&@HOUR&":"&@MIN&":"&@SEC&":"&@MSEC&@TAB&"Executed command:" &@TAB& $evtc3 & @CRLF)
 
    If @OSVersion = "WIN_7" Then $OS = "Users"
    If @OSVersion = "WIN_XP" Then $OS = "Docs"
@@ -1824,11 +1827,11 @@ Func EvtCopy()							;Copy all event logs from local machine
 
    If Not FileExists($LogDir) Then DirCreate($LogDir)
 
-   If $OS = "Docs" Then $EvtCmd = $robocopy & " " & $evtdir & ' "' & $LogDir & '" *.' & $evtext & ' /copyall /ZB /TS /r:4 /w:3 /FP /NP /log:"' & $RptsDir & '\Event Log Copy.txt"'
-   If $OS = "Users" Then $EvtCmd = $robo7 & " " & $evtdir & ' "' & $LogDir & '" /copyall /ZB /TS /r:4 /w:3 /FP /NP /log:"' & $RptsDir & '\Event Log Copy.txt"'
+   If $OS = "Docs" Then $EvtCmd = $robocopy & " " & $evtdir & ' "' & $LogDir & '" *.' & $evtext & ' /copyall /ZB /TS /r:4 /w:3 /FP /NP /log:"' & $RptsDir & '\EventLogCopy.txt"'
+   If $OS = "Users" Then $EvtCmd = $robo7 & " " & $evtdir & ' "' & $LogDir & '" /copyall /ZB /TS /r:4 /w:3 /FP /NP /log:"' & $RptsDir & '\EventLogCopy.txt"'
 
    RunWait($EvtCmd, "", @SW_HIDE)
-	  FileWriteLine($Log, @YEAR&"-"&@MON&"-"&@MDAY&"  "&@HOUR&":"&@MIN&":"&@SEC&":"&@MSEC&"  >  "&"Copied ." & $evtext & " files from " & $evtdir & "." & @CRLF)
+	  FileWriteLine($Log, @YEAR&"-"&@MON&"-"&@MDAY&@TAB&@HOUR&":"&@MIN&":"&@SEC&":"&@MSEC&@TAB&"Copied ." & $evtext & " files " &@TAB& $EvtCmd & @CRLF)
 EndFunc
 
 Func UsrclassE()  						;Search for profiles and initiate the copy of USRCLASS.dat
@@ -1872,34 +1875,38 @@ Func _Usrclass($prof)					;Performs the function of copying the USRCLASS.dat
 
    If FileExists($profUsrCls) = 1 Then
 
-		Local $usrce = $shellex & ' .\Tools\sleuthkit-win32-4.1.3\bin\ifind.exe -n /users/' & $prof & '/appdata/local/microsoft/windows/usrclass.dat \\.\C: > MFTEntries.log'
+	   ;ifind.exe: Finds the meta data structure that has a given file name pointing to it or the meta data structure that points to a given data unit.
+
+		Local $usrce = $shellex & ' .\Tools\sleuthkit-4.2.0\bin\ifind.exe -n /users/' & $prof & '/appdata/local/microsoft/windows/usrclass.dat \\.\C: > MFTEntries.log'
 
 		RunWait($usrce)
 
-			FileWriteLine($Log, @YEAR&"-"&@MON&"-"&@MDAY&"  "&@HOUR&":"&@MIN&":"&@SEC&":"&@MSEC&"  >  "&"Executed command: " & $usrce & @CRLF)
+			FileWriteLine($Log, @YEAR&"-"&@MON&"-"&@MDAY&@TAB&@HOUR&":"&@MIN&":"&@SEC&":"&@MSEC&@TAB&"Executed command:" &@TAB& $usrce & @CRLF)
 
 		$MFTlog = FileReadLine("MFTEntries.log")
 
-		Local $catusrce = $shellex & ' .\Tools\sleuthkit-win32-4.1.3\bin\icat.exe \\.\c: ' & $MFTlog & ' > "' & $EvDir & $prof & '-usrclass.dat1"'
+		;icat.exe: Extracts the data units of a file, which is specified by its meta data address (instead of the file name).
+
+		Local $catusrce = $shellex & ' .\Tools\sleuthkit-4.2.0\bin\icat.exe \\.\c: ' & $MFTlog & ' > "' & $EvDir & $prof & '-usrclass.dat1"'
 
 		RunWait($catusrce, "", @SW_HIDE)
 
-			FileWriteLine($Log, @YEAR&"-"&@MON&"-"&@MDAY&"  "&@HOUR&":"&@MIN&":"&@SEC&":"&@MSEC&"  >  "&"Executed command: " & $catusrce & @CRLF)
+			FileWriteLine($Log, @YEAR&"-"&@MON&"-"&@MDAY&@TAB&@HOUR&":"&@MIN&":"&@SEC&":"&@MSEC&@TAB&"Executed command:" &@TAB& $catusrce & @CRLF)
 
 		FileDelete("MFTEntries.log")
 
    Else
-		FileWriteLine($Log, @YEAR&"-"&@MON&"-"&@MDAY&"  "&@HOUR&":"&@MIN&":"&@SEC&":"&@MSEC&"  >  "& "File NOT Found. "& $profUsrCls & @CRLF)
+		FileWriteLine($Log, @YEAR&"-"&@MON&"-"&@MDAY&@TAB&@HOUR&":"&@MIN&":"&@SEC&":"&@MSEC&@TAB& "File NOT Found" & @TAB & $profUsrCls & @CRLF)
    EndIf
 
 EndFunc
 
 Func MFTgrab()							;Use iCat to rip a file from NTFS file system
 
-   Local $MFTc = $shellex & ' .\Tools\sleuthkit-win32-4.1.3\bin\icat.exe \\.\c: 0 > "' & $EvDir & '$MFTcopy"'
+   Local $MFTc = $shellex & ' .\Tools\sleuthkit-4.2.0\bin\icat.exe \\.\c: 0 > "' & $EvDir & '$MFTcopy"'
 
    RunWait($MFTc, "", @SW_HIDE)
-	  FileWriteLine($Log, @YEAR&"-"&@MON&"-"&@MDAY&"  "&@HOUR&":"&@MIN&":"&@SEC&":"&@MSEC&"  >  "&"Executed command: " & $MFTc & @CRLF)
+	  FileWriteLine($Log, @YEAR&"-"&@MON&"-"&@MDAY&@TAB&@HOUR&":"&@MIN&":"&@SEC&":"&@MSEC&@TAB&"Executed command:" &@TAB& $MFTc & @CRLF)
    EndFunc
 
 Func GetShadowNames()					;Query WMIC for list of Volume Shadow Copy mount points
@@ -1944,7 +1951,7 @@ Func VSC_Prefetch()						;Copy Prefetch data from any Volume Shadow Copies
 	  If FileExists("C:\VSC_" & $v) = 1 Then
 		 If Not FileExists($EvDir & "\VSC_" & $v &"\Prefetch") Then DirCreate($EvDir & "\VSC_" & $v &"\Prefetch")
 			ShellExecuteWait($robocopy, ' "C:\VSC_' & $v & '\Windows\Prefetch" "' & $EvDir & '\VSC_' & $v & '\Prefetch" /copyall /ZB /TS /r:4 /w:3 /FP /NP /log:"' & $EvDir & 'VSC_' & $v & '\VSC_' & $v & ' Prefetch Copy Log.txt"', $tools)
-			   FileWriteLine($Log, @YEAR&"-"&@MON&"-"&@MDAY&"  "&@HOUR&":"&@MIN&":"&@SEC&":"&@MSEC&"  >  "&"Executed command: " & $vscpf1 & @CRLF)
+			   FileWriteLine($Log, @YEAR&"-"&@MON&"-"&@MDAY&@TAB&@HOUR&":"&@MIN&":"&@SEC&":"&@MSEC&@TAB&"Executed command:" &@TAB& $vscpf1 & @CRLF)
 		 $v = $v + 1
 	  Else
 		 ExitLoop
@@ -2013,7 +2020,7 @@ Func VSC_RobocopyRF($path, $output)		;Copy Recent folder from all profiles while
    Local $vscrf1 = $robocopy & " " & $recPATH & ' "' & $EvDir & 'VSC_' & $vrfc & '\Recent LNKs\' & $output & '" /copyall /ZB /TS /r:4 /w:3 /FP /NP /log:"' & $EvDir & 'VSC_' & $vrfc & '\Recent LNKs\' & $output & '_RecentFolder_Copy.txt"'
 
    RunWait($vscrf1, "", @SW_HIDE)
-		 FileWriteLine($Log, @YEAR&"-"&@MON&"-"&@MDAY&"  "&@HOUR&":"&@MIN&":"&@SEC&":"&@MSEC&"  >  "&"Executed command: " & $vscrf1 & @CRLF)
+		 FileWriteLine($Log, @YEAR&"-"&@MON&"-"&@MDAY&@TAB&@HOUR&":"&@MIN&":"&@SEC&":"&@MSEC&@TAB&"Executed command:" &@TAB& $vscrf1 & @CRLF)
 	  EndFunc
 
 Func VSC_JumpLists()					;Provide info to the Jumplist copy function (Volume Shadow Copy version)
@@ -2086,9 +2093,9 @@ Func VSC_RobocopyJL($path, $output)		;Copy Jumplist information while maintainin
    Local $vscjlc1 = $robocopy & " " & $customexe1 & ' "' & $EvDir & "VSC_" & $vjlc & '\Jump Lists\' & $output & '\Custom" /copyall /ZB /TS /r:4 /w:3 /FP /NP /log:"' & $EvDir & "VSC_" & $vjlc & '\Jump Lists\' & $output & '_JumpList_Custom_Copy.txt"'
 
    RunWait($vscjla1, "", @SW_HIDE)
-	  FileWriteLine($Log, @YEAR&"-"&@MON&"-"&@MDAY&"  "&@HOUR&":"&@MIN&":"&@SEC&":"&@MSEC&"  >  "&"Executed command: " & $vscjla1 & @CRLF)
+	  FileWriteLine($Log, @YEAR&"-"&@MON&"-"&@MDAY&@TAB&@HOUR&":"&@MIN&":"&@SEC&":"&@MSEC&@TAB&"Executed command:" &@TAB& $vscjla1 & @CRLF)
    RunWait($vscjlc1, "", @SW_HIDE)
-	  FileWriteLine($Log, @YEAR&"-"&@MON&"-"&@MDAY&"  "&@HOUR&":"&@MIN&":"&@SEC&":"&@MSEC&"  >  "&"Executed command: " & $vscjlc1 & @CRLF)
+	  FileWriteLine($Log, @YEAR&"-"&@MON&"-"&@MDAY&@TAB&@HOUR&":"&@MIN&":"&@SEC&":"&@MSEC&@TAB&"Executed command:" &@TAB& $vscjlc1 & @CRLF)
 
 EndFunc
 
@@ -2109,10 +2116,10 @@ Func VSC_EvtCopy()						;Copy all event logs from local machine (Volume Shadow C
 
 		 If Not FileExists($LogDir) Then DirCreate($LogDir)
 
-		 Local $VSC_EvtCmd = $robo7 & ' "C:\VSC_' & $vevc & '\Windows\system32\winevt\Logs" "' & $EvDir & "VSC_" & $vevc & '\Logs' & '" /copyall /ZB /TS /r:4 /w:3 /FP /NP /log:"' & $EvDir & "VSC_" & $vevc & '\Event Log Copy.txt"'
+		 Local $VSC_EvtCmd = $robo7 & ' "C:\VSC_' & $vevc & '\Windows\system32\winevt\Logs" "' & $EvDir & "VSC_" & $vevc & '\Logs' & '" /copyall /ZB /TS /r:4 /w:3 /FP /NP /log:"' & $EvDir & "VSC_" & $vevc & '\EventLogCopy.txt"'
 
 		 RunWait($VSC_EvtCmd, "", @SW_HIDE)
-			FileWriteLine($Log, @YEAR&"-"&@MON&"-"&@MDAY&"  "&@HOUR&":"&@MIN&":"&@SEC&":"&@MSEC&"  >  "&"Copied ." & $evtext & " files from " & $evtdir & "." & @CRLF)
+			FileWriteLine($Log, @YEAR&"-"&@MON&"-"&@MDAY&@TAB&@HOUR&":"&@MIN&":"&@SEC&":"&@MSEC&@TAB&"Copied ." & $evtext & " files " &@TAB& $VSC_EvtCmd & @CRLF)
 
 		 $vevc = $vevc + 1
 
@@ -2140,7 +2147,7 @@ Func VSC_RegHiv($hiv)					;Copy Registry Hive from Volume Shadow Copy
 		 Local $vsc_syshivc = $robo7 & ' "' & $vhivfile & '" "' & $vhivout & '" ' & $hiv & ' /copyall /ZB /TS /r:4 /w:3 /FP /NP /log:"' & $vhivout & '\SYSTEM_Log_Copy.txt"'
 
 		 RunWait($vsc_syshivc, "", @SW_HIDE)
-			FileWriteLine($Log, @YEAR&"-"&@MON&"-"&@MDAY&"  "&@HOUR&":"&@MIN&":"&@SEC&":"&@MSEC&"  >  "&"Executed command: " & $vsc_syshivc & @CRLF)
+			FileWriteLine($Log, @YEAR&"-"&@MON&"-"&@MDAY&@TAB&@HOUR&":"&@MIN&":"&@SEC&":"&@MSEC&@TAB&"Executed command:" &@TAB& $vsc_syshivc & @CRLF)
 
 		 $v = $v + 1
 
@@ -2217,7 +2224,7 @@ Func VSC_RobocopyNTU($path, $output)	;Copy function for NTUSER.DAT (Volume Shado
    Local $vscntu1 = $robocopy & " " & $ntl & ' "' & $EvDir & "VSC_" & $vntc & '\Registry\' & $output & '" NTUSER.DAT /copyall /ZB /TS /r:4 /w:3 /FP /NP /log:"' & $EvDir & "VSC_" & $vntc & '\Registry\' & $output & '\' & $output & '_NTUSER_Copy.txt"'
 
    RunWait($vscntu1, "", @SW_HIDE)
-	  FileWriteLine($Log, @YEAR&"-"&@MON&"-"&@MDAY&"  "&@HOUR&":"&@MIN&":"&@SEC&":"&@MSEC&"  >  "&"Executed command: " & $vscntu1 & @CRLF)
+	  FileWriteLine($Log, @YEAR&"-"&@MON&"-"&@MDAY&@TAB&@HOUR&":"&@MIN&":"&@SEC&":"&@MSEC&@TAB&"Executed command:" &@TAB& $vscntu1 & @CRLF)
 
 EndFunc
 
@@ -2231,7 +2238,7 @@ Func SysInternalsDL()					;Function to download that latest version of Sysintern
 
    $SysFile = @ScriptDir & '\SysinternalsSuite.zip'
 
-   $sysintl = InetGet("http://download.sysinternals.com/files/SysinternalsSuite.zip", $SysFile, 1, 1)
+   $sysintl = InetGet("https://download.sysinternals.com/files/SysinternalsSuite.zip", $SysFile, 1, 1)
 
    If Not FileExists(@ScriptDir & "\Tools\") Then
 			   Do
@@ -2239,7 +2246,7 @@ Func SysInternalsDL()					;Function to download that latest version of Sysintern
 			   Until FileExists(@ScriptDir & "\Tools\")
 			EndIf
 
-			   FileInstall("C:\Code\IRTriage\Tools\7za.exe", @ScriptDir & "\Tools\", 0)
+			   FileInstall(".\Compile\Tools\7za.exe", @ScriptDir & "\Tools\", 0)
 
    Do
 	  Sleep(500)
@@ -2491,7 +2498,7 @@ EndFunc
 
 Func CommandROSLOG()					;Copy the log data from ReactOS command prompt
 
-   Local $ROSlog = "C:\Commands.log"
+   Local $ROSlog = @ScriptDir & "\Commands.log"
 
    If FileExists($ROSlog) = 1 Then
 	  FileMove($ROSlog, $RptsDir)
@@ -2507,75 +2514,77 @@ Func Install()							;Function to install binary files necessary for execution i
 			   Until FileExists(@ScriptDir & "\Tools\")
 			EndIf
 
-			   FileInstall("C:\Code\IRTriage\Tools\robocopy.exe", @ScriptDir & "\Tools\", 0)
-			   FileInstall("C:\Code\IRTriage\Tools\7za.exe", @ScriptDir & "\Tools\", 0)
-			   FileInstall("C:\Code\IRTriage\Tools\robo7.exe", @ScriptDir & "\Tools\", 0)
-			   FileInstall("C:\Code\IRTriage\Tools\md5deep.exe", @ScriptDir & "\Tools\", 0)
-			   FileInstall("C:\Code\IRTriage\Tools\sha1deep.exe", @ScriptDir & "\Tools\", 0)
-			   FileInstall("C:\Code\IRTriage\Tools\sha1deep64.exe", @ScriptDir & "\Tools\", 0)
-			   FileInstall("C:\Code\IRTriage\Tools\md5deep64.exe", @ScriptDir & "\Tools\", 0)
-			   FileInstall("C:\Code\IRTriage\Tools\cmd.exe", @ScriptDir & "\Tools\", 0)
+			   FileInstall(".\Compile\Tools\7za.exe", @ScriptDir & "\Tools\", 0)
+			   FileInstall(".\Compile\Tools\7za64.exe", @ScriptDir & "\Tools\", 0)
+			   FileInstall(".\Compile\Tools\cmd.exe", @ScriptDir & "\Tools\", 0)
+			   FileInstall(".\Compile\Tools\md5deep.exe", @ScriptDir & "\Tools\", 0)
+			   FileInstall(".\Compile\Tools\md5deep64.exe", @ScriptDir & "\Tools\", 0)
+			   FileInstall(".\Compile\Tools\robo7.exe", @ScriptDir & "\Tools\", 0)
+			   FileInstall(".\Compile\Tools\robocopy.exe", @ScriptDir & "\Tools\", 0)
+			   FileInstall(".\Compile\Tools\sha1deep.exe", @ScriptDir & "\Tools\", 0)
+			   FileInstall(".\Compile\Tools\sha1deep64.exe", @ScriptDir & "\Tools\", 0)
 
-			If Not FileExists(@ScriptDir & "\Tools\sleuthkit-win32-4.1.3\bin\") Then
+			If Not FileExists(@ScriptDir & "\Tools\sleuthkit-4.2.0\bin\") Then
 				Do
-					DirCreate(@ScriptDir & "\Tools\sleuthkit-win32-4.1.3\bin\")
-				Until FileExists(@ScriptDir & "\Tools\sleuthkit-win32-4.1.3\bin\")
+					DirCreate(@ScriptDir & "\Tools\sleuthkit-4.2.0\bin\")
+				Until FileExists(@ScriptDir & "\Tools\sleuthkit-4.2.0\bin\")
 			 EndIf
 
-			   FileInstall("C:\Code\IRTriage\Tools\sleuthkit-win32-4.1.3\bin\mactime.pl", @ScriptDir & "\Tools\sleuthkit-win32-4.1.3\bin\", 0)
-			   FileInstall("C:\Code\IRTriage\Tools\sleuthkit-win32-4.1.3\bin\blkcalc.exe", @ScriptDir & "\Tools\sleuthkit-win32-4.1.3\bin\", 0)
-			   FileInstall("C:\Code\IRTriage\Tools\sleuthkit-win32-4.1.3\bin\blkcat.exe", @ScriptDir & "\Tools\sleuthkit-win32-4.1.3\bin\", 0)
-			   FileInstall("C:\Code\IRTriage\Tools\sleuthkit-win32-4.1.3\bin\blkls.exe", @ScriptDir & "\Tools\sleuthkit-win32-4.1.3\bin\", 0)
-			   FileInstall("C:\Code\IRTriage\Tools\sleuthkit-win32-4.1.3\bin\blkstat.exe", @ScriptDir & "\Tools\sleuthkit-win32-4.1.3\bin\", 0)
-			   FileInstall("C:\Code\IRTriage\Tools\sleuthkit-win32-4.1.3\bin\ffind.exe", @ScriptDir & "\Tools\sleuthkit-win32-4.1.3\bin\", 0)
-			   FileInstall("C:\Code\IRTriage\Tools\sleuthkit-win32-4.1.3\bin\fls.exe", @ScriptDir & "\Tools\sleuthkit-win32-4.1.3\bin\", 0)
-			   FileInstall("C:\Code\IRTriage\Tools\sleuthkit-win32-4.1.3\bin\fsstat.exe", @ScriptDir & "\Tools\sleuthkit-win32-4.1.3\bin\", 0)
-			   FileInstall("C:\Code\IRTriage\Tools\sleuthkit-win32-4.1.3\bin\hfind.exe", @ScriptDir & "\Tools\sleuthkit-win32-4.1.3\bin\", 0)
-			   FileInstall("C:\Code\IRTriage\Tools\sleuthkit-win32-4.1.3\bin\tsk_recover.exe", @ScriptDir & "\Tools\sleuthkit-win32-4.1.3\bin\", 0)
-			   FileInstall("C:\Code\IRTriage\Tools\sleuthkit-win32-4.1.3\bin\ifind.exe", @ScriptDir & "\Tools\sleuthkit-win32-4.1.3\bin\", 0)
-			   FileInstall("C:\Code\IRTriage\Tools\sleuthkit-win32-4.1.3\bin\ils.exe", @ScriptDir & "\Tools\sleuthkit-win32-4.1.3\bin\", 0)
-			   FileInstall("C:\Code\IRTriage\Tools\sleuthkit-win32-4.1.3\bin\img_cat.exe", @ScriptDir & "\Tools\sleuthkit-win32-4.1.3\bin\", 0)
-			   FileInstall("C:\Code\IRTriage\Tools\sleuthkit-win32-4.1.3\bin\img_stat.exe", @ScriptDir & "\Tools\sleuthkit-win32-4.1.3\bin\", 0)
-			   FileInstall("C:\Code\IRTriage\Tools\sleuthkit-win32-4.1.3\bin\istat.exe", @ScriptDir & "\Tools\sleuthkit-win32-4.1.3\bin\", 0)
-			   FileInstall("C:\Code\IRTriage\Tools\sleuthkit-win32-4.1.3\bin\tsk_gettimes.exe", @ScriptDir & "\Tools\sleuthkit-win32-4.1.3\bin\", 0)
-			   FileInstall("C:\Code\IRTriage\Tools\sleuthkit-win32-4.1.3\bin\jls.exe", @ScriptDir & "\Tools\sleuthkit-win32-4.1.3\bin\", 0)
-			   FileInstall("C:\Code\IRTriage\Tools\sleuthkit-win32-4.1.3\bin\tsk_loaddb.exe", @ScriptDir & "\Tools\sleuthkit-win32-4.1.3\bin\", 0)
-			   FileInstall("C:\Code\IRTriage\Tools\sleuthkit-win32-4.1.3\bin\icat.exe", @ScriptDir & "\Tools\sleuthkit-win32-4.1.3\bin\", 0)
-			   FileInstall("C:\Code\IRTriage\Tools\sleuthkit-win32-4.1.3\bin\jcat.exe", @ScriptDir & "\Tools\sleuthkit-win32-4.1.3\bin\", 0)
-			   FileInstall("C:\Code\IRTriage\Tools\sleuthkit-win32-4.1.3\bin\mmcat.exe", @ScriptDir & "\Tools\sleuthkit-win32-4.1.3\bin\", 0)
-			   FileInstall("C:\Code\IRTriage\Tools\sleuthkit-win32-4.1.3\bin\mmls.exe", @ScriptDir & "\Tools\sleuthkit-win32-4.1.3\bin\", 0)
-			   FileInstall("C:\Code\IRTriage\Tools\sleuthkit-win32-4.1.3\bin\mmstat.exe", @ScriptDir & "\Tools\sleuthkit-win32-4.1.3\bin\", 0)
-			   FileInstall("C:\Code\IRTriage\Tools\sleuthkit-win32-4.1.3\bin\tsk_comparedir.exe", @ScriptDir & "\Tools\sleuthkit-win32-4.1.3\bin\", 0)
-			   FileInstall("C:\Code\IRTriage\Tools\sleuthkit-win32-4.1.3\bin\libewf.dll", @ScriptDir & "\Tools\sleuthkit-win32-4.1.3\bin\", 0)
-			   FileInstall("C:\Code\IRTriage\Tools\sleuthkit-win32-4.1.3\bin\zlib.dll", @ScriptDir & "\Tools\sleuthkit-win32-4.1.3\bin\", 0)
-			   FileInstall("C:\Code\IRTriage\Tools\sleuthkit-win32-4.1.3\bin\msvcp100.dll", @ScriptDir & "\Tools\sleuthkit-win32-4.1.3\bin\", 0)
-			   FileInstall("C:\Code\IRTriage\Tools\sleuthkit-win32-4.1.3\bin\libtsk_jni.dll", @ScriptDir & "\Tools\sleuthkit-win32-4.1.3\bin\", 0)
-			   FileInstall("C:\Code\IRTriage\Tools\sleuthkit-win32-4.1.3\bin\msvcr100.dll", @ScriptDir & "\Tools\sleuthkit-win32-4.1.3\bin\", 0)
+			   FileInstall(".\Compile\Tools\sleuthkit-4.2.0\bin\blkcalc.exe", @ScriptDir & "\Tools\sleuthkit-4.2.0\bin\", 0)
+			   FileInstall(".\Compile\Tools\sleuthkit-4.2.0\bin\blkcat.exe", @ScriptDir & "\Tools\sleuthkit-4.2.0\bin\", 0)
+			   FileInstall(".\Compile\Tools\sleuthkit-4.2.0\bin\blkls.exe", @ScriptDir & "\Tools\sleuthkit-4.2.0\bin\", 0)
+			   FileInstall(".\Compile\Tools\sleuthkit-4.2.0\bin\blkstat.exe", @ScriptDir & "\Tools\sleuthkit-4.2.0\bin\", 0)
+			   FileInstall(".\Compile\Tools\sleuthkit-4.2.0\bin\fcat.exe", @ScriptDir & "\Tools\sleuthkit-4.2.0\bin\", 0)
+			   FileInstall(".\Compile\Tools\sleuthkit-4.2.0\bin\ffind.exe", @ScriptDir & "\Tools\sleuthkit-4.2.0\bin\", 0)
+			   FileInstall(".\Compile\Tools\sleuthkit-4.2.0\bin\fls.exe", @ScriptDir & "\Tools\sleuthkit-4.2.0\bin\", 0)
+			   FileInstall(".\Compile\Tools\sleuthkit-4.2.0\bin\fsstat.exe", @ScriptDir & "\Tools\sleuthkit-4.2.0\bin\", 0)
+			   FileInstall(".\Compile\Tools\sleuthkit-4.2.0\bin\hfind.exe", @ScriptDir & "\Tools\sleuthkit-4.2.0\bin\", 0)
+			   FileInstall(".\Compile\Tools\sleuthkit-4.2.0\bin\icat.exe", @ScriptDir & "\Tools\sleuthkit-4.2.0\bin\", 0)
+			   FileInstall(".\Compile\Tools\sleuthkit-4.2.0\bin\ifind.exe", @ScriptDir & "\Tools\sleuthkit-4.2.0\bin\", 0)
+			   FileInstall(".\Compile\Tools\sleuthkit-4.2.0\bin\ils.exe", @ScriptDir & "\Tools\sleuthkit-4.2.0\bin\", 0)
+			   FileInstall(".\Compile\Tools\sleuthkit-4.2.0\bin\img_cat.exe", @ScriptDir & "\Tools\sleuthkit-4.2.0\bin\", 0)
+			   FileInstall(".\Compile\Tools\sleuthkit-4.2.0\bin\img_stat.exe", @ScriptDir & "\Tools\sleuthkit-4.2.0\bin\", 0)
+			   FileInstall(".\Compile\Tools\sleuthkit-4.2.0\bin\istat.exe", @ScriptDir & "\Tools\sleuthkit-4.2.0\bin\", 0)
+			   FileInstall(".\Compile\Tools\sleuthkit-4.2.0\bin\jcat.exe", @ScriptDir & "\Tools\sleuthkit-4.2.0\bin\", 0)
+			   FileInstall(".\Compile\Tools\sleuthkit-4.2.0\bin\jls.exe", @ScriptDir & "\Tools\sleuthkit-4.2.0\bin\", 0)
+			   FileInstall(".\Compile\Tools\sleuthkit-4.2.0\bin\libewf.dll", @ScriptDir & "\Tools\sleuthkit-4.2.0\bin\", 0)
+			   FileInstall(".\Compile\Tools\sleuthkit-4.2.0\bin\libtsk_jni.dll", @ScriptDir & "\Tools\sleuthkit-4.2.0\bin\", 0)
+			   FileInstall(".\Compile\Tools\sleuthkit-4.2.0\bin\mactime.pl", @ScriptDir & "\Tools\sleuthkit-4.2.0\bin\", 0)
+			   FileInstall(".\Compile\Tools\sleuthkit-4.2.0\bin\mmcat.exe", @ScriptDir & "\Tools\sleuthkit-4.2.0\bin\", 0)
+			   FileInstall(".\Compile\Tools\sleuthkit-4.2.0\bin\mmls.exe", @ScriptDir & "\Tools\sleuthkit-4.2.0\bin\", 0)
+			   FileInstall(".\Compile\Tools\sleuthkit-4.2.0\bin\mmstat.exe", @ScriptDir & "\Tools\sleuthkit-4.2.0\bin\", 0)
+			   FileInstall(".\Compile\Tools\sleuthkit-4.2.0\bin\msvcp100.dll", @ScriptDir & "\Tools\sleuthkit-4.2.0\bin\", 0)
+			   FileInstall(".\Compile\Tools\sleuthkit-4.2.0\bin\msvcr100.dll", @ScriptDir & "\Tools\sleuthkit-4.2.0\bin\", 0)
+			   FileInstall(".\Compile\Tools\sleuthkit-4.2.0\bin\tsk_comparedir.exe", @ScriptDir & "\Tools\sleuthkit-4.2.0\bin\", 0)
+			   FileInstall(".\Compile\Tools\sleuthkit-4.2.0\bin\tsk_gettimes.exe", @ScriptDir & "\Tools\sleuthkit-4.2.0\bin\", 0)
+			   FileInstall(".\Compile\Tools\sleuthkit-4.2.0\bin\tsk_loaddb.exe", @ScriptDir & "\Tools\sleuthkit-4.2.0\bin\", 0)
+			   FileInstall(".\Compile\Tools\sleuthkit-4.2.0\bin\tsk_recover.exe", @ScriptDir & "\Tools\sleuthkit-4.2.0\bin\", 0)
+			   FileInstall(".\Compile\Tools\sleuthkit-4.2.0\bin\zlib.dll", @ScriptDir & "\Tools\sleuthkit-4.2.0\bin\", 0)
 
-			If Not FileExists(@ScriptDir & "\Tools\sleuthkit-win32-4.1.3\lib\") Then
+			If Not FileExists(@ScriptDir & "\Tools\sleuthkit-4.2.0\lib\") Then
 				Do
-					DirCreate(@ScriptDir & "\Tools\sleuthkit-win32-4.1.3\lib\")
-				Until FileExists(@ScriptDir & "\Tools\sleuthkit-win32-4.1.3\lib\")
+					DirCreate(@ScriptDir & "\Tools\sleuthkit-4.2.0\lib\")
+				Until FileExists(@ScriptDir & "\Tools\sleuthkit-4.2.0\lib\")
 			 EndIf
 
-			   FileInstall("C:\Code\IRTriage\Tools\sleuthkit-win32-4.1.3\lib\libtsk.lib", @ScriptDir & "\Tools\sleuthkit-win32-4.1.3\lib\", 0)
-			   FileInstall("C:\Code\IRTriage\Tools\sleuthkit-win32-4.1.3\lib\libtsk_jni.lib", @ScriptDir & "\Tools\sleuthkit-win32-4.1.3\lib\", 0)
+			   FileInstall(".\Compile\Tools\sleuthkit-4.2.0\lib\libtsk.lib", @ScriptDir & "\Tools\sleuthkit-4.2.0\lib\", 0)
+			   FileInstall(".\Compile\Tools\sleuthkit-4.2.0\lib\libtsk_jni.lib", @ScriptDir & "\Tools\sleuthkit-4.2.0\lib\", 0)
 
  			If Not FileExists(@ScriptDir & "\Tools\SysinternalsSuite\") Then
  			   Do
  				  DirCreate(@ScriptDir & "\Tools\SysinternalsSuite\")
  			   Until FileExists(@ScriptDir & "\Tools\SysinternalsSuite\")
  			EndIf
- 			   FileInstall("C:\Code\IRTriage\Tools\SysinternalsSuite\ntfsinfo.exe", @ScriptDir & "\Tools\SysinternalsSuite\", 0)
- 			   FileInstall("C:\Code\IRTriage\Tools\SysinternalsSuite\diskext.exe", @ScriptDir & "\Tools\SysinternalsSuite\", 0)
- 			   FileInstall("C:\Code\IRTriage\Tools\SysinternalsSuite\PsService.exe", @ScriptDir & "\Tools\SysinternalsSuite\", 0)
- 			   FileInstall("C:\Code\IRTriage\Tools\SysinternalsSuite\PsLoggedon.exe", @ScriptDir & "\Tools\SysinternalsSuite\", 0)
- 			   FileInstall("C:\Code\IRTriage\Tools\SysinternalsSuite\PsInfo.exe", @ScriptDir & "\Tools\SysinternalsSuite\", 0)
- 			   FileInstall("C:\Code\IRTriage\Tools\SysinternalsSuite\psloglist.exe", @ScriptDir & "\Tools\SysinternalsSuite\", 0)
- 			   FileInstall("C:\Code\IRTriage\Tools\SysinternalsSuite\logonsessions.exe", @ScriptDir & "\Tools\SysinternalsSuite\", 0)
- 			   FileInstall("C:\Code\IRTriage\Tools\SysinternalsSuite\pslist.exe", @ScriptDir & "\Tools\SysinternalsSuite\", 0)
- 			   FileInstall("C:\Code\IRTriage\Tools\SysinternalsSuite\handle.exe", @ScriptDir & "\Tools\SysinternalsSuite\", 0)
- 			   FileInstall("C:\Code\IRTriage\Tools\SysinternalsSuite\autorunsc.exe", @ScriptDir & "\Tools\SysinternalsSuite\", 0)
+ 			   FileInstall(".\Compile\Tools\SysinternalsSuite\autorunsc.exe", @ScriptDir & "\Tools\SysinternalsSuite\", 0)
+ 			   FileInstall(".\Compile\Tools\SysinternalsSuite\diskext.exe", @ScriptDir & "\Tools\SysinternalsSuite\", 0)
+			   FileInstall(".\Compile\Tools\SysinternalsSuite\handle.exe", @ScriptDir & "\Tools\SysinternalsSuite\", 0)
+			   FileInstall(".\Compile\Tools\SysinternalsSuite\logonsessions.exe", @ScriptDir & "\Tools\SysinternalsSuite\", 0)
+			   FileInstall(".\Compile\Tools\SysinternalsSuite\ntfsinfo.exe", @ScriptDir & "\Tools\SysinternalsSuite\", 0)
+			   FileInstall(".\Compile\Tools\SysinternalsSuite\PsInfo.exe", @ScriptDir & "\Tools\SysinternalsSuite\", 0)
+			   FileInstall(".\Compile\Tools\SysinternalsSuite\pslist.exe", @ScriptDir & "\Tools\SysinternalsSuite\", 0)
+ 			   FileInstall(".\Compile\Tools\SysinternalsSuite\PsLoggedon.exe", @ScriptDir & "\Tools\SysinternalsSuite\", 0)
+ 			   FileInstall(".\Compile\Tools\SysinternalsSuite\psloglist.exe", @ScriptDir & "\Tools\SysinternalsSuite\", 0)
+ 			   FileInstall(".\Compile\Tools\SysinternalsSuite\PsService.exe", @ScriptDir & "\Tools\SysinternalsSuite\", 0)
 
 EndFunc
 
@@ -2586,238 +2595,359 @@ Func RegRipperTools()
 				  DirCreate(@ScriptDir & "\Tools\RegRipper\")
 			   Until FileExists(@ScriptDir & "\Tools\RegRipper\")
 			EndIf
-			   FileInstall("C:\Code\IRTriage\Tools\RegRipper\rip.pl", @ScriptDir & "\Tools\RegRipper\", 0)
-			   FileInstall("C:\Code\IRTriage\Tools\RegRipper\ripxp.pl", @ScriptDir & "\Tools\RegRipper\", 0)
-			   FileInstall("C:\Code\IRTriage\Tools\RegRipper\pb.pl", @ScriptDir & "\Tools\RegRipper\", 0)
-			   FileInstall("C:\Code\IRTriage\Tools\RegRipper\rr.pl", @ScriptDir & "\Tools\RegRipper\", 0)
-			   FileInstall("C:\Code\IRTriage\Tools\RegRipper\qar.ico", @ScriptDir & "\Tools\RegRipper\", 0)
-			   FileInstall("C:\Code\IRTriage\Tools\RegRipper\rip.exe", @ScriptDir & "\Tools\RegRipper\", 0)
-			   FileInstall("C:\Code\IRTriage\Tools\RegRipper\ripxp.exe", @ScriptDir & "\Tools\RegRipper\", 0)
-			   FileInstall("C:\Code\IRTriage\Tools\RegRipper\pb.exe", @ScriptDir & "\Tools\RegRipper\", 0)
-			   FileInstall("C:\Code\IRTriage\Tools\RegRipper\rr.exe", @ScriptDir & "\Tools\RegRipper\", 0)
-			   FileInstall("C:\Code\IRTriage\Tools\RegRipper\p2x588.dll", @ScriptDir & "\Tools\RegRipper\", 0)
-			   FileInstall("C:\Code\IRTriage\Tools\RegRipper\auditpol.bat", @ScriptDir & "\Tools\RegRipper\", 0)
-			   FileInstall("C:\Code\IRTriage\Tools\RegRipper\regrip.bat", @ScriptDir & "\Tools\RegRipper\", 0)
-			   FileInstall("C:\Code\IRTriage\Tools\RegRipper\ua.bat", @ScriptDir & "\Tools\RegRipper\", 0)
+			   FileInstall(".\Compile\Tools\RegRipper2.8\p2x5124.dll", @ScriptDir & "\Tools\RegRipper\", 0)
+			   FileInstall(".\Compile\Tools\RegRipper2.8\rip.exe", @ScriptDir & "\Tools\RegRipper\", 0)
+			   FileInstall(".\Compile\Tools\RegRipper2.8\rip.pl", @ScriptDir & "\Tools\RegRipper\", 0)
+			   FileInstall(".\Compile\Tools\RegRipper2.8\rr.exe", @ScriptDir & "\Tools\RegRipper\", 0)
+			   FileInstall(".\Compile\Tools\RegRipper2.8\rr.pl", @ScriptDir & "\Tools\RegRipper\", 0)
+			   FileInstall(".\Compile\Tools\RegRipper2.8\shellitems.pl", @ScriptDir & "\Tools\RegRipper\", 0)
+			   FileInstall(".\Compile\Tools\RegRipper2.8\time.pl", @ScriptDir & "\Tools\RegRipper\", 0)
 
 			If Not FileExists(@ScriptDir & "\Tools\RegRipper\plugins\") Then
 			   Do
 				  DirCreate(@ScriptDir & "\Tools\RegRipper\plugins\")
 			   Until FileExists(@ScriptDir & "\Tools\RegRipper\plugins\")
 			EndIf
-			   FileInstall("C:\Code\IRTriage\Tools\RegRipper\plugins\port_dev.pl", @ScriptDir & "\Tools\RegRipper\plugins\", 0)
-			   FileInstall("C:\Code\IRTriage\Tools\RegRipper\plugins\mountdev2.pl", @ScriptDir & "\Tools\RegRipper\plugins\", 0)
-			   FileInstall("C:\Code\IRTriage\Tools\RegRipper\plugins\comdlg32a.pl", @ScriptDir & "\Tools\RegRipper\plugins\", 0)
-			   FileInstall("C:\Code\IRTriage\Tools\RegRipper\plugins\acmru.pl", @ScriptDir & "\Tools\RegRipper\plugins\", 0)
-			   FileInstall("C:\Code\IRTriage\Tools\RegRipper\plugins\dependency_walker.pl", @ScriptDir & "\Tools\RegRipper\plugins\", 0)
-			   FileInstall("C:\Code\IRTriage\Tools\RegRipper\plugins\defbrowser.pl", @ScriptDir & "\Tools\RegRipper\plugins\", 0)
-			   FileInstall("C:\Code\IRTriage\Tools\RegRipper\plugins\aports.pl", @ScriptDir & "\Tools\RegRipper\plugins\", 0)
-			   FileInstall("C:\Code\IRTriage\Tools\RegRipper\plugins\appcompatflags.pl", @ScriptDir & "\Tools\RegRipper\plugins\", 0)
-			   FileInstall("C:\Code\IRTriage\Tools\RegRipper\plugins\appinitdlls.pl", @ScriptDir & "\Tools\RegRipper\plugins\", 0)
-			   FileInstall("C:\Code\IRTriage\Tools\RegRipper\plugins\applets.pl", @ScriptDir & "\Tools\RegRipper\plugins\", 0)
-			   FileInstall("C:\Code\IRTriage\Tools\RegRipper\plugins\apppaths.pl", @ScriptDir & "\Tools\RegRipper\plugins\", 0)
-			   FileInstall("C:\Code\IRTriage\Tools\RegRipper\plugins\arpcache.pl", @ScriptDir & "\Tools\RegRipper\plugins\", 0)
-			   FileInstall("C:\Code\IRTriage\Tools\RegRipper\plugins\assoc.pl", @ScriptDir & "\Tools\RegRipper\plugins\", 0)
-			   FileInstall("C:\Code\IRTriage\Tools\RegRipper\plugins\auditfail.pl", @ScriptDir & "\Tools\RegRipper\plugins\", 0)
-			   FileInstall("C:\Code\IRTriage\Tools\RegRipper\plugins\auditpol.pl", @ScriptDir & "\Tools\RegRipper\plugins\", 0)
-			   FileInstall("C:\Code\IRTriage\Tools\RegRipper\plugins\autoendtasks.pl", @ScriptDir & "\Tools\RegRipper\plugins\", 0)
-			   FileInstall("C:\Code\IRTriage\Tools\RegRipper\plugins\aim.pl", @ScriptDir & "\Tools\RegRipper\plugins\", 0)
-			   FileInstall("C:\Code\IRTriage\Tools\RegRipper\plugins\bagtest.pl", @ScriptDir & "\Tools\RegRipper\plugins\", 0)
-			   FileInstall("C:\Code\IRTriage\Tools\RegRipper\plugins\bagtest2.pl", @ScriptDir & "\Tools\RegRipper\plugins\", 0)
-			   FileInstall("C:\Code\IRTriage\Tools\RegRipper\plugins\banner.pl", @ScriptDir & "\Tools\RegRipper\plugins\", 0)
-			   FileInstall("C:\Code\IRTriage\Tools\RegRipper\plugins\bho.pl", @ScriptDir & "\Tools\RegRipper\plugins\", 0)
-			   FileInstall("C:\Code\IRTriage\Tools\RegRipper\plugins\bitbucket.pl", @ScriptDir & "\Tools\RegRipper\plugins\", 0)
-			   FileInstall("C:\Code\IRTriage\Tools\RegRipper\plugins\bitbucket_user.pl", @ScriptDir & "\Tools\RegRipper\plugins\", 0)
-			   FileInstall("C:\Code\IRTriage\Tools\RegRipper\plugins\brisv.pl", @ScriptDir & "\Tools\RegRipper\plugins\", 0)
-			   FileInstall("C:\Code\IRTriage\Tools\RegRipper\plugins\cain.pl", @ScriptDir & "\Tools\RegRipper\plugins\", 0)
-			   FileInstall("C:\Code\IRTriage\Tools\RegRipper\plugins\decaf.pl", @ScriptDir & "\Tools\RegRipper\plugins\", 0)
-			   FileInstall("C:\Code\IRTriage\Tools\RegRipper\plugins\clampi.pl", @ScriptDir & "\Tools\RegRipper\plugins\", 0)
-			   FileInstall("C:\Code\IRTriage\Tools\RegRipper\plugins\clampitm.pl", @ScriptDir & "\Tools\RegRipper\plugins\", 0)
-			   FileInstall("C:\Code\IRTriage\Tools\RegRipper\plugins\clsid.pl", @ScriptDir & "\Tools\RegRipper\plugins\", 0)
-			   FileInstall("C:\Code\IRTriage\Tools\RegRipper\plugins\cmd_shell.pl", @ScriptDir & "\Tools\RegRipper\plugins\", 0)
-			   FileInstall("C:\Code\IRTriage\Tools\RegRipper\plugins\codeid.pl", @ScriptDir & "\Tools\RegRipper\plugins\", 0)
-			   FileInstall("C:\Code\IRTriage\Tools\RegRipper\plugins\ddm.pl", @ScriptDir & "\Tools\RegRipper\plugins\", 0)
-			   FileInstall("C:\Code\IRTriage\Tools\RegRipper\plugins\autorun.pl", @ScriptDir & "\Tools\RegRipper\plugins\", 0)
-			   FileInstall("C:\Code\IRTriage\Tools\RegRipper\plugins\compdesc.pl", @ScriptDir & "\Tools\RegRipper\plugins\", 0)
-			   FileInstall("C:\Code\IRTriage\Tools\RegRipper\plugins\compname.pl", @ScriptDir & "\Tools\RegRipper\plugins\", 0)
-			   FileInstall("C:\Code\IRTriage\Tools\RegRipper\plugins\controlpanel.pl", @ScriptDir & "\Tools\RegRipper\plugins\", 0)
-			   FileInstall("C:\Code\IRTriage\Tools\RegRipper\plugins\cpldontload.pl", @ScriptDir & "\Tools\RegRipper\plugins\", 0)
-			   FileInstall("C:\Code\IRTriage\Tools\RegRipper\plugins\crashcontrol.pl", @ScriptDir & "\Tools\RegRipper\plugins\", 0)
-			   FileInstall("C:\Code\IRTriage\Tools\RegRipper\plugins\crashdump.pl", @ScriptDir & "\Tools\RegRipper\plugins\", 0)
-			   FileInstall("C:\Code\IRTriage\Tools\RegRipper\plugins\ctrlpnl.pl", @ScriptDir & "\Tools\RegRipper\plugins\", 0)
-			   FileInstall("C:\Code\IRTriage\Tools\RegRipper\plugins\devclass.pl", @ScriptDir & "\Tools\RegRipper\plugins\", 0)
-			   FileInstall("C:\Code\IRTriage\Tools\RegRipper\plugins\disablelastaccess.pl", @ScriptDir & "\Tools\RegRipper\plugins\", 0)
-			   FileInstall("C:\Code\IRTriage\Tools\RegRipper\plugins\dllsearch.pl", @ScriptDir & "\Tools\RegRipper\plugins\", 0)
-			   FileInstall("C:\Code\IRTriage\Tools\RegRipper\plugins\domains.pl", @ScriptDir & "\Tools\RegRipper\plugins\", 0)
-			   FileInstall("C:\Code\IRTriage\Tools\RegRipper\plugins\drwatson.pl", @ScriptDir & "\Tools\RegRipper\plugins\", 0)
-			   FileInstall("C:\Code\IRTriage\Tools\RegRipper\plugins\environment.pl", @ScriptDir & "\Tools\RegRipper\plugins\", 0)
-			   FileInstall("C:\Code\IRTriage\Tools\RegRipper\plugins\eventlog.pl", @ScriptDir & "\Tools\RegRipper\plugins\", 0)
-			   FileInstall("C:\Code\IRTriage\Tools\RegRipper\plugins\fileexts.pl", @ScriptDir & "\Tools\RegRipper\plugins\", 0)
-			   FileInstall("C:\Code\IRTriage\Tools\RegRipper\plugins\findexes.pl", @ScriptDir & "\Tools\RegRipper\plugins\", 0)
-			   FileInstall("C:\Code\IRTriage\Tools\RegRipper\plugins\fw_config.pl", @ScriptDir & "\Tools\RegRipper\plugins\", 0)
-			   FileInstall("C:\Code\IRTriage\Tools\RegRipper\plugins\gthist.pl", @ScriptDir & "\Tools\RegRipper\plugins\", 0)
-			   FileInstall("C:\Code\IRTriage\Tools\RegRipper\plugins\gtwhitelist.pl", @ScriptDir & "\Tools\RegRipper\plugins\", 0)
-			   FileInstall("C:\Code\IRTriage\Tools\RegRipper\plugins\haven_and_hearth.pl", @ScriptDir & "\Tools\RegRipper\plugins\", 0)
-			   FileInstall("C:\Code\IRTriage\Tools\RegRipper\plugins\hibernate.pl", @ScriptDir & "\Tools\RegRipper\plugins\", 0)
-			   FileInstall("C:\Code\IRTriage\Tools\RegRipper\plugins\ide.pl", @ScriptDir & "\Tools\RegRipper\plugins\", 0)
-			   FileInstall("C:\Code\IRTriage\Tools\RegRipper\plugins\ie_main.pl", @ScriptDir & "\Tools\RegRipper\plugins\", 0)
-			   FileInstall("C:\Code\IRTriage\Tools\RegRipper\plugins\ie_settings.pl", @ScriptDir & "\Tools\RegRipper\plugins\", 0)
-			   FileInstall("C:\Code\IRTriage\Tools\RegRipper\plugins\ie_version.pl", @ScriptDir & "\Tools\RegRipper\plugins\", 0)
-			   FileInstall("C:\Code\IRTriage\Tools\RegRipper\plugins\iexplore.pl", @ScriptDir & "\Tools\RegRipper\plugins\", 0)
-			   FileInstall("C:\Code\IRTriage\Tools\RegRipper\plugins\imagedev.pl", @ScriptDir & "\Tools\RegRipper\plugins\", 0)
-			   FileInstall("C:\Code\IRTriage\Tools\RegRipper\plugins\imagefile.pl", @ScriptDir & "\Tools\RegRipper\plugins\", 0)
-			   FileInstall("C:\Code\IRTriage\Tools\RegRipper\plugins\init_dlls.pl", @ScriptDir & "\Tools\RegRipper\plugins\", 0)
-			   FileInstall("C:\Code\IRTriage\Tools\RegRipper\plugins\installedcomp.pl", @ScriptDir & "\Tools\RegRipper\plugins\", 0)
-			   FileInstall("C:\Code\IRTriage\Tools\RegRipper\plugins\kb950582.pl", @ScriptDir & "\Tools\RegRipper\plugins\", 0)
-			   FileInstall("C:\Code\IRTriage\Tools\RegRipper\plugins\kbdcrash.pl", @ScriptDir & "\Tools\RegRipper\plugins\", 0)
-			   FileInstall("C:\Code\IRTriage\Tools\RegRipper\plugins\landesk.pl", @ScriptDir & "\Tools\RegRipper\plugins\", 0)
-			   FileInstall("C:\Code\IRTriage\Tools\RegRipper\plugins\legacy.pl", @ScriptDir & "\Tools\RegRipper\plugins\", 0)
-			   FileInstall("C:\Code\IRTriage\Tools\RegRipper\plugins\listsoft.pl", @ScriptDir & "\Tools\RegRipper\plugins\", 0)
-			   FileInstall("C:\Code\IRTriage\Tools\RegRipper\plugins\liveContactsGUID.pl", @ScriptDir & "\Tools\RegRipper\plugins\", 0)
-			   FileInstall("C:\Code\IRTriage\Tools\RegRipper\plugins\load.pl", @ScriptDir & "\Tools\RegRipper\plugins\", 0)
-			   FileInstall("C:\Code\IRTriage\Tools\RegRipper\plugins\logon_xp_run.pl", @ScriptDir & "\Tools\RegRipper\plugins\", 0)
-			   FileInstall("C:\Code\IRTriage\Tools\RegRipper\plugins\logonusername.pl", @ScriptDir & "\Tools\RegRipper\plugins\", 0)
-			   FileInstall("C:\Code\IRTriage\Tools\RegRipper\plugins\macaddr.pl", @ScriptDir & "\Tools\RegRipper\plugins\", 0)
-			   FileInstall("C:\Code\IRTriage\Tools\RegRipper\plugins\lsasecrets.pl", @ScriptDir & "\Tools\RegRipper\plugins\", 0)
-			   FileInstall("C:\Code\IRTriage\Tools\RegRipper\plugins\mmc.pl", @ScriptDir & "\Tools\RegRipper\plugins\", 0)
-			   FileInstall("C:\Code\IRTriage\Tools\RegRipper\plugins\mndmru.pl", @ScriptDir & "\Tools\RegRipper\plugins\", 0)
-			   FileInstall("C:\Code\IRTriage\Tools\RegRipper\plugins\mp2.pl", @ScriptDir & "\Tools\RegRipper\plugins\", 0)
-			   FileInstall("C:\Code\IRTriage\Tools\RegRipper\plugins\mpmru.pl", @ScriptDir & "\Tools\RegRipper\plugins\", 0)
-			   FileInstall("C:\Code\IRTriage\Tools\RegRipper\plugins\mrt.pl", @ScriptDir & "\Tools\RegRipper\plugins\", 0)
-			   FileInstall("C:\Code\IRTriage\Tools\RegRipper\plugins\msis.pl", @ScriptDir & "\Tools\RegRipper\plugins\", 0)
-			   FileInstall("C:\Code\IRTriage\Tools\RegRipper\plugins\mspaper.pl", @ScriptDir & "\Tools\RegRipper\plugins\", 0)
-			   FileInstall("C:\Code\IRTriage\Tools\RegRipper\plugins\muicache.pl", @ScriptDir & "\Tools\RegRipper\plugins\", 0)
-			   FileInstall("C:\Code\IRTriage\Tools\RegRipper\plugins\nero.pl", @ScriptDir & "\Tools\RegRipper\plugins\", 0)
-			   FileInstall("C:\Code\IRTriage\Tools\RegRipper\plugins\netassist.pl", @ScriptDir & "\Tools\RegRipper\plugins\", 0)
-			   FileInstall("C:\Code\IRTriage\Tools\RegRipper\plugins\network.pl", @ScriptDir & "\Tools\RegRipper\plugins\", 0)
-			   FileInstall("C:\Code\IRTriage\Tools\RegRipper\plugins\networklist.pl", @ScriptDir & "\Tools\RegRipper\plugins\", 0)
-			   FileInstall("C:\Code\IRTriage\Tools\RegRipper\plugins\networkuid.pl", @ScriptDir & "\Tools\RegRipper\plugins\", 0)
-			   FileInstall("C:\Code\IRTriage\Tools\RegRipper\plugins\nic.pl", @ScriptDir & "\Tools\RegRipper\plugins\", 0)
-			   FileInstall("C:\Code\IRTriage\Tools\RegRipper\plugins\nic_mst2.pl", @ScriptDir & "\Tools\RegRipper\plugins\", 0)
-			   FileInstall("C:\Code\IRTriage\Tools\RegRipper\plugins\nic2.pl", @ScriptDir & "\Tools\RegRipper\plugins\", 0)
-			   FileInstall("C:\Code\IRTriage\Tools\RegRipper\plugins\nolmhash.pl", @ScriptDir & "\Tools\RegRipper\plugins\", 0)
-			   FileInstall("C:\Code\IRTriage\Tools\RegRipper\plugins\notify.pl", @ScriptDir & "\Tools\RegRipper\plugins\", 0)
-			   FileInstall("C:\Code\IRTriage\Tools\RegRipper\plugins\odysseus.pl", @ScriptDir & "\Tools\RegRipper\plugins\", 0)
-			   FileInstall("C:\Code\IRTriage\Tools\RegRipper\plugins\officedocs.pl", @ScriptDir & "\Tools\RegRipper\plugins\", 0)
-			   FileInstall("C:\Code\IRTriage\Tools\RegRipper\plugins\oisc.pl", @ScriptDir & "\Tools\RegRipper\plugins\", 0)
-			   FileInstall("C:\Code\IRTriage\Tools\RegRipper\plugins\outlook.pl", @ScriptDir & "\Tools\RegRipper\plugins\", 0)
-			   FileInstall("C:\Code\IRTriage\Tools\RegRipper\plugins\pagefile.pl", @ScriptDir & "\Tools\RegRipper\plugins\", 0)
-			   FileInstall("C:\Code\IRTriage\Tools\RegRipper\plugins\polacdms.pl", @ScriptDir & "\Tools\RegRipper\plugins\", 0)
-			   FileInstall("C:\Code\IRTriage\Tools\RegRipper\plugins\policies_u.pl", @ScriptDir & "\Tools\RegRipper\plugins\", 0)
-			   FileInstall("C:\Code\IRTriage\Tools\RegRipper\plugins\printermru.pl", @ScriptDir & "\Tools\RegRipper\plugins\", 0)
-			   FileInstall("C:\Code\IRTriage\Tools\RegRipper\plugins\printers.pl", @ScriptDir & "\Tools\RegRipper\plugins\", 0)
-			   FileInstall("C:\Code\IRTriage\Tools\RegRipper\plugins\privoxy.pl", @ScriptDir & "\Tools\RegRipper\plugins\", 0)
-			   FileInstall("C:\Code\IRTriage\Tools\RegRipper\plugins\productpolicy.pl", @ScriptDir & "\Tools\RegRipper\plugins\", 0)
-			   FileInstall("C:\Code\IRTriage\Tools\RegRipper\plugins\producttype.pl", @ScriptDir & "\Tools\RegRipper\plugins\", 0)
-			   FileInstall("C:\Code\IRTriage\Tools\RegRipper\plugins\product.pl", @ScriptDir & "\Tools\RegRipper\plugins\", 0)
-			   FileInstall("C:\Code\IRTriage\Tools\RegRipper\plugins\profilelist.pl", @ScriptDir & "\Tools\RegRipper\plugins\", 0)
-			   FileInstall("C:\Code\IRTriage\Tools\RegRipper\plugins\proxysettings.pl", @ScriptDir & "\Tools\RegRipper\plugins\", 0)
-			   FileInstall("C:\Code\IRTriage\Tools\RegRipper\plugins\publishingwizard.pl", @ScriptDir & "\Tools\RegRipper\plugins\", 0)
-			   FileInstall("C:\Code\IRTriage\Tools\RegRipper\plugins\putty.pl", @ScriptDir & "\Tools\RegRipper\plugins\", 0)
-			   FileInstall("C:\Code\IRTriage\Tools\RegRipper\plugins\rdphint.pl", @ScriptDir & "\Tools\RegRipper\plugins\", 0)
-			   FileInstall("C:\Code\IRTriage\Tools\RegRipper\plugins\rdpport.pl", @ScriptDir & "\Tools\RegRipper\plugins\", 0)
-			   FileInstall("C:\Code\IRTriage\Tools\RegRipper\plugins\realplayer6.pl", @ScriptDir & "\Tools\RegRipper\plugins\", 0)
-			   FileInstall("C:\Code\IRTriage\Tools\RegRipper\plugins\realvnc.pl", @ScriptDir & "\Tools\RegRipper\plugins\", 0)
-			   FileInstall("C:\Code\IRTriage\Tools\RegRipper\plugins\recentdocs.pl", @ScriptDir & "\Tools\RegRipper\plugins\", 0)
-			   FileInstall("C:\Code\IRTriage\Tools\RegRipper\plugins\regback.pl", @ScriptDir & "\Tools\RegRipper\plugins\", 0)
-			   FileInstall("C:\Code\IRTriage\Tools\RegRipper\plugins\regtime.pl", @ScriptDir & "\Tools\RegRipper\plugins\", 0)
-			   FileInstall("C:\Code\IRTriage\Tools\RegRipper\plugins\regtime_tln.pl", @ScriptDir & "\Tools\RegRipper\plugins\", 0)
-			   FileInstall("C:\Code\IRTriage\Tools\RegRipper\plugins\renocide.pl", @ScriptDir & "\Tools\RegRipper\plugins\", 0)
-			   FileInstall("C:\Code\IRTriage\Tools\RegRipper\plugins\rootkit_revealer.pl", @ScriptDir & "\Tools\RegRipper\plugins\", 0)
-			   FileInstall("C:\Code\IRTriage\Tools\RegRipper\plugins\routes.pl", @ScriptDir & "\Tools\RegRipper\plugins\", 0)
-			   FileInstall("C:\Code\IRTriage\Tools\RegRipper\plugins\runmru.pl", @ScriptDir & "\Tools\RegRipper\plugins\", 0)
-			   FileInstall("C:\Code\IRTriage\Tools\RegRipper\plugins\safeboot.pl", @ScriptDir & "\Tools\RegRipper\plugins\", 0)
-			   FileInstall("C:\Code\IRTriage\Tools\RegRipper\plugins\schedagent.pl", @ScriptDir & "\Tools\RegRipper\plugins\", 0)
-			   FileInstall("C:\Code\IRTriage\Tools\RegRipper\plugins\secctr.pl", @ScriptDir & "\Tools\RegRipper\plugins\", 0)
-			   FileInstall("C:\Code\IRTriage\Tools\RegRipper\plugins\services.pl", @ScriptDir & "\Tools\RegRipper\plugins\", 0)
-			   FileInstall("C:\Code\IRTriage\Tools\RegRipper\plugins\sevenzip.pl", @ScriptDir & "\Tools\RegRipper\plugins\", 0)
-			   FileInstall("C:\Code\IRTriage\Tools\RegRipper\plugins\sfc.pl", @ScriptDir & "\Tools\RegRipper\plugins\", 0)
-			   FileInstall("C:\Code\IRTriage\Tools\RegRipper\plugins\shares.pl", @ScriptDir & "\Tools\RegRipper\plugins\", 0)
-			   FileInstall("C:\Code\IRTriage\Tools\RegRipper\plugins\shellexec.pl", @ScriptDir & "\Tools\RegRipper\plugins\", 0)
-			   FileInstall("C:\Code\IRTriage\Tools\RegRipper\plugins\shellext.pl", @ScriptDir & "\Tools\RegRipper\plugins\", 0)
-			   FileInstall("C:\Code\IRTriage\Tools\RegRipper\plugins\shellfolders.pl", @ScriptDir & "\Tools\RegRipper\plugins\", 0)
-			   FileInstall("C:\Code\IRTriage\Tools\RegRipper\plugins\shelloverlay.pl", @ScriptDir & "\Tools\RegRipper\plugins\", 0)
-			   FileInstall("C:\Code\IRTriage\Tools\RegRipper\plugins\shutdowncount.pl", @ScriptDir & "\Tools\RegRipper\plugins\", 0)
-			   FileInstall("C:\Code\IRTriage\Tools\RegRipper\plugins\skype.pl", @ScriptDir & "\Tools\RegRipper\plugins\", 0)
-			   FileInstall("C:\Code\IRTriage\Tools\RegRipper\plugins\snapshot.pl", @ScriptDir & "\Tools\RegRipper\plugins\", 0)
-			   FileInstall("C:\Code\IRTriage\Tools\RegRipper\plugins\snapshot_viewer.pl", @ScriptDir & "\Tools\RegRipper\plugins\", 0)
-			   FileInstall("C:\Code\IRTriage\Tools\RegRipper\plugins\soft_run.pl", @ScriptDir & "\Tools\RegRipper\plugins\", 0)
-			   FileInstall("C:\Code\IRTriage\Tools\RegRipper\plugins\specaccts.pl", @ScriptDir & "\Tools\RegRipper\plugins\", 0)
-			   FileInstall("C:\Code\IRTriage\Tools\RegRipper\plugins\sql_lastconnect.pl", @ScriptDir & "\Tools\RegRipper\plugins\", 0)
-			   FileInstall("C:\Code\IRTriage\Tools\RegRipper\plugins\ssid.pl", @ScriptDir & "\Tools\RegRipper\plugins\", 0)
-			   FileInstall("C:\Code\IRTriage\Tools\RegRipper\plugins\startmenuinternetapps_cu.pl", @ScriptDir & "\Tools\RegRipper\plugins\", 0)
-			   FileInstall("C:\Code\IRTriage\Tools\RegRipper\plugins\startmenuinternetapps_lm.pl", @ScriptDir & "\Tools\RegRipper\plugins\", 0)
-			   FileInstall("C:\Code\IRTriage\Tools\RegRipper\plugins\startpage.pl", @ScriptDir & "\Tools\RegRipper\plugins\", 0)
-			   FileInstall("C:\Code\IRTriage\Tools\RegRipper\plugins\stillimage.pl", @ScriptDir & "\Tools\RegRipper\plugins\", 0)
-			   FileInstall("C:\Code\IRTriage\Tools\RegRipper\plugins\streammru.pl", @ScriptDir & "\Tools\RegRipper\plugins\", 0)
-			   FileInstall("C:\Code\IRTriage\Tools\RegRipper\plugins\streams.pl", @ScriptDir & "\Tools\RegRipper\plugins\", 0)
-			   FileInstall("C:\Code\IRTriage\Tools\RegRipper\plugins\svc.pl", @ScriptDir & "\Tools\RegRipper\plugins\", 0)
-			   FileInstall("C:\Code\IRTriage\Tools\RegRipper\plugins\svc2.pl", @ScriptDir & "\Tools\RegRipper\plugins\", 0)
-			   FileInstall("C:\Code\IRTriage\Tools\RegRipper\plugins\svcdll.pl", @ScriptDir & "\Tools\RegRipper\plugins\", 0)
-			   FileInstall("C:\Code\IRTriage\Tools\RegRipper\plugins\svchost.pl", @ScriptDir & "\Tools\RegRipper\plugins\", 0)
-			   FileInstall("C:\Code\IRTriage\Tools\RegRipper\plugins\taskman.pl", @ScriptDir & "\Tools\RegRipper\plugins\", 0)
-			   FileInstall("C:\Code\IRTriage\Tools\RegRipper\plugins\termserv.pl", @ScriptDir & "\Tools\RegRipper\plugins\", 0)
-			   FileInstall("C:\Code\IRTriage\Tools\RegRipper\plugins\tsclient.pl", @ScriptDir & "\Tools\RegRipper\plugins\", 0)
-			   FileInstall("C:\Code\IRTriage\Tools\RegRipper\plugins\typedpaths.pl", @ScriptDir & "\Tools\RegRipper\plugins\", 0)
-			   FileInstall("C:\Code\IRTriage\Tools\RegRipper\plugins\typedurls.pl", @ScriptDir & "\Tools\RegRipper\plugins\", 0)
-			   FileInstall("C:\Code\IRTriage\Tools\RegRipper\plugins\uninstall.pl", @ScriptDir & "\Tools\RegRipper\plugins\", 0)
-			   FileInstall("C:\Code\IRTriage\Tools\RegRipper\plugins\unreadmail.pl", @ScriptDir & "\Tools\RegRipper\plugins\", 0)
-			   FileInstall("C:\Code\IRTriage\Tools\RegRipper\plugins\urlzone.pl", @ScriptDir & "\Tools\RegRipper\plugins\", 0)
-			   FileInstall("C:\Code\IRTriage\Tools\RegRipper\plugins\usb.pl", @ScriptDir & "\Tools\RegRipper\plugins\", 0)
-			   FileInstall("C:\Code\IRTriage\Tools\RegRipper\plugins\usbdevices.pl", @ScriptDir & "\Tools\RegRipper\plugins\", 0)
-			   FileInstall("C:\Code\IRTriage\Tools\RegRipper\plugins\usbstor.pl", @ScriptDir & "\Tools\RegRipper\plugins\", 0)
-			   FileInstall("C:\Code\IRTriage\Tools\RegRipper\plugins\usbstor2.pl", @ScriptDir & "\Tools\RegRipper\plugins\", 0)
-			   FileInstall("C:\Code\IRTriage\Tools\RegRipper\plugins\usbstor3.pl", @ScriptDir & "\Tools\RegRipper\plugins\", 0)
-			   FileInstall("C:\Code\IRTriage\Tools\RegRipper\plugins\user_run.pl", @ScriptDir & "\Tools\RegRipper\plugins\", 0)
-			   FileInstall("C:\Code\IRTriage\Tools\RegRipper\plugins\user_win.pl", @ScriptDir & "\Tools\RegRipper\plugins\", 0)
-			   FileInstall("C:\Code\IRTriage\Tools\RegRipper\plugins\userassist.pl", @ScriptDir & "\Tools\RegRipper\plugins\", 0)
-			   FileInstall("C:\Code\IRTriage\Tools\RegRipper\plugins\userassist2.pl", @ScriptDir & "\Tools\RegRipper\plugins\", 0)
-			   FileInstall("C:\Code\IRTriage\Tools\RegRipper\plugins\userinit.pl", @ScriptDir & "\Tools\RegRipper\plugins\", 0)
-			   FileInstall("C:\Code\IRTriage\Tools\RegRipper\plugins\userlocsvc.pl", @ScriptDir & "\Tools\RegRipper\plugins\", 0)
-			   FileInstall("C:\Code\IRTriage\Tools\RegRipper\plugins\virut.pl", @ScriptDir & "\Tools\RegRipper\plugins\", 0)
-			   FileInstall("C:\Code\IRTriage\Tools\RegRipper\plugins\vista_comdlg32.pl", @ScriptDir & "\Tools\RegRipper\plugins\", 0)
-			   FileInstall("C:\Code\IRTriage\Tools\RegRipper\plugins\vista_bitbucket.pl", @ScriptDir & "\Tools\RegRipper\plugins\", 0)
-			   FileInstall("C:\Code\IRTriage\Tools\RegRipper\plugins\vista_wireless.pl", @ScriptDir & "\Tools\RegRipper\plugins\", 0)
-			   FileInstall("C:\Code\IRTriage\Tools\RegRipper\plugins\vmplayer.pl", @ScriptDir & "\Tools\RegRipper\plugins\", 0)
-			   FileInstall("C:\Code\IRTriage\Tools\RegRipper\plugins\vmware_vsphere_client.pl", @ScriptDir & "\Tools\RegRipper\plugins\", 0)
-			   FileInstall("C:\Code\IRTriage\Tools\RegRipper\plugins\vnchooksapplicationprefs.pl", @ScriptDir & "\Tools\RegRipper\plugins\", 0)
-			   FileInstall("C:\Code\IRTriage\Tools\RegRipper\plugins\vncviewer.pl", @ScriptDir & "\Tools\RegRipper\plugins\", 0)
-			   FileInstall("C:\Code\IRTriage\Tools\RegRipper\plugins\wallpaper.pl", @ScriptDir & "\Tools\RegRipper\plugins\", 0)
-			   FileInstall("C:\Code\IRTriage\Tools\RegRipper\plugins\warcraft3.pl", @ScriptDir & "\Tools\RegRipper\plugins\", 0)
-			   FileInstall("C:\Code\IRTriage\Tools\RegRipper\plugins\win_cv.pl", @ScriptDir & "\Tools\RegRipper\plugins\", 0)
-			   FileInstall("C:\Code\IRTriage\Tools\RegRipper\plugins\win7_ua.pl", @ScriptDir & "\Tools\RegRipper\plugins\", 0)
-			   FileInstall("C:\Code\IRTriage\Tools\RegRipper\plugins\winlogon.pl", @ScriptDir & "\Tools\RegRipper\plugins\", 0)
-			   FileInstall("C:\Code\IRTriage\Tools\RegRipper\plugins\winlogon_u.pl", @ScriptDir & "\Tools\RegRipper\plugins\", 0)
-			   FileInstall("C:\Code\IRTriage\Tools\RegRipper\plugins\winnt_cv.pl", @ScriptDir & "\Tools\RegRipper\plugins\", 0)
-			   FileInstall("C:\Code\IRTriage\Tools\RegRipper\plugins\winrar.pl", @ScriptDir & "\Tools\RegRipper\plugins\", 0)
-			   FileInstall("C:\Code\IRTriage\Tools\RegRipper\plugins\winver.pl", @ScriptDir & "\Tools\RegRipper\plugins\", 0)
-			   FileInstall("C:\Code\IRTriage\Tools\RegRipper\plugins\winvnc.pl", @ScriptDir & "\Tools\RegRipper\plugins\", 0)
-			   FileInstall("C:\Code\IRTriage\Tools\RegRipper\plugins\winzip.pl", @ScriptDir & "\Tools\RegRipper\plugins\", 0)
-			   FileInstall("C:\Code\IRTriage\Tools\RegRipper\plugins\wordwheelquery.pl", @ScriptDir & "\Tools\RegRipper\plugins\", 0)
-			   FileInstall("C:\Code\IRTriage\Tools\RegRipper\plugins\xpedition.pl", @ScriptDir & "\Tools\RegRipper\plugins\", 0)
-			   FileInstall("C:\Code\IRTriage\Tools\RegRipper\plugins\yahoo_cu.pl", @ScriptDir & "\Tools\RegRipper\plugins\", 0)
-			   FileInstall("C:\Code\IRTriage\Tools\RegRipper\plugins\yahoo_lm.pl", @ScriptDir & "\Tools\RegRipper\plugins\", 0)
-			   FileInstall("C:\Code\IRTriage\Tools\RegRipper\plugins\eventlogs.pl", @ScriptDir & "\Tools\RegRipper\plugins\", 0)
-			   FileInstall("C:\Code\IRTriage\Tools\RegRipper\plugins\adoberdr.pl", @ScriptDir & "\Tools\RegRipper\plugins\", 0)
-			   FileInstall("C:\Code\IRTriage\Tools\RegRipper\plugins\shutdown.pl", @ScriptDir & "\Tools\RegRipper\plugins\", 0)
-			   FileInstall("C:\Code\IRTriage\Tools\RegRipper\plugins\timezone.pl", @ScriptDir & "\Tools\RegRipper\plugins\", 0)
-			   FileInstall("C:\Code\IRTriage\Tools\RegRipper\plugins\removdev.pl", @ScriptDir & "\Tools\RegRipper\plugins\", 0)
-			   FileInstall("C:\Code\IRTriage\Tools\RegRipper\plugins\mountdev.pl", @ScriptDir & "\Tools\RegRipper\plugins\", 0)
-			   FileInstall("C:\Code\IRTriage\Tools\RegRipper\plugins\comdlg32.pl", @ScriptDir & "\Tools\RegRipper\plugins\", 0)
-			   FileInstall("C:\Code\IRTriage\Tools\RegRipper\plugins\samparse.pl", @ScriptDir & "\Tools\RegRipper\plugins\", 0)
-			   FileInstall("C:\Code\IRTriage\Tools\RegRipper\plugins\officedocs2010.pl", @ScriptDir & "\Tools\RegRipper\plugins\", 0)
-			   FileInstall("C:\Code\IRTriage\Tools\RegRipper\plugins\userinfo.pl", @ScriptDir & "\Tools\RegRipper\plugins\", 0)
-			   FileInstall("C:\Code\IRTriage\Tools\RegRipper\plugins\networkcards.pl", @ScriptDir & "\Tools\RegRipper\plugins\", 0)
-			   FileInstall("C:\Code\IRTriage\Tools\RegRipper\plugins\winlivemsn.pl", @ScriptDir & "\Tools\RegRipper\plugins\", 0)
-			   FileInstall("C:\Code\IRTriage\Tools\RegRipper\plugins\winlivemail.pl", @ScriptDir & "\Tools\RegRipper\plugins\", 0)
-			   FileInstall("C:\Code\IRTriage\Tools\RegRipper\plugins\filesnottosnapshot.pl", @ScriptDir & "\Tools\RegRipper\plugins\", 0)
-			   FileInstall("C:\Code\IRTriage\Tools\RegRipper\plugins\spp_clients.pl", @ScriptDir & "\Tools\RegRipper\plugins\", 0)
-			   FileInstall("C:\Code\IRTriage\Tools\RegRipper\plugins\EMDMgmt.pl", @ScriptDir & "\Tools\RegRipper\plugins\", 0)
-			   FileInstall("C:\Code\IRTriage\Tools\RegRipper\plugins\ccleaner.pl", @ScriptDir & "\Tools\RegRipper\plugins\", 0)
-			   FileInstall("C:\Code\IRTriage\Tools\RegRipper\plugins\all", @ScriptDir & "\Tools\RegRipper\plugins\", 0)
-			   FileInstall("C:\Code\IRTriage\Tools\RegRipper\plugins\sam", @ScriptDir & "\Tools\RegRipper\plugins\", 0)
-			   FileInstall("C:\Code\IRTriage\Tools\RegRipper\plugins\security", @ScriptDir & "\Tools\RegRipper\plugins\", 0)
-			   FileInstall("C:\Code\IRTriage\Tools\RegRipper\plugins\ntuser", @ScriptDir & "\Tools\RegRipper\plugins\", 0)
-			   FileInstall("C:\Code\IRTriage\Tools\RegRipper\plugins\software", @ScriptDir & "\Tools\RegRipper\plugins\", 0)
-			   FileInstall("C:\Code\IRTriage\Tools\RegRipper\plugins\system", @ScriptDir & "\Tools\RegRipper\plugins\", 0)
+
+			   FileInstall(".\Compile\Tools\RegRipper2.8\plugins\acmru.pl", @ScriptDir & "\Tools\RegRipper\plugins\", 0)
+			   FileInstall(".\Compile\Tools\RegRipper2.8\plugins\adoberdr.pl", @ScriptDir & "\Tools\RegRipper\plugins\", 0)
+			   FileInstall(".\Compile\Tools\RegRipper2.8\plugins\ahaha.pl", @ScriptDir & "\Tools\RegRipper\plugins\", 0)
+			   FileInstall(".\Compile\Tools\RegRipper2.8\plugins\aim.pl", @ScriptDir & "\Tools\RegRipper\plugins\", 0)
+			   FileInstall(".\Compile\Tools\RegRipper2.8\plugins\all", @ScriptDir & "\Tools\RegRipper\plugins\", 0)
+			   FileInstall(".\Compile\Tools\RegRipper2.8\plugins\amcache.pl", @ScriptDir & "\Tools\RegRipper\plugins\", 0)
+			   FileInstall(".\Compile\Tools\RegRipper2.8\plugins\aports.pl", @ScriptDir & "\Tools\RegRipper\plugins\", 0)
+			   FileInstall(".\Compile\Tools\RegRipper2.8\plugins\appcertdlls.pl", @ScriptDir & "\Tools\RegRipper\plugins\", 0)
+			   FileInstall(".\Compile\Tools\RegRipper2.8\plugins\appcompatcache.pl", @ScriptDir & "\Tools\RegRipper\plugins\", 0)
+			   FileInstall(".\Compile\Tools\RegRipper2.8\plugins\appcompatcache_tln.pl", @ScriptDir & "\Tools\RegRipper\plugins\", 0)
+			   FileInstall(".\Compile\Tools\RegRipper2.8\plugins\appcompatflags.pl", @ScriptDir & "\Tools\RegRipper\plugins\", 0)
+			   FileInstall(".\Compile\Tools\RegRipper2.8\plugins\appinitdlls.pl", @ScriptDir & "\Tools\RegRipper\plugins\", 0)
+			   FileInstall(".\Compile\Tools\RegRipper2.8\plugins\applets.pl", @ScriptDir & "\Tools\RegRipper\plugins\", 0)
+			   FileInstall(".\Compile\Tools\RegRipper2.8\plugins\applets_tln.pl", @ScriptDir & "\Tools\RegRipper\plugins\", 0)
+			   FileInstall(".\Compile\Tools\RegRipper2.8\plugins\apppaths.pl", @ScriptDir & "\Tools\RegRipper\plugins\", 0)
+			   FileInstall(".\Compile\Tools\RegRipper2.8\plugins\apppaths_tln.pl", @ScriptDir & "\Tools\RegRipper\plugins\", 0)
+			   FileInstall(".\Compile\Tools\RegRipper2.8\plugins\appspecific.pl", @ScriptDir & "\Tools\RegRipper\plugins\", 0)
+			   FileInstall(".\Compile\Tools\RegRipper2.8\plugins\ares.pl", @ScriptDir & "\Tools\RegRipper\plugins\", 0)
+			   FileInstall(".\Compile\Tools\RegRipper2.8\plugins\arpcache.pl", @ScriptDir & "\Tools\RegRipper\plugins\", 0)
+			   FileInstall(".\Compile\Tools\RegRipper2.8\plugins\assoc.pl", @ScriptDir & "\Tools\RegRipper\plugins\", 0)
+			   FileInstall(".\Compile\Tools\RegRipper2.8\plugins\at.pl", @ScriptDir & "\Tools\RegRipper\plugins\", 0)
+			   FileInstall(".\Compile\Tools\RegRipper2.8\plugins\at_tln.pl", @ScriptDir & "\Tools\RegRipper\plugins\", 0)
+			   FileInstall(".\Compile\Tools\RegRipper2.8\plugins\attachmgr.pl", @ScriptDir & "\Tools\RegRipper\plugins\", 0)
+			   FileInstall(".\Compile\Tools\RegRipper2.8\plugins\attachmgr_tln.pl", @ScriptDir & "\Tools\RegRipper\plugins\", 0)
+			   FileInstall(".\Compile\Tools\RegRipper2.8\plugins\audiodev.pl", @ScriptDir & "\Tools\RegRipper\plugins\", 0)
+			   FileInstall(".\Compile\Tools\RegRipper2.8\plugins\auditfail.pl", @ScriptDir & "\Tools\RegRipper\plugins\", 0)
+			   FileInstall(".\Compile\Tools\RegRipper2.8\plugins\auditpol.pl", @ScriptDir & "\Tools\RegRipper\plugins\", 0)
+			   FileInstall(".\Compile\Tools\RegRipper2.8\plugins\auditpol_xp.pl", @ScriptDir & "\Tools\RegRipper\plugins\", 0)
+			   FileInstall(".\Compile\Tools\RegRipper2.8\plugins\autoendtasks.pl", @ScriptDir & "\Tools\RegRipper\plugins\", 0)
+			   FileInstall(".\Compile\Tools\RegRipper2.8\plugins\autorun.pl", @ScriptDir & "\Tools\RegRipper\plugins\", 0)
+			   FileInstall(".\Compile\Tools\RegRipper2.8\plugins\backuprestore.pl", @ScriptDir & "\Tools\RegRipper\plugins\", 0)
+			   FileInstall(".\Compile\Tools\RegRipper2.8\plugins\banner.pl", @ScriptDir & "\Tools\RegRipper\plugins\", 0)
+			   FileInstall(".\Compile\Tools\RegRipper2.8\plugins\baseline.pl", @ScriptDir & "\Tools\RegRipper\plugins\", 0)
+			   FileInstall(".\Compile\Tools\RegRipper2.8\plugins\bho.pl", @ScriptDir & "\Tools\RegRipper\plugins\", 0)
+			   FileInstall(".\Compile\Tools\RegRipper2.8\plugins\bitbucket.pl", @ScriptDir & "\Tools\RegRipper\plugins\", 0)
+			   FileInstall(".\Compile\Tools\RegRipper2.8\plugins\bitbucket_user.pl", @ScriptDir & "\Tools\RegRipper\plugins\", 0)
+			   FileInstall(".\Compile\Tools\RegRipper2.8\plugins\brisv.pl", @ScriptDir & "\Tools\RegRipper\plugins\", 0)
+			   FileInstall(".\Compile\Tools\RegRipper2.8\plugins\btconfig.pl", @ScriptDir & "\Tools\RegRipper\plugins\", 0)
+			   FileInstall(".\Compile\Tools\RegRipper2.8\plugins\bthport.pl", @ScriptDir & "\Tools\RegRipper\plugins\", 0)
+			   FileInstall(".\Compile\Tools\RegRipper2.8\plugins\cached.pl", @ScriptDir & "\Tools\RegRipper\plugins\", 0)
+			   FileInstall(".\Compile\Tools\RegRipper2.8\plugins\cached_tln.pl", @ScriptDir & "\Tools\RegRipper\plugins\", 0)
+			   FileInstall(".\Compile\Tools\RegRipper2.8\plugins\cain.pl", @ScriptDir & "\Tools\RegRipper\plugins\", 0)
+			   FileInstall(".\Compile\Tools\RegRipper2.8\plugins\ccleaner.pl", @ScriptDir & "\Tools\RegRipper\plugins\", 0)
+			   FileInstall(".\Compile\Tools\RegRipper2.8\plugins\cdstaginginfo.pl", @ScriptDir & "\Tools\RegRipper\plugins\", 0)
+			   FileInstall(".\Compile\Tools\RegRipper2.8\plugins\clampi.pl", @ScriptDir & "\Tools\RegRipper\plugins\", 0)
+			   FileInstall(".\Compile\Tools\RegRipper2.8\plugins\clampitm.pl", @ScriptDir & "\Tools\RegRipper\plugins\", 0)
+			   FileInstall(".\Compile\Tools\RegRipper2.8\plugins\clsid.pl", @ScriptDir & "\Tools\RegRipper\plugins\", 0)
+			   FileInstall(".\Compile\Tools\RegRipper2.8\plugins\cmd_shell.pl", @ScriptDir & "\Tools\RegRipper\plugins\", 0)
+			   FileInstall(".\Compile\Tools\RegRipper2.8\plugins\cmd_shell_tln.pl", @ScriptDir & "\Tools\RegRipper\plugins\", 0)
+			   FileInstall(".\Compile\Tools\RegRipper2.8\plugins\cmd_shell_u.pl", @ScriptDir & "\Tools\RegRipper\plugins\", 0)
+			   FileInstall(".\Compile\Tools\RegRipper2.8\plugins\cmdproc.pl", @ScriptDir & "\Tools\RegRipper\plugins\", 0)
+			   FileInstall(".\Compile\Tools\RegRipper2.8\plugins\cmdproc_tln.pl", @ScriptDir & "\Tools\RegRipper\plugins\", 0)
+			   FileInstall(".\Compile\Tools\RegRipper2.8\plugins\codeid.pl", @ScriptDir & "\Tools\RegRipper\plugins\", 0)
+			   FileInstall(".\Compile\Tools\RegRipper2.8\plugins\comdlg32.pl", @ScriptDir & "\Tools\RegRipper\plugins\", 0)
+			   FileInstall(".\Compile\Tools\RegRipper2.8\plugins\comfoo.pl", @ScriptDir & "\Tools\RegRipper\plugins\", 0)
+			   FileInstall(".\Compile\Tools\RegRipper2.8\plugins\compdesc.pl", @ScriptDir & "\Tools\RegRipper\plugins\", 0)
+			   FileInstall(".\Compile\Tools\RegRipper2.8\plugins\compname.pl", @ScriptDir & "\Tools\RegRipper\plugins\", 0)
+			   FileInstall(".\Compile\Tools\RegRipper2.8\plugins\controlpanel.pl", @ScriptDir & "\Tools\RegRipper\plugins\", 0)
+			   FileInstall(".\Compile\Tools\RegRipper2.8\plugins\cpldontload.pl", @ScriptDir & "\Tools\RegRipper\plugins\", 0)
+			   FileInstall(".\Compile\Tools\RegRipper2.8\plugins\crashcontrol.pl", @ScriptDir & "\Tools\RegRipper\plugins\", 0)
+			   FileInstall(".\Compile\Tools\RegRipper2.8\plugins\ctrlpnl.pl", @ScriptDir & "\Tools\RegRipper\plugins\", 0)
+			   FileInstall(".\Compile\Tools\RegRipper2.8\plugins\dcom.pl", @ScriptDir & "\Tools\RegRipper\plugins\", 0)
+			   FileInstall(".\Compile\Tools\RegRipper2.8\plugins\ddm.pl", @ScriptDir & "\Tools\RegRipper\plugins\", 0)
+			   FileInstall(".\Compile\Tools\RegRipper2.8\plugins\ddo.pl", @ScriptDir & "\Tools\RegRipper\plugins\", 0)
+			   FileInstall(".\Compile\Tools\RegRipper2.8\plugins\decaf.pl", @ScriptDir & "\Tools\RegRipper\plugins\", 0)
+			   FileInstall(".\Compile\Tools\RegRipper2.8\plugins\defbrowser.pl", @ScriptDir & "\Tools\RegRipper\plugins\", 0)
+			   FileInstall(".\Compile\Tools\RegRipper2.8\plugins\del.pl", @ScriptDir & "\Tools\RegRipper\plugins\", 0)
+			   FileInstall(".\Compile\Tools\RegRipper2.8\plugins\del_tln.pl", @ScriptDir & "\Tools\RegRipper\plugins\", 0)
+			   FileInstall(".\Compile\Tools\RegRipper2.8\plugins\dependency_walker.pl", @ScriptDir & "\Tools\RegRipper\plugins\", 0)
+			   FileInstall(".\Compile\Tools\RegRipper2.8\plugins\devclass.pl", @ScriptDir & "\Tools\RegRipper\plugins\", 0)
+			   FileInstall(".\Compile\Tools\RegRipper2.8\plugins\dfrg.pl", @ScriptDir & "\Tools\RegRipper\plugins\", 0)
+			   FileInstall(".\Compile\Tools\RegRipper2.8\plugins\diag_sr.pl", @ScriptDir & "\Tools\RegRipper\plugins\", 0)
+			   FileInstall(".\Compile\Tools\RegRipper2.8\plugins\direct.pl", @ScriptDir & "\Tools\RegRipper\plugins\", 0)
+			   FileInstall(".\Compile\Tools\RegRipper2.8\plugins\direct_tln.pl", @ScriptDir & "\Tools\RegRipper\plugins\", 0)
+			   FileInstall(".\Compile\Tools\RegRipper2.8\plugins\disablelastaccess.pl", @ScriptDir & "\Tools\RegRipper\plugins\", 0)
+			   FileInstall(".\Compile\Tools\RegRipper2.8\plugins\disablesr.pl", @ScriptDir & "\Tools\RegRipper\plugins\", 0)
+			   FileInstall(".\Compile\Tools\RegRipper2.8\plugins\dllsearch.pl", @ScriptDir & "\Tools\RegRipper\plugins\", 0)
+			   FileInstall(".\Compile\Tools\RegRipper2.8\plugins\dnschanger.pl", @ScriptDir & "\Tools\RegRipper\plugins\", 0)
+			   FileInstall(".\Compile\Tools\RegRipper2.8\plugins\domains.pl", @ScriptDir & "\Tools\RegRipper\plugins\", 0)
+			   FileInstall(".\Compile\Tools\RegRipper2.8\plugins\drivers32.pl", @ScriptDir & "\Tools\RegRipper\plugins\", 0)
+			   FileInstall(".\Compile\Tools\RegRipper2.8\plugins\drwatson.pl", @ScriptDir & "\Tools\RegRipper\plugins\", 0)
+			   FileInstall(".\Compile\Tools\RegRipper2.8\plugins\emdmgmt.pl", @ScriptDir & "\Tools\RegRipper\plugins\", 0)
+			   FileInstall(".\Compile\Tools\RegRipper2.8\plugins\environment.pl", @ScriptDir & "\Tools\RegRipper\plugins\", 0)
+			   FileInstall(".\Compile\Tools\RegRipper2.8\plugins\esent.pl", @ScriptDir & "\Tools\RegRipper\plugins\", 0)
+			   FileInstall(".\Compile\Tools\RegRipper2.8\plugins\etos.pl", @ScriptDir & "\Tools\RegRipper\plugins\", 0)
+			   FileInstall(".\Compile\Tools\RegRipper2.8\plugins\eventlog.pl", @ScriptDir & "\Tools\RegRipper\plugins\", 0)
+			   FileInstall(".\Compile\Tools\RegRipper2.8\plugins\eventlogs.pl", @ScriptDir & "\Tools\RegRipper\plugins\", 0)
+			   FileInstall(".\Compile\Tools\RegRipper2.8\plugins\fileexts.pl", @ScriptDir & "\Tools\RegRipper\plugins\", 0)
+			   FileInstall(".\Compile\Tools\RegRipper2.8\plugins\filehistory.pl", @ScriptDir & "\Tools\RegRipper\plugins\", 0)
+			   FileInstall(".\Compile\Tools\RegRipper2.8\plugins\fileless.pl", @ScriptDir & "\Tools\RegRipper\plugins\", 0)
+			   FileInstall(".\Compile\Tools\RegRipper2.8\plugins\findexes.pl", @ScriptDir & "\Tools\RegRipper\plugins\", 0)
+			   FileInstall(".\Compile\Tools\RegRipper2.8\plugins\fw_config.pl", @ScriptDir & "\Tools\RegRipper\plugins\", 0)
+			   FileInstall(".\Compile\Tools\RegRipper2.8\plugins\gauss.pl", @ScriptDir & "\Tools\RegRipper\plugins\", 0)
+			   FileInstall(".\Compile\Tools\RegRipper2.8\plugins\gpohist.pl", @ScriptDir & "\Tools\RegRipper\plugins\", 0)
+			   FileInstall(".\Compile\Tools\RegRipper2.8\plugins\gpohist_tln.pl", @ScriptDir & "\Tools\RegRipper\plugins\", 0)
+			   FileInstall(".\Compile\Tools\RegRipper2.8\plugins\gthist.pl", @ScriptDir & "\Tools\RegRipper\plugins\", 0)
+			   FileInstall(".\Compile\Tools\RegRipper2.8\plugins\gtwhitelist.pl", @ScriptDir & "\Tools\RegRipper\plugins\", 0)
+			   FileInstall(".\Compile\Tools\RegRipper2.8\plugins\handler.pl", @ScriptDir & "\Tools\RegRipper\plugins\", 0)
+			   FileInstall(".\Compile\Tools\RegRipper2.8\plugins\haven_and_hearth.pl", @ScriptDir & "\Tools\RegRipper\plugins\", 0)
+			   FileInstall(".\Compile\Tools\RegRipper2.8\plugins\hibernate.pl", @ScriptDir & "\Tools\RegRipper\plugins\", 0)
+			   FileInstall(".\Compile\Tools\RegRipper2.8\plugins\ide.pl", @ScriptDir & "\Tools\RegRipper\plugins\", 0)
+			   FileInstall(".\Compile\Tools\RegRipper2.8\plugins\identities.pl", @ScriptDir & "\Tools\RegRipper\plugins\", 0)
+			   FileInstall(".\Compile\Tools\RegRipper2.8\plugins\ie_main.pl", @ScriptDir & "\Tools\RegRipper\plugins\", 0)
+			   FileInstall(".\Compile\Tools\RegRipper2.8\plugins\ie_settings.pl", @ScriptDir & "\Tools\RegRipper\plugins\", 0)
+			   FileInstall(".\Compile\Tools\RegRipper2.8\plugins\ie_version.pl", @ScriptDir & "\Tools\RegRipper\plugins\", 0)
+			   FileInstall(".\Compile\Tools\RegRipper2.8\plugins\ie_zones.pl", @ScriptDir & "\Tools\RegRipper\plugins\", 0)
+			   FileInstall(".\Compile\Tools\RegRipper2.8\plugins\iejava.pl", @ScriptDir & "\Tools\RegRipper\plugins\", 0)
+			   FileInstall(".\Compile\Tools\RegRipper2.8\plugins\imagedev.pl", @ScriptDir & "\Tools\RegRipper\plugins\", 0)
+			   FileInstall(".\Compile\Tools\RegRipper2.8\plugins\imagefile.pl", @ScriptDir & "\Tools\RegRipper\plugins\", 0)
+			   FileInstall(".\Compile\Tools\RegRipper2.8\plugins\init_dlls.pl", @ScriptDir & "\Tools\RegRipper\plugins\", 0)
+			   FileInstall(".\Compile\Tools\RegRipper2.8\plugins\inprocserver.pl", @ScriptDir & "\Tools\RegRipper\plugins\", 0)
+			   FileInstall(".\Compile\Tools\RegRipper2.8\plugins\installedcomp.pl", @ScriptDir & "\Tools\RegRipper\plugins\", 0)
+			   FileInstall(".\Compile\Tools\RegRipper2.8\plugins\installer.pl", @ScriptDir & "\Tools\RegRipper\plugins\", 0)
+			   FileInstall(".\Compile\Tools\RegRipper2.8\plugins\internet_explorer_cu.pl", @ScriptDir & "\Tools\RegRipper\plugins\", 0)
+			   FileInstall(".\Compile\Tools\RegRipper2.8\plugins\internet_settings_cu.pl", @ScriptDir & "\Tools\RegRipper\plugins\", 0)
+			   FileInstall(".\Compile\Tools\RegRipper2.8\plugins\itempos.pl", @ScriptDir & "\Tools\RegRipper\plugins\", 0)
+			   FileInstall(".\Compile\Tools\RegRipper2.8\plugins\javafx.pl", @ScriptDir & "\Tools\RegRipper\plugins\", 0)
+			   FileInstall(".\Compile\Tools\RegRipper2.8\plugins\javasoft.pl", @ScriptDir & "\Tools\RegRipper\plugins\", 0)
+			   FileInstall(".\Compile\Tools\RegRipper2.8\plugins\kankan.pl", @ScriptDir & "\Tools\RegRipper\plugins\", 0)
+			   FileInstall(".\Compile\Tools\RegRipper2.8\plugins\kb950582.pl", @ScriptDir & "\Tools\RegRipper\plugins\", 0)
+			   FileInstall(".\Compile\Tools\RegRipper2.8\plugins\kbdcrash.pl", @ScriptDir & "\Tools\RegRipper\plugins\", 0)
+			   FileInstall(".\Compile\Tools\RegRipper2.8\plugins\knowndev.pl", @ScriptDir & "\Tools\RegRipper\plugins\", 0)
+			   FileInstall(".\Compile\Tools\RegRipper2.8\plugins\landesk.pl", @ScriptDir & "\Tools\RegRipper\plugins\", 0)
+			   FileInstall(".\Compile\Tools\RegRipper2.8\plugins\landesk_tln.pl", @ScriptDir & "\Tools\RegRipper\plugins\", 0)
+			   FileInstall(".\Compile\Tools\RegRipper2.8\plugins\latentbot.pl", @ScriptDir & "\Tools\RegRipper\plugins\", 0)
+			   FileInstall(".\Compile\Tools\RegRipper2.8\plugins\lazyshell.pl", @ScriptDir & "\Tools\RegRipper\plugins\", 0)
+			   FileInstall(".\Compile\Tools\RegRipper2.8\plugins\legacy.pl", @ScriptDir & "\Tools\RegRipper\plugins\", 0)
+			   FileInstall(".\Compile\Tools\RegRipper2.8\plugins\legacy_tln.pl", @ScriptDir & "\Tools\RegRipper\plugins\", 0)
+			   FileInstall(".\Compile\Tools\RegRipper2.8\plugins\licenses.pl", @ScriptDir & "\Tools\RegRipper\plugins\", 0)
+			   FileInstall(".\Compile\Tools\RegRipper2.8\plugins\listsoft.pl", @ScriptDir & "\Tools\RegRipper\plugins\", 0)
+			   FileInstall(".\Compile\Tools\RegRipper2.8\plugins\liveContactsGUID.pl", @ScriptDir & "\Tools\RegRipper\plugins\", 0)
+			   FileInstall(".\Compile\Tools\RegRipper2.8\plugins\load.pl", @ScriptDir & "\Tools\RegRipper\plugins\", 0)
+			   FileInstall(".\Compile\Tools\RegRipper2.8\plugins\logonusername.pl", @ScriptDir & "\Tools\RegRipper\plugins\", 0)
+			   FileInstall(".\Compile\Tools\RegRipper2.8\plugins\lsa_packages.pl", @ScriptDir & "\Tools\RegRipper\plugins\", 0)
+			   FileInstall(".\Compile\Tools\RegRipper2.8\plugins\lsasecrets.pl", @ScriptDir & "\Tools\RegRipper\plugins\", 0)
+			   FileInstall(".\Compile\Tools\RegRipper2.8\plugins\macaddr.pl", @ScriptDir & "\Tools\RegRipper\plugins\", 0)
+			   FileInstall(".\Compile\Tools\RegRipper2.8\plugins\malware.pl", @ScriptDir & "\Tools\RegRipper\plugins\", 0)
+			   FileInstall(".\Compile\Tools\RegRipper2.8\plugins\menuorder.pl", @ScriptDir & "\Tools\RegRipper\plugins\", 0)
+			   FileInstall(".\Compile\Tools\RegRipper2.8\plugins\mixer.pl", @ScriptDir & "\Tools\RegRipper\plugins\", 0)
+			   FileInstall(".\Compile\Tools\RegRipper2.8\plugins\mixer_tln.pl", @ScriptDir & "\Tools\RegRipper\plugins\", 0)
+			   FileInstall(".\Compile\Tools\RegRipper2.8\plugins\mmc.pl", @ScriptDir & "\Tools\RegRipper\plugins\", 0)
+			   FileInstall(".\Compile\Tools\RegRipper2.8\plugins\mmc_tln.pl", @ScriptDir & "\Tools\RegRipper\plugins\", 0)
+			   FileInstall(".\Compile\Tools\RegRipper2.8\plugins\mmo.pl", @ScriptDir & "\Tools\RegRipper\plugins\", 0)
+			   FileInstall(".\Compile\Tools\RegRipper2.8\plugins\mndmru.pl", @ScriptDir & "\Tools\RegRipper\plugins\", 0)
+			   FileInstall(".\Compile\Tools\RegRipper2.8\plugins\mndmru_tln.pl", @ScriptDir & "\Tools\RegRipper\plugins\", 0)
+			   FileInstall(".\Compile\Tools\RegRipper2.8\plugins\mountdev.pl", @ScriptDir & "\Tools\RegRipper\plugins\", 0)
+			   FileInstall(".\Compile\Tools\RegRipper2.8\plugins\mountdev2.pl", @ScriptDir & "\Tools\RegRipper\plugins\", 0)
+			   FileInstall(".\Compile\Tools\RegRipper2.8\plugins\mp2.pl", @ScriptDir & "\Tools\RegRipper\plugins\", 0)
+			   FileInstall(".\Compile\Tools\RegRipper2.8\plugins\mp3.pl", @ScriptDir & "\Tools\RegRipper\plugins\", 0)
+			   FileInstall(".\Compile\Tools\RegRipper2.8\plugins\mpmru.pl", @ScriptDir & "\Tools\RegRipper\plugins\", 0)
+			   FileInstall(".\Compile\Tools\RegRipper2.8\plugins\mrt.pl", @ScriptDir & "\Tools\RegRipper\plugins\", 0)
+			   FileInstall(".\Compile\Tools\RegRipper2.8\plugins\msis.pl", @ScriptDir & "\Tools\RegRipper\plugins\", 0)
+			   FileInstall(".\Compile\Tools\RegRipper2.8\plugins\mspaper.pl", @ScriptDir & "\Tools\RegRipper\plugins\", 0)
+			   FileInstall(".\Compile\Tools\RegRipper2.8\plugins\muicache.pl", @ScriptDir & "\Tools\RegRipper\plugins\", 0)
+			   FileInstall(".\Compile\Tools\RegRipper2.8\plugins\muicache_tln.pl", @ScriptDir & "\Tools\RegRipper\plugins\", 0)
+			   FileInstall(".\Compile\Tools\RegRipper2.8\plugins\nero.pl", @ScriptDir & "\Tools\RegRipper\plugins\", 0)
+			   FileInstall(".\Compile\Tools\RegRipper2.8\plugins\netassist.pl", @ScriptDir & "\Tools\RegRipper\plugins\", 0)
+			   FileInstall(".\Compile\Tools\RegRipper2.8\plugins\netsvcs.pl", @ScriptDir & "\Tools\RegRipper\plugins\", 0)
+			   FileInstall(".\Compile\Tools\RegRipper2.8\plugins\network.pl", @ScriptDir & "\Tools\RegRipper\plugins\", 0)
+			   FileInstall(".\Compile\Tools\RegRipper2.8\plugins\networkcards.pl", @ScriptDir & "\Tools\RegRipper\plugins\", 0)
+			   FileInstall(".\Compile\Tools\RegRipper2.8\plugins\networklist.pl", @ScriptDir & "\Tools\RegRipper\plugins\", 0)
+			   FileInstall(".\Compile\Tools\RegRipper2.8\plugins\networklist_tln.pl", @ScriptDir & "\Tools\RegRipper\plugins\", 0)
+			   FileInstall(".\Compile\Tools\RegRipper2.8\plugins\networkuid.pl", @ScriptDir & "\Tools\RegRipper\plugins\", 0)
+			   FileInstall(".\Compile\Tools\RegRipper2.8\plugins\nic.pl", @ScriptDir & "\Tools\RegRipper\plugins\", 0)
+			   FileInstall(".\Compile\Tools\RegRipper2.8\plugins\nic_mst2.pl", @ScriptDir & "\Tools\RegRipper\plugins\", 0)
+			   FileInstall(".\Compile\Tools\RegRipper2.8\plugins\nic2.pl", @ScriptDir & "\Tools\RegRipper\plugins\", 0)
+			   FileInstall(".\Compile\Tools\RegRipper2.8\plugins\nolmhash.pl", @ScriptDir & "\Tools\RegRipper\plugins\", 0)
+			   FileInstall(".\Compile\Tools\RegRipper2.8\plugins\ntuser", @ScriptDir & "\Tools\RegRipper\plugins\", 0)
+			   FileInstall(".\Compile\Tools\RegRipper2.8\plugins\ntusernetwork.pl", @ScriptDir & "\Tools\RegRipper\plugins\", 0)
+			   FileInstall(".\Compile\Tools\RegRipper2.8\plugins\null.pl", @ScriptDir & "\Tools\RegRipper\plugins\", 0)
+			   FileInstall(".\Compile\Tools\RegRipper2.8\plugins\odysseus.pl", @ScriptDir & "\Tools\RegRipper\plugins\", 0)
+			   FileInstall(".\Compile\Tools\RegRipper2.8\plugins\officedocs.pl", @ScriptDir & "\Tools\RegRipper\plugins\", 0)
+			   FileInstall(".\Compile\Tools\RegRipper2.8\plugins\officedocs2010.pl", @ScriptDir & "\Tools\RegRipper\plugins\", 0)
+			   FileInstall(".\Compile\Tools\RegRipper2.8\plugins\officedocs2010_tln.pl", @ScriptDir & "\Tools\RegRipper\plugins\", 0)
+			   FileInstall(".\Compile\Tools\RegRipper2.8\plugins\oisc.pl", @ScriptDir & "\Tools\RegRipper\plugins\", 0)
+			   FileInstall(".\Compile\Tools\RegRipper2.8\plugins\olsearch.pl", @ScriptDir & "\Tools\RegRipper\plugins\", 0)
+			   FileInstall(".\Compile\Tools\RegRipper2.8\plugins\opencandy.pl", @ScriptDir & "\Tools\RegRipper\plugins\", 0)
+			   FileInstall(".\Compile\Tools\RegRipper2.8\plugins\osversion.pl", @ScriptDir & "\Tools\RegRipper\plugins\", 0)
+			   FileInstall(".\Compile\Tools\RegRipper2.8\plugins\osversion_tln.pl", @ScriptDir & "\Tools\RegRipper\plugins\", 0)
+			   FileInstall(".\Compile\Tools\RegRipper2.8\plugins\outlook.pl", @ScriptDir & "\Tools\RegRipper\plugins\", 0)
+			   FileInstall(".\Compile\Tools\RegRipper2.8\plugins\outlook2.pl", @ScriptDir & "\Tools\RegRipper\plugins\", 0)
+			   FileInstall(".\Compile\Tools\RegRipper2.8\plugins\pagefile.pl", @ScriptDir & "\Tools\RegRipper\plugins\", 0)
+			   FileInstall(".\Compile\Tools\RegRipper2.8\plugins\pending.pl", @ScriptDir & "\Tools\RegRipper\plugins\", 0)
+			   FileInstall(".\Compile\Tools\RegRipper2.8\plugins\phdet.pl", @ScriptDir & "\Tools\RegRipper\plugins\", 0)
+			   FileInstall(".\Compile\Tools\RegRipper2.8\plugins\photos.pl", @ScriptDir & "\Tools\RegRipper\plugins\", 0)
+			   FileInstall(".\Compile\Tools\RegRipper2.8\plugins\polacdms.pl", @ScriptDir & "\Tools\RegRipper\plugins\", 0)
+			   FileInstall(".\Compile\Tools\RegRipper2.8\plugins\policies_u.pl", @ScriptDir & "\Tools\RegRipper\plugins\", 0)
+			   FileInstall(".\Compile\Tools\RegRipper2.8\plugins\port_dev.pl", @ScriptDir & "\Tools\RegRipper\plugins\", 0)
+			   FileInstall(".\Compile\Tools\RegRipper2.8\plugins\prefetch.pl", @ScriptDir & "\Tools\RegRipper\plugins\", 0)
+			   FileInstall(".\Compile\Tools\RegRipper2.8\plugins\printermru.pl", @ScriptDir & "\Tools\RegRipper\plugins\", 0)
+			   FileInstall(".\Compile\Tools\RegRipper2.8\plugins\printers.pl", @ScriptDir & "\Tools\RegRipper\plugins\", 0)
+			   FileInstall(".\Compile\Tools\RegRipper2.8\plugins\privoxy.pl", @ScriptDir & "\Tools\RegRipper\plugins\", 0)
+			   FileInstall(".\Compile\Tools\RegRipper2.8\plugins\productpolicy.pl", @ScriptDir & "\Tools\RegRipper\plugins\", 0)
+			   FileInstall(".\Compile\Tools\RegRipper2.8\plugins\processor_architecture.pl", @ScriptDir & "\Tools\RegRipper\plugins\", 0)
+			   FileInstall(".\Compile\Tools\RegRipper2.8\plugins\product.pl", @ScriptDir & "\Tools\RegRipper\plugins\", 0)
+			   FileInstall(".\Compile\Tools\RegRipper2.8\plugins\productpolicy.pl", @ScriptDir & "\Tools\RegRipper\plugins\", 0)
+			   FileInstall(".\Compile\Tools\RegRipper2.8\plugins\producttype.pl", @ScriptDir & "\Tools\RegRipper\plugins\", 0)
+			   FileInstall(".\Compile\Tools\RegRipper2.8\plugins\product.pl", @ScriptDir & "\Tools\RegRipper\plugins\", 0)
+			   FileInstall(".\Compile\Tools\RegRipper2.8\plugins\profilelist.pl", @ScriptDir & "\Tools\RegRipper\plugins\", 0)
+			   FileInstall(".\Compile\Tools\RegRipper2.8\plugins\profiler.pl", @ScriptDir & "\Tools\RegRipper\plugins\", 0)
+			   FileInstall(".\Compile\Tools\RegRipper2.8\plugins\proxysettings.pl", @ScriptDir & "\Tools\RegRipper\plugins\", 0)
+			   FileInstall(".\Compile\Tools\RegRipper2.8\plugins\publishingwizard.pl", @ScriptDir & "\Tools\RegRipper\plugins\", 0)
+			   FileInstall(".\Compile\Tools\RegRipper2.8\plugins\putty.pl", @ScriptDir & "\Tools\RegRipper\plugins\", 0)
+			   FileInstall(".\Compile\Tools\RegRipper2.8\plugins\rdphint.pl", @ScriptDir & "\Tools\RegRipper\plugins\", 0)
+			   FileInstall(".\Compile\Tools\RegRipper2.8\plugins\rdpnla.pl", @ScriptDir & "\Tools\RegRipper\plugins\", 0)
+			   FileInstall(".\Compile\Tools\RegRipper2.8\plugins\rdpport.pl", @ScriptDir & "\Tools\RegRipper\plugins\", 0)
+			   FileInstall(".\Compile\Tools\RegRipper2.8\plugins\reading_locations.pl", @ScriptDir & "\Tools\RegRipper\plugins\", 0)
+			   FileInstall(".\Compile\Tools\RegRipper2.8\plugins\realplayer6.pl", @ScriptDir & "\Tools\RegRipper\plugins\", 0)
+			   FileInstall(".\Compile\Tools\RegRipper2.8\plugins\realvnc.pl", @ScriptDir & "\Tools\RegRipper\plugins\", 0)
+			   FileInstall(".\Compile\Tools\RegRipper2.8\plugins\recentdocs.pl", @ScriptDir & "\Tools\RegRipper\plugins\", 0)
+			   FileInstall(".\Compile\Tools\RegRipper2.8\plugins\recentdocs_tln.pl", @ScriptDir & "\Tools\RegRipper\plugins\", 0)
+			   FileInstall(".\Compile\Tools\RegRipper2.8\plugins\regback.pl", @ScriptDir & "\Tools\RegRipper\plugins\", 0)
+			   FileInstall(".\Compile\Tools\RegRipper2.8\plugins\regin.pl", @ScriptDir & "\Tools\RegRipper\plugins\", 0)
+			   FileInstall(".\Compile\Tools\RegRipper2.8\plugins\regtime.pl", @ScriptDir & "\Tools\RegRipper\plugins\", 0)
+			   FileInstall(".\Compile\Tools\RegRipper2.8\plugins\regtime_tln.pl", @ScriptDir & "\Tools\RegRipper\plugins\", 0)
+			   FileInstall(".\Compile\Tools\RegRipper2.8\plugins\removdev.pl", @ScriptDir & "\Tools\RegRipper\plugins\", 0)
+			   FileInstall(".\Compile\Tools\RegRipper2.8\plugins\renocide.pl", @ScriptDir & "\Tools\RegRipper\plugins\", 0)
+			   FileInstall(".\Compile\Tools\RegRipper2.8\plugins\reveton.pl", @ScriptDir & "\Tools\RegRipper\plugins\", 0)
+			   FileInstall(".\Compile\Tools\RegRipper2.8\plugins\rlo.pl", @ScriptDir & "\Tools\RegRipper\plugins\", 0)
+			   FileInstall(".\Compile\Tools\RegRipper2.8\plugins\rootkit_revealer.pl", @ScriptDir & "\Tools\RegRipper\plugins\", 0)
+			   FileInstall(".\Compile\Tools\RegRipper2.8\plugins\routes.pl", @ScriptDir & "\Tools\RegRipper\plugins\", 0)
+			   FileInstall(".\Compile\Tools\RegRipper2.8\plugins\runmru.pl", @ScriptDir & "\Tools\RegRipper\plugins\", 0)
+			   FileInstall(".\Compile\Tools\RegRipper2.8\plugins\runmru_tln.pl", @ScriptDir & "\Tools\RegRipper\plugins\", 0)
+			   FileInstall(".\Compile\Tools\RegRipper2.8\plugins\safeboot.pl", @ScriptDir & "\Tools\RegRipper\plugins\", 0)
+			   FileInstall(".\Compile\Tools\RegRipper2.8\plugins\sam", @ScriptDir & "\Tools\RegRipper\plugins\", 0)
+			   FileInstall(".\Compile\Tools\RegRipper2.8\plugins\samparse.pl", @ScriptDir & "\Tools\RegRipper\plugins\", 0)
+			   FileInstall(".\Compile\Tools\RegRipper2.8\plugins\samparse_tln.pl", @ScriptDir & "\Tools\RegRipper\plugins\", 0)
+			   FileInstall(".\Compile\Tools\RegRipper2.8\plugins\schedagent.pl", @ScriptDir & "\Tools\RegRipper\plugins\", 0)
+			   FileInstall(".\Compile\Tools\RegRipper2.8\plugins\secctr.pl", @ScriptDir & "\Tools\RegRipper\plugins\", 0)
+			   FileInstall(".\Compile\Tools\RegRipper2.8\plugins\secrets.pl", @ScriptDir & "\Tools\RegRipper\plugins\", 0)
+			   FileInstall(".\Compile\Tools\RegRipper2.8\plugins\secrets_tln.pl", @ScriptDir & "\Tools\RegRipper\plugins\", 0)
+			   FileInstall(".\Compile\Tools\RegRipper2.8\plugins\security", @ScriptDir & "\Tools\RegRipper\plugins\", 0)
+			   FileInstall(".\Compile\Tools\RegRipper2.8\plugins\securityproviders.pl", @ScriptDir & "\Tools\RegRipper\plugins\", 0)
+			   FileInstall(".\Compile\Tools\RegRipper2.8\plugins\services.pl", @ScriptDir & "\Tools\RegRipper\plugins\", 0)
+			   FileInstall(".\Compile\Tools\RegRipper2.8\plugins\sevenzip.pl", @ScriptDir & "\Tools\RegRipper\plugins\", 0)
+			   FileInstall(".\Compile\Tools\RegRipper2.8\plugins\sfc.pl", @ScriptDir & "\Tools\RegRipper\plugins\", 0)
+			   FileInstall(".\Compile\Tools\RegRipper2.8\plugins\shares.pl", @ScriptDir & "\Tools\RegRipper\plugins\", 0)
+			   FileInstall(".\Compile\Tools\RegRipper2.8\plugins\shc.pl", @ScriptDir & "\Tools\RegRipper\plugins\", 0)
+			   FileInstall(".\Compile\Tools\RegRipper2.8\plugins\shellbags.pl", @ScriptDir & "\Tools\RegRipper\plugins\", 0)
+			   FileInstall(".\Compile\Tools\RegRipper2.8\plugins\shellbags_test.pl", @ScriptDir & "\Tools\RegRipper\plugins\", 0)
+			   FileInstall(".\Compile\Tools\RegRipper2.8\plugins\shellbags_tln.pl", @ScriptDir & "\Tools\RegRipper\plugins\", 0)
+			   FileInstall(".\Compile\Tools\RegRipper2.8\plugins\shellbags_xp.pl", @ScriptDir & "\Tools\RegRipper\plugins\", 0)
+			   FileInstall(".\Compile\Tools\RegRipper2.8\plugins\shellexec.pl", @ScriptDir & "\Tools\RegRipper\plugins\", 0)
+			   FileInstall(".\Compile\Tools\RegRipper2.8\plugins\shellext.pl", @ScriptDir & "\Tools\RegRipper\plugins\", 0)
+			   FileInstall(".\Compile\Tools\RegRipper2.8\plugins\shellfolders.pl", @ScriptDir & "\Tools\RegRipper\plugins\", 0)
+			   FileInstall(".\Compile\Tools\RegRipper2.8\plugins\shelloverlay.pl", @ScriptDir & "\Tools\RegRipper\plugins\", 0)
+			   FileInstall(".\Compile\Tools\RegRipper2.8\plugins\shutdown.pl", @ScriptDir & "\Tools\RegRipper\plugins\", 0)
+			   FileInstall(".\Compile\Tools\RegRipper2.8\plugins\shutdowncount.pl", @ScriptDir & "\Tools\RegRipper\plugins\", 0)
+			   FileInstall(".\Compile\Tools\RegRipper2.8\plugins\sizes.pl", @ScriptDir & "\Tools\RegRipper\plugins\", 0)
+			   FileInstall(".\Compile\Tools\RegRipper2.8\plugins\skype.pl", @ScriptDir & "\Tools\RegRipper\plugins\", 0)
+			   FileInstall(".\Compile\Tools\RegRipper2.8\plugins\snapshot.pl", @ScriptDir & "\Tools\RegRipper\plugins\", 0)
+			   FileInstall(".\Compile\Tools\RegRipper2.8\plugins\snapshot_viewer.pl", @ScriptDir & "\Tools\RegRipper\plugins\", 0)
+			   FileInstall(".\Compile\Tools\RegRipper2.8\plugins\soft_run.pl", @ScriptDir & "\Tools\RegRipper\plugins\", 0)
+			   FileInstall(".\Compile\Tools\RegRipper2.8\plugins\software", @ScriptDir & "\Tools\RegRipper\plugins\", 0)
+			   FileInstall(".\Compile\Tools\RegRipper2.8\plugins\spp_clients.pl", @ScriptDir & "\Tools\RegRipper\plugins\", 0)
+			   FileInstall(".\Compile\Tools\RegRipper2.8\plugins\sql_lastconnect.pl", @ScriptDir & "\Tools\RegRipper\plugins\", 0)
+			   FileInstall(".\Compile\Tools\RegRipper2.8\plugins\srun_tln.pl", @ScriptDir & "\Tools\RegRipper\plugins\", 0)
+			   FileInstall(".\Compile\Tools\RegRipper2.8\plugins\ssh_host_keys.pl", @ScriptDir & "\Tools\RegRipper\plugins\", 0)
+			   FileInstall(".\Compile\Tools\RegRipper2.8\plugins\ssid.pl", @ScriptDir & "\Tools\RegRipper\plugins\", 0)
+			   FileInstall(".\Compile\Tools\RegRipper2.8\plugins\startmenuinternetapps_cu.pl", @ScriptDir & "\Tools\RegRipper\plugins\", 0)
+			   FileInstall(".\Compile\Tools\RegRipper2.8\plugins\startmenuinternetapps_lm.pl", @ScriptDir & "\Tools\RegRipper\plugins\", 0)
+			   FileInstall(".\Compile\Tools\RegRipper2.8\plugins\startpage.pl", @ScriptDir & "\Tools\RegRipper\plugins\", 0)
+			   FileInstall(".\Compile\Tools\RegRipper2.8\plugins\startup.pl", @ScriptDir & "\Tools\RegRipper\plugins\", 0)
+			   FileInstall(".\Compile\Tools\RegRipper2.8\plugins\stillimage.pl", @ScriptDir & "\Tools\RegRipper\plugins\", 0)
+			   FileInstall(".\Compile\Tools\RegRipper2.8\plugins\susclient.pl", @ScriptDir & "\Tools\RegRipper\plugins\", 0)
+			   FileInstall(".\Compile\Tools\RegRipper2.8\plugins\svc.pl", @ScriptDir & "\Tools\RegRipper\plugins\", 0)
+			   FileInstall(".\Compile\Tools\RegRipper2.8\plugins\svc_plus.pl", @ScriptDir & "\Tools\RegRipper\plugins\", 0)
+			   FileInstall(".\Compile\Tools\RegRipper2.8\plugins\svc_tln.pl", @ScriptDir & "\Tools\RegRipper\plugins\", 0)
+			   FileInstall(".\Compile\Tools\RegRipper2.8\plugins\svcdll.pl", @ScriptDir & "\Tools\RegRipper\plugins\", 0)
+			   FileInstall(".\Compile\Tools\RegRipper2.8\plugins\svchost.pl", @ScriptDir & "\Tools\RegRipper\plugins\", 0)
+			   FileInstall(".\Compile\Tools\RegRipper2.8\plugins\sysinternals.pl", @ScriptDir & "\Tools\RegRipper\plugins\", 0)
+			   FileInstall(".\Compile\Tools\RegRipper2.8\plugins\sysinternals_tln.pl", @ScriptDir & "\Tools\RegRipper\plugins\", 0)
+			   FileInstall(".\Compile\Tools\RegRipper2.8\plugins\system", @ScriptDir & "\Tools\RegRipper\plugins\", 0)
+			   FileInstall(".\Compile\Tools\RegRipper2.8\plugins\systemindex.pl", @ScriptDir & "\Tools\RegRipper\plugins\", 0)
+			   FileInstall(".\Compile\Tools\RegRipper2.8\plugins\teamviewer.pl", @ScriptDir & "\Tools\RegRipper\plugins\", 0)
+			   FileInstall(".\Compile\Tools\RegRipper2.8\plugins\termcert.pl", @ScriptDir & "\Tools\RegRipper\plugins\", 0)
+			   FileInstall(".\Compile\Tools\RegRipper2.8\plugins\termserv.pl", @ScriptDir & "\Tools\RegRipper\plugins\", 0)
+			   FileInstall(".\Compile\Tools\RegRipper2.8\plugins\timezone.pl", @ScriptDir & "\Tools\RegRipper\plugins\", 0)
+			   FileInstall(".\Compile\Tools\RegRipper2.8\plugins\tracing.pl", @ScriptDir & "\Tools\RegRipper\plugins\", 0)
+			   FileInstall(".\Compile\Tools\RegRipper2.8\plugins\tracing_tln.pl", @ScriptDir & "\Tools\RegRipper\plugins\", 0)
+			   FileInstall(".\Compile\Tools\RegRipper2.8\plugins\trappoll.pl", @ScriptDir & "\Tools\RegRipper\plugins\", 0)
+			   FileInstall(".\Compile\Tools\RegRipper2.8\plugins\trustrecords.pl", @ScriptDir & "\Tools\RegRipper\plugins\", 0)
+			   FileInstall(".\Compile\Tools\RegRipper2.8\plugins\trustrecords_tln.pl", @ScriptDir & "\Tools\RegRipper\plugins\", 0)
+			   FileInstall(".\Compile\Tools\RegRipper2.8\plugins\tsclient.pl", @ScriptDir & "\Tools\RegRipper\plugins\", 0)
+			   FileInstall(".\Compile\Tools\RegRipper2.8\plugins\tsclient_tln.pl", @ScriptDir & "\Tools\RegRipper\plugins\", 0)
+			   FileInstall(".\Compile\Tools\RegRipper2.8\plugins\typedpaths.pl", @ScriptDir & "\Tools\RegRipper\plugins\", 0)
+			   FileInstall(".\Compile\Tools\RegRipper2.8\plugins\typedpaths_tln.pl", @ScriptDir & "\Tools\RegRipper\plugins\", 0)
+			   FileInstall(".\Compile\Tools\RegRipper2.8\plugins\typedurls.pl", @ScriptDir & "\Tools\RegRipper\plugins\", 0)
+			   FileInstall(".\Compile\Tools\RegRipper2.8\plugins\typedurls_tln.pl", @ScriptDir & "\Tools\RegRipper\plugins\", 0)
+			   FileInstall(".\Compile\Tools\RegRipper2.8\plugins\typedurlstime.pl", @ScriptDir & "\Tools\RegRipper\plugins\", 0)
+			   FileInstall(".\Compile\Tools\RegRipper2.8\plugins\typedurlstime_tln.pl", @ScriptDir & "\Tools\RegRipper\plugins\", 0)
+			   FileInstall(".\Compile\Tools\RegRipper2.8\plugins\uac.pl", @ScriptDir & "\Tools\RegRipper\plugins\", 0)
+			   FileInstall(".\Compile\Tools\RegRipper2.8\plugins\uninstall.pl", @ScriptDir & "\Tools\RegRipper\plugins\", 0)
+			   FileInstall(".\Compile\Tools\RegRipper2.8\plugins\uninstall_tln.pl", @ScriptDir & "\Tools\RegRipper\plugins\", 0)
+			   FileInstall(".\Compile\Tools\RegRipper2.8\plugins\unreadmail.pl", @ScriptDir & "\Tools\RegRipper\plugins\", 0)
+			   FileInstall(".\Compile\Tools\RegRipper2.8\plugins\urlzone.pl", @ScriptDir & "\Tools\RegRipper\plugins\", 0)
+			   FileInstall(".\Compile\Tools\RegRipper2.8\plugins\urun_tln.pl", @ScriptDir & "\Tools\RegRipper\plugins\", 0)
+			   FileInstall(".\Compile\Tools\RegRipper2.8\plugins\usb.pl", @ScriptDir & "\Tools\RegRipper\plugins\", 0)
+			   FileInstall(".\Compile\Tools\RegRipper2.8\plugins\usbdevices.pl", @ScriptDir & "\Tools\RegRipper\plugins\", 0)
+			   FileInstall(".\Compile\Tools\RegRipper2.8\plugins\usbstor.pl", @ScriptDir & "\Tools\RegRipper\plugins\", 0)
+			   FileInstall(".\Compile\Tools\RegRipper2.8\plugins\usbstor2.pl", @ScriptDir & "\Tools\RegRipper\plugins\", 0)
+			   FileInstall(".\Compile\Tools\RegRipper2.8\plugins\usbstor3.pl", @ScriptDir & "\Tools\RegRipper\plugins\", 0)
+			   FileInstall(".\Compile\Tools\RegRipper2.8\plugins\user_run.pl", @ScriptDir & "\Tools\RegRipper\plugins\", 0)
+			   FileInstall(".\Compile\Tools\RegRipper2.8\plugins\user_win.pl", @ScriptDir & "\Tools\RegRipper\plugins\", 0)
+			   FileInstall(".\Compile\Tools\RegRipper2.8\plugins\userassist.pl", @ScriptDir & "\Tools\RegRipper\plugins\", 0)
+			   FileInstall(".\Compile\Tools\RegRipper2.8\plugins\userassist_tln.pl", @ScriptDir & "\Tools\RegRipper\plugins\", 0)
+			   FileInstall(".\Compile\Tools\RegRipper2.8\plugins\userinfo.pl", @ScriptDir & "\Tools\RegRipper\plugins\", 0)
+			   FileInstall(".\Compile\Tools\RegRipper2.8\plugins\userlocsvc.pl", @ScriptDir & "\Tools\RegRipper\plugins\", 0)
+			   FileInstall(".\Compile\Tools\RegRipper2.8\plugins\usrclass", @ScriptDir & "\Tools\RegRipper\plugins\", 0)
+			   FileInstall(".\Compile\Tools\RegRipper2.8\plugins\vawtrak.pl", @ScriptDir & "\Tools\RegRipper\plugins\", 0)
+			   FileInstall(".\Compile\Tools\RegRipper2.8\plugins\virut.pl", @ScriptDir & "\Tools\RegRipper\plugins\", 0)
+			   FileInstall(".\Compile\Tools\RegRipper2.8\plugins\vista_bitbucket.pl", @ScriptDir & "\Tools\RegRipper\plugins\", 0)
+			   FileInstall(".\Compile\Tools\RegRipper2.8\plugins\vmplayer.pl", @ScriptDir & "\Tools\RegRipper\plugins\", 0)
+			   FileInstall(".\Compile\Tools\RegRipper2.8\plugins\vmware_vsphere_client.pl", @ScriptDir & "\Tools\RegRipper\plugins\", 0)
+			   FileInstall(".\Compile\Tools\RegRipper2.8\plugins\vnchooksapplicationprefs.pl", @ScriptDir & "\Tools\RegRipper\plugins\", 0)
+			   FileInstall(".\Compile\Tools\RegRipper2.8\plugins\vncviewer.pl", @ScriptDir & "\Tools\RegRipper\plugins\", 0)
+			   FileInstall(".\Compile\Tools\RegRipper2.8\plugins\volinfocache.pl", @ScriptDir & "\Tools\RegRipper\plugins\", 0)
+			   FileInstall(".\Compile\Tools\RegRipper2.8\plugins\wallpaper.pl", @ScriptDir & "\Tools\RegRipper\plugins\", 0)
+			   FileInstall(".\Compile\Tools\RegRipper2.8\plugins\warcraft3.pl", @ScriptDir & "\Tools\RegRipper\plugins\", 0)
+			   FileInstall(".\Compile\Tools\RegRipper2.8\plugins\wbem.pl", @ScriptDir & "\Tools\RegRipper\plugins\", 0)
+			   FileInstall(".\Compile\Tools\RegRipper2.8\plugins\win_cv.pl", @ScriptDir & "\Tools\RegRipper\plugins\", 0)
+			   FileInstall(".\Compile\Tools\RegRipper2.8\plugins\winbackup.pl", @ScriptDir & "\Tools\RegRipper\plugins\", 0)
+			   FileInstall(".\Compile\Tools\RegRipper2.8\plugins\winevt.pl", @ScriptDir & "\Tools\RegRipper\plugins\", 0)
+			   FileInstall(".\Compile\Tools\RegRipper2.8\plugins\winlogon.pl", @ScriptDir & "\Tools\RegRipper\plugins\", 0)
+			   FileInstall(".\Compile\Tools\RegRipper2.8\plugins\winlogon_tln.pl", @ScriptDir & "\Tools\RegRipper\plugins\", 0)
+			   FileInstall(".\Compile\Tools\RegRipper2.8\plugins\winlogon_u.pl", @ScriptDir & "\Tools\RegRipper\plugins\", 0)
+			   FileInstall(".\Compile\Tools\RegRipper2.8\plugins\winnt_cv.pl", @ScriptDir & "\Tools\RegRipper\plugins\", 0)
+			   FileInstall(".\Compile\Tools\RegRipper2.8\plugins\winrar.pl", @ScriptDir & "\Tools\RegRipper\plugins\", 0)
+			   FileInstall(".\Compile\Tools\RegRipper2.8\plugins\winrar_tln.pl", @ScriptDir & "\Tools\RegRipper\plugins\", 0)
+			   FileInstall(".\Compile\Tools\RegRipper2.8\plugins\winrar2.pl", @ScriptDir & "\Tools\RegRipper\plugins\", 0)
+			   FileInstall(".\Compile\Tools\RegRipper2.8\plugins\winscp.pl", @ScriptDir & "\Tools\RegRipper\plugins\", 0)
+			   FileInstall(".\Compile\Tools\RegRipper2.8\plugins\winscp_sessions.pl", @ScriptDir & "\Tools\RegRipper\plugins\", 0)
+			   FileInstall(".\Compile\Tools\RegRipper2.8\plugins\winver.pl", @ScriptDir & "\Tools\RegRipper\plugins\", 0)
+			   FileInstall(".\Compile\Tools\RegRipper2.8\plugins\winvnc.pl", @ScriptDir & "\Tools\RegRipper\plugins\", 0)
+			   FileInstall(".\Compile\Tools\RegRipper2.8\plugins\winzip.pl", @ScriptDir & "\Tools\RegRipper\plugins\", 0)
+			   FileInstall(".\Compile\Tools\RegRipper2.8\plugins\wordwheelquery.pl", @ScriptDir & "\Tools\RegRipper\plugins\", 0)
+			   FileInstall(".\Compile\Tools\RegRipper2.8\plugins\wpdbusenum.pl", @ScriptDir & "\Tools\RegRipper\plugins\", 0)
+			   FileInstall(".\Compile\Tools\RegRipper2.8\plugins\xpedition.pl", @ScriptDir & "\Tools\RegRipper\plugins\", 0)
+			   FileInstall(".\Compile\Tools\RegRipper2.8\plugins\yahoo_cu.pl", @ScriptDir & "\Tools\RegRipper\plugins\", 0)
+			   FileInstall(".\Compile\Tools\RegRipper2.8\plugins\yahoo_lm.pl", @ScriptDir & "\Tools\RegRipper\plugins\", 0)
+
 EndFunc
