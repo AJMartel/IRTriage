@@ -1752,7 +1752,7 @@ Func RegRipper()						;Special thanks to Harlan Carvey for his excellent tool.
    Local $softexe1 = $shellex & ' .\Tools\RegRipper\rip.exe -r "' & $EvDir & $softhiv & '" -f software > "' & $EvDir & 'SOFTWARE_Ripped_Report.txt"'
    Local $samexe1 = $shellex & ' .\Tools\RegRipper\rip.exe -r "' & $EvDir & $samhiv & '" -f sam > "' & $EvDir & 'SAM_Ripped_Report.txt"'
    Local $secexe1 = $shellex & ' .\Tools\RegRipper\rip.exe -r "' & $EvDir & $sechiv & '" -f security > "' & $EvDir & 'SECURITY_Ripped_Report.txt"'
-   Local $ntuexe1 = $shellex & ' .\Tools\RegRipper\rip.exe -r "' & $EvDir & $hkcuhiv & '" -f NTUSER > "' & $EvDir & 'NTUSER_Ripped_Report.txt"'
+   Local $ntuexe1 = $shellex & ' .\Tools\RegRipper\rip.exe -r "' & $EvDir & $hkcuhiv & '" -f ntuser > "' & $EvDir & 'NTUSER_Ripped_Report.txt"'
 
    RunWait($sysexe1, "", @SW_HIDE)
    	  FileWriteLine($Log, @YEAR&"-"&@MON&"-"&@MDAY&@TAB&@HOUR&":"&@MIN&":"&@SEC&":"&@MSEC&@TAB&"Executed command:" &@TAB& $sysexe1 & @CRLF)
@@ -2530,45 +2530,45 @@ Func Install()							;Function to install binary files necessary for execution i
 				Until FileExists(@ScriptDir & "\Tools\sleuthkit-4.2.0\bin\")
 			 EndIf
 
-			   FileInstall(".\Compile\Tools\sleuthkit-4.2.0\bin\blkcalc.exe", @ScriptDir & "\Tools\sleuthkit-4.2.0\bin\", 0)
-			   FileInstall(".\Compile\Tools\sleuthkit-4.2.0\bin\blkcat.exe", @ScriptDir & "\Tools\sleuthkit-4.2.0\bin\", 0)
-			   FileInstall(".\Compile\Tools\sleuthkit-4.2.0\bin\blkls.exe", @ScriptDir & "\Tools\sleuthkit-4.2.0\bin\", 0)
-			   FileInstall(".\Compile\Tools\sleuthkit-4.2.0\bin\blkstat.exe", @ScriptDir & "\Tools\sleuthkit-4.2.0\bin\", 0)
-			   FileInstall(".\Compile\Tools\sleuthkit-4.2.0\bin\fcat.exe", @ScriptDir & "\Tools\sleuthkit-4.2.0\bin\", 0)
-			   FileInstall(".\Compile\Tools\sleuthkit-4.2.0\bin\ffind.exe", @ScriptDir & "\Tools\sleuthkit-4.2.0\bin\", 0)
-			   FileInstall(".\Compile\Tools\sleuthkit-4.2.0\bin\fls.exe", @ScriptDir & "\Tools\sleuthkit-4.2.0\bin\", 0)
-			   FileInstall(".\Compile\Tools\sleuthkit-4.2.0\bin\fsstat.exe", @ScriptDir & "\Tools\sleuthkit-4.2.0\bin\", 0)
-			   FileInstall(".\Compile\Tools\sleuthkit-4.2.0\bin\hfind.exe", @ScriptDir & "\Tools\sleuthkit-4.2.0\bin\", 0)
+;			   FileInstall(".\Compile\Tools\sleuthkit-4.2.0\bin\blkcalc.exe", @ScriptDir & "\Tools\sleuthkit-4.2.0\bin\", 0)
+;			   FileInstall(".\Compile\Tools\sleuthkit-4.2.0\bin\blkcat.exe", @ScriptDir & "\Tools\sleuthkit-4.2.0\bin\", 0)
+;			   FileInstall(".\Compile\Tools\sleuthkit-4.2.0\bin\blkls.exe", @ScriptDir & "\Tools\sleuthkit-4.2.0\bin\", 0)
+;			   FileInstall(".\Compile\Tools\sleuthkit-4.2.0\bin\blkstat.exe", @ScriptDir & "\Tools\sleuthkit-4.2.0\bin\", 0)
+;			   FileInstall(".\Compile\Tools\sleuthkit-4.2.0\bin\fcat.exe", @ScriptDir & "\Tools\sleuthkit-4.2.0\bin\", 0)
+;			   FileInstall(".\Compile\Tools\sleuthkit-4.2.0\bin\ffind.exe", @ScriptDir & "\Tools\sleuthkit-4.2.0\bin\", 0)
+;			   FileInstall(".\Compile\Tools\sleuthkit-4.2.0\bin\fls.exe", @ScriptDir & "\Tools\sleuthkit-4.2.0\bin\", 0)
+;			   FileInstall(".\Compile\Tools\sleuthkit-4.2.0\bin\fsstat.exe", @ScriptDir & "\Tools\sleuthkit-4.2.0\bin\", 0)
+;			   FileInstall(".\Compile\Tools\sleuthkit-4.2.0\bin\hfind.exe", @ScriptDir & "\Tools\sleuthkit-4.2.0\bin\", 0)
 			   FileInstall(".\Compile\Tools\sleuthkit-4.2.0\bin\icat.exe", @ScriptDir & "\Tools\sleuthkit-4.2.0\bin\", 0)
 			   FileInstall(".\Compile\Tools\sleuthkit-4.2.0\bin\ifind.exe", @ScriptDir & "\Tools\sleuthkit-4.2.0\bin\", 0)
-			   FileInstall(".\Compile\Tools\sleuthkit-4.2.0\bin\ils.exe", @ScriptDir & "\Tools\sleuthkit-4.2.0\bin\", 0)
-			   FileInstall(".\Compile\Tools\sleuthkit-4.2.0\bin\img_cat.exe", @ScriptDir & "\Tools\sleuthkit-4.2.0\bin\", 0)
-			   FileInstall(".\Compile\Tools\sleuthkit-4.2.0\bin\img_stat.exe", @ScriptDir & "\Tools\sleuthkit-4.2.0\bin\", 0)
-			   FileInstall(".\Compile\Tools\sleuthkit-4.2.0\bin\istat.exe", @ScriptDir & "\Tools\sleuthkit-4.2.0\bin\", 0)
-			   FileInstall(".\Compile\Tools\sleuthkit-4.2.0\bin\jcat.exe", @ScriptDir & "\Tools\sleuthkit-4.2.0\bin\", 0)
-			   FileInstall(".\Compile\Tools\sleuthkit-4.2.0\bin\jls.exe", @ScriptDir & "\Tools\sleuthkit-4.2.0\bin\", 0)
+;			   FileInstall(".\Compile\Tools\sleuthkit-4.2.0\bin\ils.exe", @ScriptDir & "\Tools\sleuthkit-4.2.0\bin\", 0)
+;			   FileInstall(".\Compile\Tools\sleuthkit-4.2.0\bin\img_cat.exe", @ScriptDir & "\Tools\sleuthkit-4.2.0\bin\", 0)
+;			   FileInstall(".\Compile\Tools\sleuthkit-4.2.0\bin\img_stat.exe", @ScriptDir & "\Tools\sleuthkit-4.2.0\bin\", 0)
+;			   FileInstall(".\Compile\Tools\sleuthkit-4.2.0\bin\istat.exe", @ScriptDir & "\Tools\sleuthkit-4.2.0\bin\", 0)
+;			   FileInstall(".\Compile\Tools\sleuthkit-4.2.0\bin\jcat.exe", @ScriptDir & "\Tools\sleuthkit-4.2.0\bin\", 0)
+;			   FileInstall(".\Compile\Tools\sleuthkit-4.2.0\bin\jls.exe", @ScriptDir & "\Tools\sleuthkit-4.2.0\bin\", 0)
 			   FileInstall(".\Compile\Tools\sleuthkit-4.2.0\bin\libewf.dll", @ScriptDir & "\Tools\sleuthkit-4.2.0\bin\", 0)
-			   FileInstall(".\Compile\Tools\sleuthkit-4.2.0\bin\libtsk_jni.dll", @ScriptDir & "\Tools\sleuthkit-4.2.0\bin\", 0)
-			   FileInstall(".\Compile\Tools\sleuthkit-4.2.0\bin\mactime.pl", @ScriptDir & "\Tools\sleuthkit-4.2.0\bin\", 0)
-			   FileInstall(".\Compile\Tools\sleuthkit-4.2.0\bin\mmcat.exe", @ScriptDir & "\Tools\sleuthkit-4.2.0\bin\", 0)
-			   FileInstall(".\Compile\Tools\sleuthkit-4.2.0\bin\mmls.exe", @ScriptDir & "\Tools\sleuthkit-4.2.0\bin\", 0)
-			   FileInstall(".\Compile\Tools\sleuthkit-4.2.0\bin\mmstat.exe", @ScriptDir & "\Tools\sleuthkit-4.2.0\bin\", 0)
+;			   FileInstall(".\Compile\Tools\sleuthkit-4.2.0\bin\libtsk_jni.dll", @ScriptDir & "\Tools\sleuthkit-4.2.0\bin\", 0)
+;			   FileInstall(".\Compile\Tools\sleuthkit-4.2.0\bin\mactime.pl", @ScriptDir & "\Tools\sleuthkit-4.2.0\bin\", 0)
+;			   FileInstall(".\Compile\Tools\sleuthkit-4.2.0\bin\mmcat.exe", @ScriptDir & "\Tools\sleuthkit-4.2.0\bin\", 0)
+;			   FileInstall(".\Compile\Tools\sleuthkit-4.2.0\bin\mmls.exe", @ScriptDir & "\Tools\sleuthkit-4.2.0\bin\", 0)
+;			   FileInstall(".\Compile\Tools\sleuthkit-4.2.0\bin\mmstat.exe", @ScriptDir & "\Tools\sleuthkit-4.2.0\bin\", 0)
 			   FileInstall(".\Compile\Tools\sleuthkit-4.2.0\bin\msvcp100.dll", @ScriptDir & "\Tools\sleuthkit-4.2.0\bin\", 0)
 			   FileInstall(".\Compile\Tools\sleuthkit-4.2.0\bin\msvcr100.dll", @ScriptDir & "\Tools\sleuthkit-4.2.0\bin\", 0)
-			   FileInstall(".\Compile\Tools\sleuthkit-4.2.0\bin\tsk_comparedir.exe", @ScriptDir & "\Tools\sleuthkit-4.2.0\bin\", 0)
-			   FileInstall(".\Compile\Tools\sleuthkit-4.2.0\bin\tsk_gettimes.exe", @ScriptDir & "\Tools\sleuthkit-4.2.0\bin\", 0)
-			   FileInstall(".\Compile\Tools\sleuthkit-4.2.0\bin\tsk_loaddb.exe", @ScriptDir & "\Tools\sleuthkit-4.2.0\bin\", 0)
-			   FileInstall(".\Compile\Tools\sleuthkit-4.2.0\bin\tsk_recover.exe", @ScriptDir & "\Tools\sleuthkit-4.2.0\bin\", 0)
+;			   FileInstall(".\Compile\Tools\sleuthkit-4.2.0\bin\tsk_comparedir.exe", @ScriptDir & "\Tools\sleuthkit-4.2.0\bin\", 0)
+;			   FileInstall(".\Compile\Tools\sleuthkit-4.2.0\bin\tsk_gettimes.exe", @ScriptDir & "\Tools\sleuthkit-4.2.0\bin\", 0)
+;			   FileInstall(".\Compile\Tools\sleuthkit-4.2.0\bin\tsk_loaddb.exe", @ScriptDir & "\Tools\sleuthkit-4.2.0\bin\", 0)
+;			   FileInstall(".\Compile\Tools\sleuthkit-4.2.0\bin\tsk_recover.exe", @ScriptDir & "\Tools\sleuthkit-4.2.0\bin\", 0)
 			   FileInstall(".\Compile\Tools\sleuthkit-4.2.0\bin\zlib.dll", @ScriptDir & "\Tools\sleuthkit-4.2.0\bin\", 0)
 
-			If Not FileExists(@ScriptDir & "\Tools\sleuthkit-4.2.0\lib\") Then
-				Do
-					DirCreate(@ScriptDir & "\Tools\sleuthkit-4.2.0\lib\")
-				Until FileExists(@ScriptDir & "\Tools\sleuthkit-4.2.0\lib\")
-			 EndIf
+;			If Not FileExists(@ScriptDir & "\Tools\sleuthkit-4.2.0\lib\") Then
+;				Do
+;					DirCreate(@ScriptDir & "\Tools\sleuthkit-4.2.0\lib\")
+;				Until FileExists(@ScriptDir & "\Tools\sleuthkit-4.2.0\lib\")
+;			 EndIf
 
-			   FileInstall(".\Compile\Tools\sleuthkit-4.2.0\lib\libtsk.lib", @ScriptDir & "\Tools\sleuthkit-4.2.0\lib\", 0)
-			   FileInstall(".\Compile\Tools\sleuthkit-4.2.0\lib\libtsk_jni.lib", @ScriptDir & "\Tools\sleuthkit-4.2.0\lib\", 0)
+;			   FileInstall(".\Compile\Tools\sleuthkit-4.2.0\lib\libtsk.lib", @ScriptDir & "\Tools\sleuthkit-4.2.0\lib\", 0)
+;			   FileInstall(".\Compile\Tools\sleuthkit-4.2.0\lib\libtsk_jni.lib", @ScriptDir & "\Tools\sleuthkit-4.2.0\lib\", 0)
 
  			If Not FileExists(@ScriptDir & "\Tools\SysinternalsSuite\") Then
  			   Do
@@ -2597,9 +2597,9 @@ Func RegRipperTools()
 			EndIf
 			   FileInstall(".\Compile\Tools\RegRipper2.8\p2x5124.dll", @ScriptDir & "\Tools\RegRipper\", 0)
 			   FileInstall(".\Compile\Tools\RegRipper2.8\rip.exe", @ScriptDir & "\Tools\RegRipper\", 0)
-			   FileInstall(".\Compile\Tools\RegRipper2.8\rip.pl", @ScriptDir & "\Tools\RegRipper\", 0)
+;			   FileInstall(".\Compile\Tools\RegRipper2.8\rip.pl", @ScriptDir & "\Tools\RegRipper\", 0)
 			   FileInstall(".\Compile\Tools\RegRipper2.8\rr.exe", @ScriptDir & "\Tools\RegRipper\", 0)
-			   FileInstall(".\Compile\Tools\RegRipper2.8\rr.pl", @ScriptDir & "\Tools\RegRipper\", 0)
+;			   FileInstall(".\Compile\Tools\RegRipper2.8\rr.pl", @ScriptDir & "\Tools\RegRipper\", 0)
 			   FileInstall(".\Compile\Tools\RegRipper2.8\shellitems.pl", @ScriptDir & "\Tools\RegRipper\", 0)
 			   FileInstall(".\Compile\Tools\RegRipper2.8\time.pl", @ScriptDir & "\Tools\RegRipper\", 0)
 
