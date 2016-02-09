@@ -1,10 +1,10 @@
 ;==========================================================================================================================================
 ;	Tool:			Incident Respone Triage:    (GUI)
 ;
-;	Version:		0.0.1.7
+;	Version:		0.0.1.8
 ;
 ;	Author:			Michael Ahrendt (Nov 2012)
-;   Modified by:		Alain Martel (Oct 2015)
+;   Modified by:    Alain Martel (Oct 2015)
 ;
 ;	Description:	IRTriage is intended for incident responders who need to gather host data rapidly.
 ;			The tool will run a plethora of commands automatically based on selection.
@@ -24,6 +24,7 @@
 ;
 ;           The SleuthKit
 ;                -http://sourceforge.net/projects/sleuthkit/files/sleuthkit/4.2.0/sleuthkit-4.2.0-win32.zip/download
+;                 Using custom icat.exe and ifind.exe, compiled without any external DLLs
 ;
 ;			RegRipper from Harlan Carvey
 ;				-https://github.com/keydet89/RegRipper2.8/archive/master.zip
@@ -58,7 +59,7 @@ Global 	$fcnt
 Global  $p_chkc = 1                                                  ;fixed missing value that killed command logging
 Global  $r_chk = 0                                                   ;fixed missing value that killed command logging
 Global  $r_ini = 0                                                   ;fixed missing value that killed command logging
-Global  $Version = "0.0.1.7"                                         ;Added to facilitate display of version info
+Global  $Version = "0.0.1.8"                                         ;Added to facilitate display of version info
 
 $ini_file = "IRTriage.ini"
 
@@ -2530,61 +2531,150 @@ Func Install()							;Function to install binary files necessary for execution i
 				Until FileExists(@ScriptDir & "\Tools\sleuthkit-4.2.0\bin\")
 			 EndIf
 
-			   FileInstall(".\Compile\Tools\sleuthkit-4.2.0\bin\blkcalc.exe", @ScriptDir & "\Tools\sleuthkit-4.2.0\bin\", 0)
-			   FileInstall(".\Compile\Tools\sleuthkit-4.2.0\bin\blkcat.exe", @ScriptDir & "\Tools\sleuthkit-4.2.0\bin\", 0)
-			   FileInstall(".\Compile\Tools\sleuthkit-4.2.0\bin\blkls.exe", @ScriptDir & "\Tools\sleuthkit-4.2.0\bin\", 0)
-			   FileInstall(".\Compile\Tools\sleuthkit-4.2.0\bin\blkstat.exe", @ScriptDir & "\Tools\sleuthkit-4.2.0\bin\", 0)
-			   FileInstall(".\Compile\Tools\sleuthkit-4.2.0\bin\fcat.exe", @ScriptDir & "\Tools\sleuthkit-4.2.0\bin\", 0)
-			   FileInstall(".\Compile\Tools\sleuthkit-4.2.0\bin\ffind.exe", @ScriptDir & "\Tools\sleuthkit-4.2.0\bin\", 0)
-			   FileInstall(".\Compile\Tools\sleuthkit-4.2.0\bin\fls.exe", @ScriptDir & "\Tools\sleuthkit-4.2.0\bin\", 0)
-			   FileInstall(".\Compile\Tools\sleuthkit-4.2.0\bin\fsstat.exe", @ScriptDir & "\Tools\sleuthkit-4.2.0\bin\", 0)
-			   FileInstall(".\Compile\Tools\sleuthkit-4.2.0\bin\hfind.exe", @ScriptDir & "\Tools\sleuthkit-4.2.0\bin\", 0)
-			   FileInstall(".\Compile\Tools\sleuthkit-4.2.0\bin\icat.exe", @ScriptDir & "\Tools\sleuthkit-4.2.0\bin\", 0)
-			   FileInstall(".\Compile\Tools\sleuthkit-4.2.0\bin\ifind.exe", @ScriptDir & "\Tools\sleuthkit-4.2.0\bin\", 0)
-			   FileInstall(".\Compile\Tools\sleuthkit-4.2.0\bin\ils.exe", @ScriptDir & "\Tools\sleuthkit-4.2.0\bin\", 0)
-			   FileInstall(".\Compile\Tools\sleuthkit-4.2.0\bin\img_cat.exe", @ScriptDir & "\Tools\sleuthkit-4.2.0\bin\", 0)
-			   FileInstall(".\Compile\Tools\sleuthkit-4.2.0\bin\img_stat.exe", @ScriptDir & "\Tools\sleuthkit-4.2.0\bin\", 0)
-			   FileInstall(".\Compile\Tools\sleuthkit-4.2.0\bin\istat.exe", @ScriptDir & "\Tools\sleuthkit-4.2.0\bin\", 0)
-			   FileInstall(".\Compile\Tools\sleuthkit-4.2.0\bin\jcat.exe", @ScriptDir & "\Tools\sleuthkit-4.2.0\bin\", 0)
-			   FileInstall(".\Compile\Tools\sleuthkit-4.2.0\bin\jls.exe", @ScriptDir & "\Tools\sleuthkit-4.2.0\bin\", 0)
-			   FileInstall(".\Compile\Tools\sleuthkit-4.2.0\bin\libewf.dll", @ScriptDir & "\Tools\sleuthkit-4.2.0\bin\", 0)
-			   FileInstall(".\Compile\Tools\sleuthkit-4.2.0\bin\libtsk_jni.dll", @ScriptDir & "\Tools\sleuthkit-4.2.0\bin\", 0)
-			   FileInstall(".\Compile\Tools\sleuthkit-4.2.0\bin\mactime.pl", @ScriptDir & "\Tools\sleuthkit-4.2.0\bin\", 0)
-			   FileInstall(".\Compile\Tools\sleuthkit-4.2.0\bin\mmcat.exe", @ScriptDir & "\Tools\sleuthkit-4.2.0\bin\", 0)
-			   FileInstall(".\Compile\Tools\sleuthkit-4.2.0\bin\mmls.exe", @ScriptDir & "\Tools\sleuthkit-4.2.0\bin\", 0)
-			   FileInstall(".\Compile\Tools\sleuthkit-4.2.0\bin\mmstat.exe", @ScriptDir & "\Tools\sleuthkit-4.2.0\bin\", 0)
-			   FileInstall(".\Compile\Tools\sleuthkit-4.2.0\bin\msvcp100.dll", @ScriptDir & "\Tools\sleuthkit-4.2.0\bin\", 0)
-			   FileInstall(".\Compile\Tools\sleuthkit-4.2.0\bin\msvcr100.dll", @ScriptDir & "\Tools\sleuthkit-4.2.0\bin\", 0)
-			   FileInstall(".\Compile\Tools\sleuthkit-4.2.0\bin\tsk_comparedir.exe", @ScriptDir & "\Tools\sleuthkit-4.2.0\bin\", 0)
-			   FileInstall(".\Compile\Tools\sleuthkit-4.2.0\bin\tsk_gettimes.exe", @ScriptDir & "\Tools\sleuthkit-4.2.0\bin\", 0)
-			   FileInstall(".\Compile\Tools\sleuthkit-4.2.0\bin\tsk_loaddb.exe", @ScriptDir & "\Tools\sleuthkit-4.2.0\bin\", 0)
-			   FileInstall(".\Compile\Tools\sleuthkit-4.2.0\bin\tsk_recover.exe", @ScriptDir & "\Tools\sleuthkit-4.2.0\bin\", 0)
-			   FileInstall(".\Compile\Tools\sleuthkit-4.2.0\bin\zlib.dll", @ScriptDir & "\Tools\sleuthkit-4.2.0\bin\", 0)
+;			   FileInstall(".\Compile\Tools\sleuthkit-4.2.0\bin\blkcalc.exe", @ScriptDir & "\Tools\sleuthkit-4.2.0\bin\", 0)
+;			   FileInstall(".\Compile\Tools\sleuthkit-4.2.0\bin\blkcat.exe", @ScriptDir & "\Tools\sleuthkit-4.2.0\bin\", 0)
+;			   FileInstall(".\Compile\Tools\sleuthkit-4.2.0\bin\blkls.exe", @ScriptDir & "\Tools\sleuthkit-4.2.0\bin\", 0)
+;			   FileInstall(".\Compile\Tools\sleuthkit-4.2.0\bin\blkstat.exe", @ScriptDir & "\Tools\sleuthkit-4.2.0\bin\", 0)
+;			   FileInstall(".\Compile\Tools\sleuthkit-4.2.0\bin\fcat.exe", @ScriptDir & "\Tools\sleuthkit-4.2.0\bin\", 0)
+;			   FileInstall(".\Compile\Tools\sleuthkit-4.2.0\bin\ffind.exe", @ScriptDir & "\Tools\sleuthkit-4.2.0\bin\", 0)
+;			   FileInstall(".\Compile\Tools\sleuthkit-4.2.0\bin\fls.exe", @ScriptDir & "\Tools\sleuthkit-4.2.0\bin\", 0)
+;			   FileInstall(".\Compile\Tools\sleuthkit-4.2.0\bin\fsstat.exe", @ScriptDir & "\Tools\sleuthkit-4.2.0\bin\", 0)
+;			   FileInstall(".\Compile\Tools\sleuthkit-4.2.0\bin\hfind.exe", @ScriptDir & "\Tools\sleuthkit-4.2.0\bin\", 0)
+			   FileInstall(".\Compile\Tools\sleuthkit-4.2.0\bin\icat.exe", @ScriptDir & "\Tools\sleuthkit-4.2.0\bin\", 0)            ;using custom compiled version NO EXTERNAL DLLs
+			   FileInstall(".\Compile\Tools\sleuthkit-4.2.0\bin\ifind.exe", @ScriptDir & "\Tools\sleuthkit-4.2.0\bin\", 0)           ;using custom compiled version NO EXTERNAL DLLs
+;			   FileInstall(".\Compile\Tools\sleuthkit-4.2.0\bin\ils.exe", @ScriptDir & "\Tools\sleuthkit-4.2.0\bin\", 0)
+;			   FileInstall(".\Compile\Tools\sleuthkit-4.2.0\bin\img_cat.exe", @ScriptDir & "\Tools\sleuthkit-4.2.0\bin\", 0)
+;			   FileInstall(".\Compile\Tools\sleuthkit-4.2.0\bin\img_stat.exe", @ScriptDir & "\Tools\sleuthkit-4.2.0\bin\", 0)
+;			   FileInstall(".\Compile\Tools\sleuthkit-4.2.0\bin\istat.exe", @ScriptDir & "\Tools\sleuthkit-4.2.0\bin\", 0)
+;			   FileInstall(".\Compile\Tools\sleuthkit-4.2.0\bin\jcat.exe", @ScriptDir & "\Tools\sleuthkit-4.2.0\bin\", 0)
+;			   FileInstall(".\Compile\Tools\sleuthkit-4.2.0\bin\jls.exe", @ScriptDir & "\Tools\sleuthkit-4.2.0\bin\", 0)
+;			   FileInstall(".\Compile\Tools\sleuthkit-4.2.0\bin\libewf.dll", @ScriptDir & "\Tools\sleuthkit-4.2.0\bin\", 0)
+;			   FileInstall(".\Compile\Tools\sleuthkit-4.2.0\bin\libtsk_jni.dll", @ScriptDir & "\Tools\sleuthkit-4.2.0\bin\", 0)
+;			   FileInstall(".\Compile\Tools\sleuthkit-4.2.0\bin\mactime.pl", @ScriptDir & "\Tools\sleuthkit-4.2.0\bin\", 0)
+;			   FileInstall(".\Compile\Tools\sleuthkit-4.2.0\bin\mmcat.exe", @ScriptDir & "\Tools\sleuthkit-4.2.0\bin\", 0)
+;			   FileInstall(".\Compile\Tools\sleuthkit-4.2.0\bin\mmls.exe", @ScriptDir & "\Tools\sleuthkit-4.2.0\bin\", 0)
+;			   FileInstall(".\Compile\Tools\sleuthkit-4.2.0\bin\mmstat.exe", @ScriptDir & "\Tools\sleuthkit-4.2.0\bin\", 0)
+;			   FileInstall(".\Compile\Tools\sleuthkit-4.2.0\bin\msvcp100.dll", @ScriptDir & "\Tools\sleuthkit-4.2.0\bin\", 0)
+;			   FileInstall(".\Compile\Tools\sleuthkit-4.2.0\bin\msvcr100.dll", @ScriptDir & "\Tools\sleuthkit-4.2.0\bin\", 0)
+;			   FileInstall(".\Compile\Tools\sleuthkit-4.2.0\bin\tsk_comparedir.exe", @ScriptDir & "\Tools\sleuthkit-4.2.0\bin\", 0)
+;			   FileInstall(".\Compile\Tools\sleuthkit-4.2.0\bin\tsk_gettimes.exe", @ScriptDir & "\Tools\sleuthkit-4.2.0\bin\", 0)
+;			   FileInstall(".\Compile\Tools\sleuthkit-4.2.0\bin\tsk_loaddb.exe", @ScriptDir & "\Tools\sleuthkit-4.2.0\bin\", 0)
+;			   FileInstall(".\Compile\Tools\sleuthkit-4.2.0\bin\tsk_recover.exe", @ScriptDir & "\Tools\sleuthkit-4.2.0\bin\", 0)
+;			   FileInstall(".\Compile\Tools\sleuthkit-4.2.0\bin\zlib.dll", @ScriptDir & "\Tools\sleuthkit-4.2.0\bin\", 0)
 
-			If Not FileExists(@ScriptDir & "\Tools\sleuthkit-4.2.0\lib\") Then
-				Do
-					DirCreate(@ScriptDir & "\Tools\sleuthkit-4.2.0\lib\")
-				Until FileExists(@ScriptDir & "\Tools\sleuthkit-4.2.0\lib\")
-			 EndIf
+;			If Not FileExists(@ScriptDir & "\Tools\sleuthkit-4.2.0\lib\") Then
+;				Do
+;					DirCreate(@ScriptDir & "\Tools\sleuthkit-4.2.0\lib\")
+;				Until FileExists(@ScriptDir & "\Tools\sleuthkit-4.2.0\lib\")
+;			 EndIf
 
-			   FileInstall(".\Compile\Tools\sleuthkit-4.2.0\lib\libtsk.lib", @ScriptDir & "\Tools\sleuthkit-4.2.0\lib\", 0)
-			   FileInstall(".\Compile\Tools\sleuthkit-4.2.0\lib\libtsk_jni.lib", @ScriptDir & "\Tools\sleuthkit-4.2.0\lib\", 0)
+;			   FileInstall(".\Compile\Tools\sleuthkit-4.2.0\lib\libtsk.lib", @ScriptDir & "\Tools\sleuthkit-4.2.0\lib\", 0)
+;			   FileInstall(".\Compile\Tools\sleuthkit-4.2.0\lib\libtsk_jni.lib", @ScriptDir & "\Tools\sleuthkit-4.2.0\lib\", 0)
 
  			If Not FileExists(@ScriptDir & "\Tools\SysinternalsSuite\") Then
  			   Do
  				  DirCreate(@ScriptDir & "\Tools\SysinternalsSuite\")
  			   Until FileExists(@ScriptDir & "\Tools\SysinternalsSuite\")
  			EndIf
- 			   FileInstall(".\Compile\Tools\SysinternalsSuite\autorunsc.exe", @ScriptDir & "\Tools\SysinternalsSuite\", 0)
- 			   FileInstall(".\Compile\Tools\SysinternalsSuite\diskext.exe", @ScriptDir & "\Tools\SysinternalsSuite\", 0)
+;			   FileInstall(".\Compile\Tools\SysinternalsSuite\accesschk.exe", @ScriptDir & "\Tools\SysinternalsSuite\", 0)
+;			   FileInstall(".\Compile\Tools\SysinternalsSuite\AccessEnum.exe", @ScriptDir & "\Tools\SysinternalsSuite\", 0)
+;			   FileInstall(".\Compile\Tools\SysinternalsSuite\AdExplorer.chm", @ScriptDir & "\Tools\SysinternalsSuite\", 0)
+;			   FileInstall(".\Compile\Tools\SysinternalsSuite\ADExplorer.exe", @ScriptDir & "\Tools\SysinternalsSuite\", 0)
+;			   FileInstall(".\Compile\Tools\SysinternalsSuite\ADInsight.chm", @ScriptDir & "\Tools\SysinternalsSuite\", 0)
+;			   FileInstall(".\Compile\Tools\SysinternalsSuite\ADInsight.exe", @ScriptDir & "\Tools\SysinternalsSuite\", 0)
+;			   FileInstall(".\Compile\Tools\SysinternalsSuite\adrestore.exe", @ScriptDir & "\Tools\SysinternalsSuite\", 0)
+;			   FileInstall(".\Compile\Tools\SysinternalsSuite\Autologon.exe", @ScriptDir & "\Tools\SysinternalsSuite\", 0)
+;			   FileInstall(".\Compile\Tools\SysinternalsSuite\autoruns.chm", @ScriptDir & "\Tools\SysinternalsSuite\", 0)
+;			   FileInstall(".\Compile\Tools\SysinternalsSuite\Autoruns.exe", @ScriptDir & "\Tools\SysinternalsSuite\", 0)
+			   FileInstall(".\Compile\Tools\SysinternalsSuite\autorunsc.exe", @ScriptDir & "\Tools\SysinternalsSuite\", 0)
+;			   FileInstall(".\Compile\Tools\SysinternalsSuite\Bginfo.exe", @ScriptDir & "\Tools\SysinternalsSuite\", 0)
+;			   FileInstall(".\Compile\Tools\SysinternalsSuite\Cacheset.exe", @ScriptDir & "\Tools\SysinternalsSuite\", 0)
+;			   FileInstall(".\Compile\Tools\SysinternalsSuite\Clockres.exe", @ScriptDir & "\Tools\SysinternalsSuite\", 0)
+;			   FileInstall(".\Compile\Tools\SysinternalsSuite\Contig.exe", @ScriptDir & "\Tools\SysinternalsSuite\", 0)
+;			   FileInstall(".\Compile\Tools\SysinternalsSuite\Coreinfo.exe", @ScriptDir & "\Tools\SysinternalsSuite\", 0)
+;			   FileInstall(".\Compile\Tools\SysinternalsSuite\ctrl2cap.amd.sys", @ScriptDir & "\Tools\SysinternalsSuite\", 0)
+;			   FileInstall(".\Compile\Tools\SysinternalsSuite\ctrl2cap.exe", @ScriptDir & "\Tools\SysinternalsSuite\", 0)
+;			   FileInstall(".\Compile\Tools\SysinternalsSuite\ctrl2cap.nt4.sys", @ScriptDir & "\Tools\SysinternalsSuite\", 0)
+;			   FileInstall(".\Compile\Tools\SysinternalsSuite\ctrl2cap.nt5.sys", @ScriptDir & "\Tools\SysinternalsSuite\", 0)
+;			   FileInstall(".\Compile\Tools\SysinternalsSuite\dbgview.chm", @ScriptDir & "\Tools\SysinternalsSuite\", 0)
+;			   FileInstall(".\Compile\Tools\SysinternalsSuite\Dbgview.exe", @ScriptDir & "\Tools\SysinternalsSuite\", 0)
+;			   FileInstall(".\Compile\Tools\SysinternalsSuite\Desktops.exe", @ScriptDir & "\Tools\SysinternalsSuite\", 0)
+;			   FileInstall(".\Compile\Tools\SysinternalsSuite\Disk2vhd.chm", @ScriptDir & "\Tools\SysinternalsSuite\", 0)
+;			   FileInstall(".\Compile\Tools\SysinternalsSuite\disk2vhd.exe", @ScriptDir & "\Tools\SysinternalsSuite\", 0)
+			   FileInstall(".\Compile\Tools\SysinternalsSuite\diskext.exe", @ScriptDir & "\Tools\SysinternalsSuite\", 0)
+;			   FileInstall(".\Compile\Tools\SysinternalsSuite\Diskmon.exe", @ScriptDir & "\Tools\SysinternalsSuite\", 0)
+;			   FileInstall(".\Compile\Tools\SysinternalsSuite\DISKMON.HLP", @ScriptDir & "\Tools\SysinternalsSuite\", 0)
+;			   FileInstall(".\Compile\Tools\SysinternalsSuite\DiskView.exe", @ScriptDir & "\Tools\SysinternalsSuite\", 0)
+;			   FileInstall(".\Compile\Tools\SysinternalsSuite\DMON.SYS", @ScriptDir & "\Tools\SysinternalsSuite\", 0)
+;			   FileInstall(".\Compile\Tools\SysinternalsSuite\du.exe", @ScriptDir & "\Tools\SysinternalsSuite\", 0)
+;			   FileInstall(".\Compile\Tools\SysinternalsSuite\efsdump.exe", @ScriptDir & "\Tools\SysinternalsSuite\", 0)
+;			   FileInstall(".\Compile\Tools\SysinternalsSuite\Eula.txt", @ScriptDir & "\Tools\SysinternalsSuite\", 0)
+;			   FileInstall(".\Compile\Tools\SysinternalsSuite\FindLinks.exe", @ScriptDir & "\Tools\SysinternalsSuite\", 0)
 			   FileInstall(".\Compile\Tools\SysinternalsSuite\handle.exe", @ScriptDir & "\Tools\SysinternalsSuite\", 0)
+;			   FileInstall(".\Compile\Tools\SysinternalsSuite\hex2dec.exe", @ScriptDir & "\Tools\SysinternalsSuite\", 0)
+;			   FileInstall(".\Compile\Tools\SysinternalsSuite\junction.exe", @ScriptDir & "\Tools\SysinternalsSuite\", 0)
+;			   FileInstall(".\Compile\Tools\SysinternalsSuite\ldmdump.exe", @ScriptDir & "\Tools\SysinternalsSuite\", 0)
+;			   FileInstall(".\Compile\Tools\SysinternalsSuite\Listdlls.exe", @ScriptDir & "\Tools\SysinternalsSuite\", 0)
+;			   FileInstall(".\Compile\Tools\SysinternalsSuite\livekd.exe", @ScriptDir & "\Tools\SysinternalsSuite\", 0)
+;			   FileInstall(".\Compile\Tools\SysinternalsSuite\LoadOrd.exe", @ScriptDir & "\Tools\SysinternalsSuite\", 0)
 			   FileInstall(".\Compile\Tools\SysinternalsSuite\logonsessions.exe", @ScriptDir & "\Tools\SysinternalsSuite\", 0)
+;			   FileInstall(".\Compile\Tools\SysinternalsSuite\movefile.exe", @ScriptDir & "\Tools\SysinternalsSuite\", 0)
 			   FileInstall(".\Compile\Tools\SysinternalsSuite\ntfsinfo.exe", @ScriptDir & "\Tools\SysinternalsSuite\", 0)
+;			   FileInstall(".\Compile\Tools\SysinternalsSuite\pagedfrg.exe", @ScriptDir & "\Tools\SysinternalsSuite\", 0)
+;			   FileInstall(".\Compile\Tools\SysinternalsSuite\pagedfrg.hlp", @ScriptDir & "\Tools\SysinternalsSuite\", 0)
+;			   FileInstall(".\Compile\Tools\SysinternalsSuite\pendmoves.exe", @ScriptDir & "\Tools\SysinternalsSuite\", 0)
+;			   FileInstall(".\Compile\Tools\SysinternalsSuite\pipelist.exe", @ScriptDir & "\Tools\SysinternalsSuite\", 0)
+;			   FileInstall(".\Compile\Tools\SysinternalsSuite\PORTMON.CNT", @ScriptDir & "\Tools\SysinternalsSuite\", 0)
+;			   FileInstall(".\Compile\Tools\SysinternalsSuite\portmon.exe", @ScriptDir & "\Tools\SysinternalsSuite\", 0)
+;			   FileInstall(".\Compile\Tools\SysinternalsSuite\PORTMON.HLP", @ScriptDir & "\Tools\SysinternalsSuite\", 0)
+;			   FileInstall(".\Compile\Tools\SysinternalsSuite\procdump.exe", @ScriptDir & "\Tools\SysinternalsSuite\", 0)
+;			   FileInstall(".\Compile\Tools\SysinternalsSuite\procexp.chm", @ScriptDir & "\Tools\SysinternalsSuite\", 0)
+;			   FileInstall(".\Compile\Tools\SysinternalsSuite\procexp.exe", @ScriptDir & "\Tools\SysinternalsSuite\", 0)
+;			   FileInstall(".\Compile\Tools\SysinternalsSuite\procmon.chm", @ScriptDir & "\Tools\SysinternalsSuite\", 0)
+;			   FileInstall(".\Compile\Tools\SysinternalsSuite\Procmon.exe", @ScriptDir & "\Tools\SysinternalsSuite\", 0)
+;			   FileInstall(".\Compile\Tools\SysinternalsSuite\PsExec.exe", @ScriptDir & "\Tools\SysinternalsSuite\", 0)
+;			   FileInstall(".\Compile\Tools\SysinternalsSuite\psfile.exe", @ScriptDir & "\Tools\SysinternalsSuite\", 0)
+;			   FileInstall(".\Compile\Tools\SysinternalsSuite\PsGetsid.exe", @ScriptDir & "\Tools\SysinternalsSuite\", 0)
 			   FileInstall(".\Compile\Tools\SysinternalsSuite\PsInfo.exe", @ScriptDir & "\Tools\SysinternalsSuite\", 0)
+;			   FileInstall(".\Compile\Tools\SysinternalsSuite\pskill.exe", @ScriptDir & "\Tools\SysinternalsSuite\", 0)
 			   FileInstall(".\Compile\Tools\SysinternalsSuite\pslist.exe", @ScriptDir & "\Tools\SysinternalsSuite\", 0)
- 			   FileInstall(".\Compile\Tools\SysinternalsSuite\PsLoggedon.exe", @ScriptDir & "\Tools\SysinternalsSuite\", 0)
- 			   FileInstall(".\Compile\Tools\SysinternalsSuite\psloglist.exe", @ScriptDir & "\Tools\SysinternalsSuite\", 0)
- 			   FileInstall(".\Compile\Tools\SysinternalsSuite\PsService.exe", @ScriptDir & "\Tools\SysinternalsSuite\", 0)
+			   FileInstall(".\Compile\Tools\SysinternalsSuite\PsLoggedon.exe", @ScriptDir & "\Tools\SysinternalsSuite\", 0)
+			   FileInstall(".\Compile\Tools\SysinternalsSuite\psloglist.exe", @ScriptDir & "\Tools\SysinternalsSuite\", 0)
+;			   FileInstall(".\Compile\Tools\SysinternalsSuite\pspasswd.exe", @ScriptDir & "\Tools\SysinternalsSuite\", 0)
+;			   FileInstall(".\Compile\Tools\SysinternalsSuite\psping.exe", @ScriptDir & "\Tools\SysinternalsSuite\", 0)
+			   FileInstall(".\Compile\Tools\SysinternalsSuite\PsService.exe", @ScriptDir & "\Tools\SysinternalsSuite\", 0)
+;			   FileInstall(".\Compile\Tools\SysinternalsSuite\psshutdown.exe", @ScriptDir & "\Tools\SysinternalsSuite\", 0)
+;			   FileInstall(".\Compile\Tools\SysinternalsSuite\pssuspend.exe", @ScriptDir & "\Tools\SysinternalsSuite\", 0)
+;			   FileInstall(".\Compile\Tools\SysinternalsSuite\Pstools.chm", @ScriptDir & "\Tools\SysinternalsSuite\", 0)
+;			   FileInstall(".\Compile\Tools\SysinternalsSuite\psversion.txt", @ScriptDir & "\Tools\SysinternalsSuite\", 0)
+;			   FileInstall(".\Compile\Tools\SysinternalsSuite\RAMMap.exe", @ScriptDir & "\Tools\SysinternalsSuite\", 0)
+;			   FileInstall(".\Compile\Tools\SysinternalsSuite\readme.txt", @ScriptDir & "\Tools\SysinternalsSuite\", 0)
+;			   FileInstall(".\Compile\Tools\SysinternalsSuite\RegDelNull.exe", @ScriptDir & "\Tools\SysinternalsSuite\", 0)
+;			   FileInstall(".\Compile\Tools\SysinternalsSuite\regjump.exe", @ScriptDir & "\Tools\SysinternalsSuite\", 0)
+;			   FileInstall(".\Compile\Tools\SysinternalsSuite\RootkitRevealer.chm", @ScriptDir & "\Tools\SysinternalsSuite\", 0)
+;			   FileInstall(".\Compile\Tools\SysinternalsSuite\RootkitRevealer.exe", @ScriptDir & "\Tools\SysinternalsSuite\", 0)
+;			   FileInstall(".\Compile\Tools\SysinternalsSuite\ru.exe", @ScriptDir & "\Tools\SysinternalsSuite\", 0)
+;			   FileInstall(".\Compile\Tools\SysinternalsSuite\sdelete.exe", @ScriptDir & "\Tools\SysinternalsSuite\", 0)
+;			   FileInstall(".\Compile\Tools\SysinternalsSuite\ShareEnum.exe", @ScriptDir & "\Tools\SysinternalsSuite\", 0)
+;			   FileInstall(".\Compile\Tools\SysinternalsSuite\ShellRunas.exe", @ScriptDir & "\Tools\SysinternalsSuite\", 0)
+;			   FileInstall(".\Compile\Tools\SysinternalsSuite\sigcheck.exe", @ScriptDir & "\Tools\SysinternalsSuite\", 0)
+;			   FileInstall(".\Compile\Tools\SysinternalsSuite\streams.exe", @ScriptDir & "\Tools\SysinternalsSuite\", 0)
+;			   FileInstall(".\Compile\Tools\SysinternalsSuite\strings.exe", @ScriptDir & "\Tools\SysinternalsSuite\", 0)
+;			   FileInstall(".\Compile\Tools\SysinternalsSuite\sync.exe", @ScriptDir & "\Tools\SysinternalsSuite\", 0)
+;			   FileInstall(".\Compile\Tools\SysinternalsSuite\Sysmon.exe", @ScriptDir & "\Tools\SysinternalsSuite\", 0)
+;			   FileInstall(".\Compile\Tools\SysinternalsSuite\Tcpvcon.exe", @ScriptDir & "\Tools\SysinternalsSuite\", 0)
+;			   FileInstall(".\Compile\Tools\SysinternalsSuite\tcpview.chm", @ScriptDir & "\Tools\SysinternalsSuite\", 0)
+;			   FileInstall(".\Compile\Tools\SysinternalsSuite\Tcpview.exe", @ScriptDir & "\Tools\SysinternalsSuite\", 0)
+;			   FileInstall(".\Compile\Tools\SysinternalsSuite\TCPVIEW.HLP", @ScriptDir & "\Tools\SysinternalsSuite\", 0)
+;			   FileInstall(".\Compile\Tools\SysinternalsSuite\Testlimit.exe", @ScriptDir & "\Tools\SysinternalsSuite\", 0)
+;			   FileInstall(".\Compile\Tools\SysinternalsSuite\Testlimit64.exe", @ScriptDir & "\Tools\SysinternalsSuite\", 0)
+;			   FileInstall(".\Compile\Tools\SysinternalsSuite\Vmmap.chm", @ScriptDir & "\Tools\SysinternalsSuite\", 0)
+;			   FileInstall(".\Compile\Tools\SysinternalsSuite\vmmap.exe", @ScriptDir & "\Tools\SysinternalsSuite\", 0)
+;			   FileInstall(".\Compile\Tools\SysinternalsSuite\Volumeid.exe", @ScriptDir & "\Tools\SysinternalsSuite\", 0)
+;			   FileInstall(".\Compile\Tools\SysinternalsSuite\whois.exe", @ScriptDir & "\Tools\SysinternalsSuite\", 0)
+;			   FileInstall(".\Compile\Tools\SysinternalsSuite\Winobj.exe", @ScriptDir & "\Tools\SysinternalsSuite\", 0)
+;			   FileInstall(".\Compile\Tools\SysinternalsSuite\WINOBJ.HLP", @ScriptDir & "\Tools\SysinternalsSuite\", 0)
+;			   FileInstall(".\Compile\Tools\SysinternalsSuite\ZoomIt.exe", @ScriptDir & "\Tools\SysinternalsSuite\", 0)
 
 EndFunc
 
