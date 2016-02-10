@@ -1,7 +1,7 @@
 ;==========================================================================================================================================
 ;	Tool:			Incident Respone Triage:    (GUI)
 ;
-;	Version:		0.0.1.8
+;	Version:		0.0.1.9
 ;
 ;	Author:			Michael Ahrendt (Nov 2012)
 ;   Modified by:    Alain Martel (Oct 2015)
@@ -44,7 +44,7 @@
 #Include <File.au3>
 
 Global 	$tStamp = @YEAR & @MON & @MDAY & @HOUR & @MIN & @SEC
-Global	$RptsDir = @ScriptDir & "\" & $tStamp & " - " & @ComputerName
+Global	$RptsDir = @ScriptDir & "\" & $tStamp & "-" & @ComputerName
 Global	$EvDir = $RptsDir & "\Evidence\"
 Global	$MemDir = $EvDir & "Memory\"                                 ;added to make finding the memory image easier
 Global 	$HashDir = $RptsDir & "\Evidence"
@@ -59,7 +59,7 @@ Global 	$fcnt
 Global  $p_chkc = 1                                                  ;fixed missing value that killed command logging
 Global  $r_chk = 0                                                   ;fixed missing value that killed command logging
 Global  $r_ini = 0                                                   ;fixed missing value that killed command logging
-Global  $Version = "0.0.1.8"                                         ;Added to facilitate display of version info
+Global  $Version = "0.0.1.9"                                         ;Added to facilitate display of version info
 
 $ini_file = "IRTriage.ini"
 
@@ -1200,7 +1200,7 @@ Func MemDump()
 
    Local $dmpN = @ComputerName & @YEAR & @MON & @MDAY & @HOUR & @MIN & @SEC & @MSEC & '.bin'
    Local $dmpl = @ComputerName & @YEAR & @MON & @MDAY & @HOUR & @MIN & @SEC & @MSEC & '.txt'     ;Added Memory Dump Log
-   Local $memFL = '-mem -md5 -o "' & $MemDir & $dmpN & '" -log "' & $MemDir & $dmpL & '"'
+   Local $memFL = ' -mem -md5 -o "' & $MemDir & $dmpN & '" -log "' & $MemDir & $dmpL & '"'
 
    $windd = "FDpro.exe"
 
@@ -1749,21 +1749,21 @@ Func RegRipper()						;Special thanks to Harlan Carvey for his excellent tool.
    Local $samhiv = 'SAM_' & @ComputerName & '.hiv'
    Local $sechiv = 'SECURITY_' & @ComputerName & '.hiv'
    Local $hkcuhiv = 'HKCU_' & @ComputerName & '.hiv'
-   Local $sysexe1 = $shellex & ' .\Tools\RegRipper\rip.exe -r "' & $EvDir & $syshiv & '" -f system > "' & $EvDir & 'SYSTEM_Ripped_Report.txt"'
-   Local $softexe1 = $shellex & ' .\Tools\RegRipper\rip.exe -r "' & $EvDir & $softhiv & '" -f software > "' & $EvDir & 'SOFTWARE_Ripped_Report.txt"'
-   Local $samexe1 = $shellex & ' .\Tools\RegRipper\rip.exe -r "' & $EvDir & $samhiv & '" -f sam > "' & $EvDir & 'SAM_Ripped_Report.txt"'
-   Local $secexe1 = $shellex & ' .\Tools\RegRipper\rip.exe -r "' & $EvDir & $sechiv & '" -f security > "' & $EvDir & 'SECURITY_Ripped_Report.txt"'
-   Local $ntuexe1 = $shellex & ' .\Tools\RegRipper\rip.exe -r "' & $EvDir & $hkcuhiv & '" -f NTUSER > "' & $EvDir & 'NTUSER_Ripped_Report.txt"'
+   Local $sysexe1 = $shellex & 'rip.exe -r "' & $EvDir & $syshiv & '" -f system > "' & $EvDir & 'SYSTEM_Ripped_Report.txt"'
+   Local $softexe1 = $shellex & 'rip.exe -r "' & $EvDir & $softhiv & '" -f software > "' & $EvDir & 'SOFTWARE_Ripped_Report.txt"'
+   Local $samexe1 = $shellex & 'rip.exe -r "' & $EvDir & $samhiv & '" -f sam > "' & $EvDir & 'SAM_Ripped_Report.txt"'
+   Local $secexe1 = $shellex & 'rip.exe -r "' & $EvDir & $sechiv & '" -f security > "' & $EvDir & 'SECURITY_Ripped_Report.txt"'
+   Local $ntuexe1 = $shellex & 'rip.exe -r "' & $EvDir & $hkcuhiv & '" -f NTUSER > "' & $EvDir & 'NTUSER_Ripped_Report.txt"'
 
-   RunWait($sysexe1, "", @SW_HIDE)
+   RunWait($sysexe1, @ScriptDir & "\Tools\RegRipper\", @SW_HIDE)
    	  FileWriteLine($Log, @YEAR&"-"&@MON&"-"&@MDAY&@TAB&@HOUR&":"&@MIN&":"&@SEC&":"&@MSEC&@TAB&"Executed command:" &@TAB& $sysexe1 & @CRLF)
-   RunWait($softexe1, "", @SW_HIDE)
+   RunWait($softexe1, @ScriptDir & "\Tools\RegRipper\", @SW_HIDE)
 	  FileWriteLine($Log, @YEAR&"-"&@MON&"-"&@MDAY&@TAB&@HOUR&":"&@MIN&":"&@SEC&":"&@MSEC&@TAB&"Executed command:" &@TAB& $softexe1 & @CRLF)
-   RunWait($samexe1, "", @SW_HIDE)
+   RunWait($samexe1, @ScriptDir & "\Tools\RegRipper\", @SW_HIDE)
 	  FileWriteLine($Log, @YEAR&"-"&@MON&"-"&@MDAY&@TAB&@HOUR&":"&@MIN&":"&@SEC&":"&@MSEC&@TAB&"Executed command:" &@TAB& $samexe1 & @CRLF)
-   RunWait($secexe1, "", @SW_HIDE)
+   RunWait($secexe1, @ScriptDir & "\Tools\RegRipper\", @SW_HIDE)
  	  FileWriteLine($Log, @YEAR&"-"&@MON&"-"&@MDAY&@TAB&@HOUR&":"&@MIN&":"&@SEC&":"&@MSEC&@TAB&"Executed command:" &@TAB& $secexe1 & @CRLF)
-   RunWait($ntuexe1, "", @SW_HIDE)
+   RunWait($ntuexe1, @ScriptDir & "\Tools\RegRipper\", @SW_HIDE)
 	  FileWriteLine($Log, @YEAR&"-"&@MON&"-"&@MDAY&@TAB&@HOUR&":"&@MIN&":"&@SEC&":"&@MSEC&@TAB&"Executed command:" &@TAB& $ntuexe1 & @CRLF)
 
 	  Local $dat = FileFindFirstFile($EvDir & "*.dat")
@@ -1771,11 +1771,11 @@ Func RegRipper()						;Special thanks to Harlan Carvey for his excellent tool.
 	  While 1
 
 		 Local $nxtdat = FileFindNextFile($dat)
-		 Local $ntuexe2 = $shellex & ' .\Tools\RegRipper\rip.exe -r "' & $EvDir & $nxtdat & '" -f NTUSER > "' & $EvDir & $nxtdat & '_Ripped_Report.txt"'
+		 Local $ntuexe2 = $shellex & 'rip.exe -r "' & $EvDir & $nxtdat & '" -f NTUSER > "' & $EvDir & $nxtdat & '_Ripped_Report.txt"'
 
 		 If @Error Then ExitLoop
 
-		 RunWait($ntuexe2, "", @SW_HIDE)
+		 RunWait($ntuexe2, @ScriptDir & "\Tools\RegRipper\", @SW_HIDE)
 			FileWriteLine($Log, @YEAR&"-"&@MON&"-"&@MDAY&@TAB&@HOUR&":"&@MIN&":"&@SEC&":"&@MSEC&@TAB&"Executed command:" &@TAB& $ntuexe2 & @CRLF)
 
 	  WEnd
@@ -2685,6 +2685,7 @@ Func RegRipperTools()
 				  DirCreate(@ScriptDir & "\Tools\RegRipper\")
 			   Until FileExists(@ScriptDir & "\Tools\RegRipper\")
 			EndIf
+			   FileInstall(".\Compile\Tools\cmd.exe", @ScriptDir & "\Tools\RegRipper\", 0)
 			   FileInstall(".\Compile\Tools\RegRipper2.8\p2x5124.dll", @ScriptDir & "\Tools\RegRipper\", 0)
 			   FileInstall(".\Compile\Tools\RegRipper2.8\rip.exe", @ScriptDir & "\Tools\RegRipper\", 0)
 			   FileInstall(".\Compile\Tools\RegRipper2.8\rip.pl", @ScriptDir & "\Tools\RegRipper\", 0)
