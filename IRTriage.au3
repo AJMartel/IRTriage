@@ -50,7 +50,7 @@ Global	$MemDir = $EvDir & "Memory\"                                 ;added to ma
 Global 	$HashDir = $RptsDir & "\Evidence"
 Global	$JmpLst = $EvDir & "Jump Lists"
 Global	$shell = '"' & @ScriptDir & '\Tools\cmd.exe"'
-Global 	$shellex = '"' & @ScriptDir & '\Tools\cmd.exe" /c'
+Global 	$shellex = '"' & @ScriptDir & '\Tools\cmd.exe" /c '
 Global 	$tools = '"' &@ScriptDir & '\Tools\'
 Global 	$RecentPath = RegRead("HKEY_CURRENT_USER\Software\Microsoft\Windows\CurrentVersion\Explorer\User Shell Folders", "Recent")
 Global	$Log = $RptsDir & "\IncidentLog.csv"
@@ -1224,9 +1224,9 @@ Func MemDump()
 EndFunc
 
 Func Processes()						;Gather running process information
-   Local $proc1 = $shellex & ' tasklist /V /FO CSV > "' & $RptsDir & '\Processes.csv"'
-   Local $proc2 = $shellex & ' .\Tools\SysinternalsSuite\pslist -accepteula >> "' & $RptsDir & '\Processes.txt"'
-   Local $proc3 = $shellex & ' .\Tools\SysinternalsSuite\pslist -t -accepteula >> "' & $RptsDir & '\ProcessTree.txt"'
+   Local $proc1 = $shellex & 'tasklist /V /FO CSV > "' & $RptsDir & '\Processes.csv"'
+   Local $proc2 = $shellex & '.\Tools\SysinternalsSuite\pslist -accepteula >> "' & $RptsDir & '\Processes.txt"'
+   Local $proc3 = $shellex & '.\Tools\SysinternalsSuite\pslist -t -accepteula >> "' & $RptsDir & '\ProcessTree.txt"'
 
    RunWait($proc1, "", @SW_HIDE)
 	  FileWriteLine($Log, @YEAR&"-"&@MON&"-"&@MDAY&@TAB&@HOUR&":"&@MIN&":"&@SEC&":"&@MSEC&@TAB&"Executed command:" &@TAB& $proc1 & @CRLF)
@@ -1237,8 +1237,8 @@ Func Processes()						;Gather running process information
 EndFunc
 
 Func IPs()								;Gather network address for the computer
-   Local $ip1 = $shellex & ' ipconfig /all > "' & $RptsDir & '\IPConfigInfo.txt"'
-   Local $ip2 = $shellex & ' netsh int ip show config > "' & $RptsDir & '\IPInterfaceInfo.txt"'
+   Local $ip1 = $shellex & 'ipconfig /all > "' & $RptsDir & '\IPConfigInfo.txt"'
+   Local $ip2 = $shellex & 'netsh int ip show config > "' & $RptsDir & '\IPInterfaceInfo.txt"'
 
    RunWait($ip1, "", @SW_HIDE)
 	  FileWriteLine($Log, @YEAR&"-"&@MON&"-"&@MDAY&@TAB&@HOUR&":"&@MIN&":"&@SEC&":"&@MSEC&@TAB&"Executed command:" &@TAB& $ip1 & @CRLF)
@@ -1247,8 +1247,8 @@ Func IPs()								;Gather network address for the computer
 EndFunc
 
 Func Connections()						;Discover any network connections on the PC
-   Local $Conn1 = $shellex & ' netstat -nao > "' & $RptsDir & '\NetworkConnections.txt"'
-   Local $Conn2 = $shellex & ' netstat -naob > "' & $RptsDir & '\NetworkConnectionsProcesses.txt"'
+   Local $Conn1 = $shellex & 'netstat -nao > "' & $RptsDir & '\NetworkConnections.txt"'
+   Local $Conn2 = $shellex & 'netstat -naob > "' & $RptsDir & '\NetworkConnectionsProcesses.txt"'
 
    RunWait($Conn1, "", @SW_HIDE)
 	  FileWriteLine($Log, @YEAR&"-"&@MON&"-"&@MDAY&@TAB&@HOUR&":"&@MIN&":"&@SEC&":"&@MSEC&@TAB&"Executed command:" &@TAB& $Conn1 & @CRLF)
@@ -1257,8 +1257,8 @@ Func Connections()						;Discover any network connections on the PC
 EndFunc
 
 Func Routes()							;Gather list of active routes
-   Local $route1 = $shellex & ' route PRINT > "' & $RptsDir & '\RoutesPrint.txt"'
-   Local $route2 = $shellex & ' netstat -r > "' & $RptsDir & '\RoutesNetstat.txt"'
+   Local $route1 = $shellex & 'route PRINT > "' & $RptsDir & '\RoutesPrint.txt"'
+   Local $route2 = $shellex & 'netstat -r > "' & $RptsDir & '\RoutesNetstat.txt"'
    RunWait($route1, "", @SW_HIDE)
 	  FileWriteLine($Log, @YEAR&"-"&@MON&"-"&@MDAY&@TAB&@HOUR&":"&@MIN&":"&@SEC&":"&@MSEC&@TAB&"Executed command:" &@TAB& $route1 & @CRLF)
    RunWait($route2, "", @SW_HIDE)
@@ -1266,22 +1266,22 @@ Func Routes()							;Gather list of active routes
 EndFunc
 
 Func NetBIOS()							;Get NetBIOS information
-   Local $nbt1 = $shellex & ' nbtstat.exe -A 127.0.0.1 > "' & $RptsDir & '\NBTstat.txt"'
+   Local $nbt1 = $shellex & 'nbtstat.exe -A 127.0.0.1 > "' & $RptsDir & '\NBTstat.txt"'
 
    RunWait($nbt1, "", @SW_HIDE)
 	  FileWriteLine($Log, @YEAR&"-"&@MON&"-"&@MDAY&@TAB&@HOUR&":"&@MIN&":"&@SEC&":"&@MSEC&@TAB&"Executed command:" &@TAB& $nbt1 & @CRLF)
 EndFunc
 
 Func Arp()								;Gather information regarding ARP
-   Local $arp1 = $shellex & ' arp -a > "' & $RptsDir & '\ARPTable.txt"'
+   Local $arp1 = $shellex & 'arp -a > "' & $RptsDir & '\ARPTable.txt"'
 
    RunWait($arp1, "", @SW_HIDE)
 	  FileWriteLine($Log, @YEAR&"-"&@MON&"-"&@MDAY&@TAB&@HOUR&":"&@MIN&":"&@SEC&":"&@MSEC&@TAB&"Executed command:" &@TAB& $arp1 & @CRLF)
 EndFunc
 
 Func DNS()								;Gather DNS information
-   Local $dns1 = $shellex & ' ipconfig /displaydns > "' & $RptsDir & '\DNSInfo.txt"'
-   Local $dns2 = $shellex & ' nslookup host server > "' & $RptsDir & '\DNSnslookup.txt"'
+   Local $dns1 = $shellex & 'ipconfig /displaydns > "' & $RptsDir & '\DNSInfo.txt"'
+   Local $dns2 = $shellex & 'nslookup host server > "' & $RptsDir & '\DNSnslookup.txt"'
 
    RunWait($dns1, "", @SW_HIDE)
 	  FileWriteLine($Log, @YEAR&"-"&@MON&"-"&@MDAY&@TAB&@HOUR&":"&@MIN&":"&@SEC&":"&@MSEC&@TAB&"Executed command:" &@TAB& $dns1 & @CRLF)
@@ -1290,29 +1290,29 @@ Func DNS()								;Gather DNS information
 EndFunc
 
 Func Shares()							;Gather information on any shared folders
-   Local $share1 = $shellex & ' net share > "' & $RptsDir & '\LocalShares.txt"'
+   Local $share1 = $shellex & 'net share > "' & $RptsDir & '\LocalShares.txt"'
 
    RunWait($share1, "", @SW_HIDE)
 	  FileWriteLine($Log, @YEAR&"-"&@MON&"-"&@MDAY&@TAB&@HOUR&":"&@MIN&":"&@SEC&":"&@MSEC&@TAB&"Executed command:" &@TAB& $share1 & @CRLF)
 EndFunc
 
 Func SharedFiles()						;Gather information on any shared files
-   Local $sfile1 = $shellex & ' net file > "' & $RptsDir & '\OpenSharedFiles.txt"'
+   Local $sfile1 = $shellex & 'net file > "' & $RptsDir & '\OpenSharedFiles.txt"'
 
    RunWait($sfile1, "", @SW_HIDE)
 	  FileWriteLine($Log, @YEAR&"-"&@MON&"-"&@MDAY&@TAB&@HOUR&":"&@MIN&":"&@SEC&":"&@MSEC&@TAB&"Executed command:" &@TAB& $sfile1 & @CRLF)
 EndFunc
 
 Func ConnectedSessions()				;Gather information on any connected sessions
-   Local $ConnSes = $shellex & ' net Session > "' & $RptsDir & '\Sessions.txt"'
+   Local $ConnSes = $shellex & 'net Session > "' & $RptsDir & '\Sessions.txt"'
 
    RunWait($ConnSes, "", @SW_HIDE)
 	  FileWriteLine($Log, @YEAR&"-"&@MON&"-"&@MDAY&@TAB&@HOUR&":"&@MIN&":"&@SEC&":"&@MSEC&@TAB&"Executed command:" &@TAB& $ConnSes & @CRLF)
 EndFunc
 
 Func Firewall()							;Get the firewall information
-   Local $fw1 = $shellex & ' netsh firewall show state > "' & $RptsDir & '\FirewallConfig.txt"'
-   Local $fw2 = $shellex & ' netsh advfirewall show allprofiles > "' & $RptsDir & '\FirewallAdvConfig.txt"'
+   Local $fw1 = $shellex & 'netsh firewall show state > "' & $RptsDir & '\FirewallConfig.txt"'
+   Local $fw2 = $shellex & 'netsh advfirewall show allprofiles > "' & $RptsDir & '\FirewallAdvConfig.txt"'
 
    RunWait($fw1, "", @SW_HIDE)
 	  FileWriteLine($Log, @YEAR&"-"&@MON&"-"&@MDAY&@TAB&@HOUR&":"&@MIN&":"&@SEC&":"&@MSEC&@TAB&"Executed command:" &@TAB& $fw1 & @CRLF)
@@ -1321,23 +1321,23 @@ Func Firewall()							;Get the firewall information
 EndFunc
 
 Func Hosts()							;Gather the HOST file
-   Local $host1 = $shellex & ' type %systemroot%\System32\Drivers\etc\hosts > "' & $RptsDir & '\HostsFile.txt"'
+   Local $host1 = $shellex & 'type %systemroot%\System32\Drivers\etc\hosts > "' & $RptsDir & '\HostsFile.txt"'
 
    RunWait($host1, "", @SW_HIDE)
 	  FileWriteLine($Log, @YEAR&"-"&@MON&"-"&@MDAY&@TAB&@HOUR&":"&@MIN&":"&@SEC&":"&@MSEC&@TAB&"Executed command:" &@TAB& $host1 & @CRLF)
 EndFunc
 
 Func Workgroups()						;Gather possible information on PC Workgroups
-   Local $wkgrp1 = $shellex & ' net view > "' & $RptsDir & '\NetView.txt"'
+   Local $wkgrp1 = $shellex & 'net view > "' & $RptsDir & '\NetView.txt"'
 
    RunWait($wkgrp1, "", @SW_HIDE)
 	  FileWriteLine($Log, @YEAR&"-"&@MON&"-"&@MDAY&@TAB&@HOUR&":"&@MIN&":"&@SEC&":"&@MSEC&@TAB&"Executed command:" &@TAB& $wkgrp1 & @CRLF)
 EndFunc
 
 Func SystemInfo()						;Gather valuable information regarding type of PC
-   Local $sysinfo1 = $shellex & ' .\Tools\SysinternalsSuite\PsInfo -accepteula -s -d > "' & $RptsDir & '\SystemDetails.txt"'
-   Local $sysinfo2 = $shellex & ' systeminfo > "' & $RptsDir & '\SystemInfo.txt"'
-   Local $sysinfo3 = $shellex & ' set > "' & $RptsDir & '\SystemVariables.txt"'
+   Local $sysinfo1 = $shellex & '.\Tools\SysinternalsSuite\PsInfo -accepteula -s -d > "' & $RptsDir & '\SystemDetails.txt"'
+   Local $sysinfo2 = $shellex & 'systeminfo > "' & $RptsDir & '\SystemInfo.txt"'
+   Local $sysinfo3 = $shellex & 'set > "' & $RptsDir & '\SystemVariables.txt"'
 
    RunWait($sysinfo1, "", @SW_HIDE)
 	  FileWriteLine($Log, @YEAR&"-"&@MON&"-"&@MDAY&@TAB&@HOUR&":"&@MIN&":"&@SEC&":"&@MSEC&@TAB&"Executed command:" &@TAB& $sysinfo1 & @CRLF)
@@ -1348,9 +1348,9 @@ Func SystemInfo()						;Gather valuable information regarding type of PC
 EndFunc
 
 Func Services()							;Pertinent services information
-   Local $serv1 = $shellex & ' .\Tools\SysinternalsSuite\psservice -accepteula > "' & $RptsDir & '\ServiceProcesses.txt"'
-   Local $serv2 = $shellex & ' sc queryex > "' & $RptsDir & '\ServiceQuery.txt"'
-   Local $serv3 = $shellex & ' net start > "' & $RptsDir & '\ServicesStarted.txt"'
+   Local $serv1 = $shellex & '.\Tools\SysinternalsSuite\psservice -accepteula > "' & $RptsDir & '\ServiceProcesses.txt"'
+   Local $serv2 = $shellex & 'sc queryex > "' & $RptsDir & '\ServiceQuery.txt"'
+   Local $serv3 = $shellex & 'net start > "' & $RptsDir & '\ServicesStarted.txt"'
 
    RunWait($serv1, "", @SW_HIDE)
 	  FileWriteLine($Log, @YEAR&"-"&@MON&"-"&@MDAY&@TAB&@HOUR&":"&@MIN&":"&@SEC&":"&@MSEC&@TAB&"Executed command:" &@TAB& $serv1 & @CRLF)
@@ -1361,22 +1361,22 @@ Func Services()							;Pertinent services information
 EndFunc
 
 Func FileAssociation()					;Get information on file associations
-   Local $fa1 = $shellex & ' .\Tools\SysinternalsSuite\handle -a -accepteula c > "' & $RptsDir & '\Handles.txt"'
+   Local $fa1 = $shellex & '.\Tools\SysinternalsSuite\handle -a -accepteula c > "' & $RptsDir & '\Handles.txt"'
 
    RunWait($fa1, "", @SW_HIDE)
 	  FileWriteLine($Log, @YEAR&"-"&@MON&"-"&@MDAY&@TAB&@HOUR&":"&@MIN&":"&@SEC&":"&@MSEC&@TAB&"Executed command:" &@TAB& $fa1 & @CRLF)
 EndFunc
 
 Func AccountInfo()						;Gather information pertaining to the user accounts
-   Local $acctinfo1 = $shellex & ' net accounts > "' & $RptsDir & '\AccountDetails.txt"'
+   Local $acctinfo1 = $shellex & 'net accounts > "' & $RptsDir & '\AccountDetails.txt"'
 
    RunWait($acctinfo1, "", @SW_HIDE)
 	  FileWriteLine($Log, @YEAR&"-"&@MON&"-"&@MDAY&@TAB&@HOUR&":"&@MIN&":"&@SEC&":"&@MSEC&@TAB&"Executed command:" &@TAB& $acctinfo1 & @CRLF)
 EndFunc
 
 Func Hostname()							;Gather information on the hostname
-   Local $hostn1 = $shellex & ' whoami > "' & $RptsDir & '\Hostname.txt"'
-   Local $hostn2 = $shellex & ' hostname >> "' & $RptsDir & '\Hostname.txt"'
+   Local $hostn1 = $shellex & 'whoami > "' & $RptsDir & '\Hostname.txt"'
+   Local $hostn2 = $shellex & 'hostname >> "' & $RptsDir & '\Hostname.txt"'
 
    RunWait($hostn1, "", @SW_HIDE)
 	  FileWriteLine($Log, @YEAR&"-"&@MON&"-"&@MDAY&@TAB&@HOUR&":"&@MIN&":"&@SEC&":"&@MSEC&@TAB&"Executed command:" &@TAB& $hostn1 & @CRLF)
@@ -1386,7 +1386,7 @@ EndFunc
 
 Func Prefetch()							;Copy any prefecth data while maintaining metadata
    Local $robocopy = '"' & @ScriptDir & '\Tools\robocopy.exe"'
-   Local $pf1 = $shellex & ' ' & $robocopy & ' "' & @WindowsDir & '\Prefetch" "' & $EvDir & '\Prefetch" /copyall /ZB /TS /r:4 /w:3 /FP /NP /log:"' & $RptsDir & '\PrefetchCopyLog.txt"'
+   Local $pf1 = $shellex & $robocopy & ' "' & @WindowsDir & '\Prefetch" "' & $EvDir & '\Prefetch" /copyall /ZB /TS /r:4 /w:3 /FP /NP /log:"' & $RptsDir & '\PrefetchCopyLog.txt"'
 
    If Not FileExists($EvDir & "\Prefetch") Then DirCreate($EvDir & "\Prefetch")
 
@@ -1512,7 +1512,7 @@ Func _RobocopyJL($path, $output)		;Copy Jumplist information while maintaining m
    Local $robocmd
    Local $autodest
    Local $customdest
-   Local $shellex = '"' & @ScriptDir & '\Tools\cmd.exe" /c'
+   Local $shellex = '"' & @ScriptDir & '\Tools\cmd.exe" /c '
    Local $autodest = $EvDir & '\Jump Lists\' & $output & '\Automatic'
    Local $customdest = $EvDir & '\Jump Lists\' & $output & '\Custom'
 
@@ -1539,9 +1539,9 @@ Func _RobocopyJL($path, $output)		;Copy Jumplist information while maintaining m
 EndFunc
 
 Func AutoRun()							;Information regarding startup
-   Local $autorun1 = $shellex & ' .\Tools\SysinternalsSuite\autorunsc.exe -accepteula > "' & $RptsDir & '\AutoRunInfo.txt"'
-   Local $autorun2 = $shellex & ' wmic startup list full > "' & $RptsDir & '\StartUpWMIInfo.txt"'
-   Local $autorun3 = $shellex & ' .\Tools\SysinternalsSuite\autorunsc.exe -accepteula -a * -s -c > "' & $RptsDir & '\AutoRunInfo.csv"'
+   Local $autorun1 = $shellex & '.\Tools\SysinternalsSuite\autorunsc.exe -accepteula > "' & $RptsDir & '\AutoRunInfo.txt"'
+   Local $autorun2 = $shellex & 'wmic startup list full > "' & $RptsDir & '\StartUpWMIInfo.txt"'
+   Local $autorun3 = $shellex & '.\Tools\SysinternalsSuite\autorunsc.exe -accepteula -a * -s -c > "' & $RptsDir & '\AutoRunInfo.csv"'
 
    RunWait($autorun1, "", @SW_HIDE)
 	  FileWriteLine($Log, @YEAR&"-"&@MON&"-"&@MDAY&@TAB&@HOUR&":"&@MIN&":"&@SEC&":"&@MSEC&@TAB&"Executed command:" &@TAB& $autorun1 & @CRLF)
@@ -1552,8 +1552,8 @@ Func AutoRun()							;Information regarding startup
 EndFunc
 
 Func LoggedOn()							;Gather information on users logged on
-   Local $logon1 = $shellex & ' .\Tools\SysinternalsSuite\PsLoggedon -accepteula > "' & $RptsDir & '\LoggedOn.txt"'
-   Local $logon2 = $shellex & ' .\Tools\SysinternalsSuite\logonsessions -accepteula -c > "' & $RptsDir & '\LogonSessions.txt"'
+   Local $logon1 = $shellex & '.\Tools\SysinternalsSuite\PsLoggedon -accepteula > "' & $RptsDir & '\LoggedOn.txt"'
+   Local $logon2 = $shellex & '.\Tools\SysinternalsSuite\logonsessions -accepteula -c > "' & $RptsDir & '\LogonSessions.txt"'
 
    RunWait($logon1, "", @SW_HIDE)
 	  FileWriteLine($Log, @YEAR&"-"&@MON&"-"&@MDAY&@TAB&@HOUR&":"&@MIN&":"&@SEC&":"&@MSEC&@TAB&"Executed command:" &@TAB& $logon1 & @CRLF)
@@ -1562,8 +1562,8 @@ Func LoggedOn()							;Gather information on users logged on
 EndFunc
 
 Func NTFSInfo()							;Gather information regarding NTFS
-   Local $ntfs1 = $shellex & ' .\Tools\SysinternalsSuite\ntfsinfo c > "' & $RptsDir & '\NTFSInfo.txt"'
-   Local $ntfs2 = $shellex & ' fsutil fsinfo ntfsinfo C: >> "' & $RptsDir & '\NTFSInfo.txt"'
+   Local $ntfs1 = $shellex & '.\Tools\SysinternalsSuite\ntfsinfo c > "' & $RptsDir & '\NTFSInfo.txt"'
+   Local $ntfs2 = $shellex & 'fsutil fsinfo ntfsinfo C: >> "' & $RptsDir & '\NTFSInfo.txt"'
 
    RunWait($ntfs1, "", @SW_HIDE)
 	  FileWriteLine($Log, @YEAR&"-"&@MON&"-"&@MDAY&@TAB&@HOUR&":"&@MIN&":"&@SEC&":"&@MSEC&@TAB&"Executed command:" &@TAB& $ntfs1 & @CRLF)
@@ -1572,28 +1572,28 @@ Func NTFSInfo()							;Gather information regarding NTFS
 EndFunc
 
 Func VolInfo()							;Gather volume information with the Sleuth Kit
-	  Local $vol1 = $shellex & ' fsutil fsinfo volumeinfo C: > "' & $RptsDir & '\VolumeInfo.txt"'
+	  Local $vol1 = $shellex & 'fsutil fsinfo volumeinfo C: > "' & $RptsDir & '\VolumeInfo.txt"'
 
    RunWait($vol1, "", @SW_HIDE)
 	  FileWriteLine($Log, @YEAR&"-"&@MON&"-"&@MDAY&@TAB&@HOUR&":"&@MIN&":"&@SEC&":"&@MSEC&@TAB&"Executed command:" &@TAB& $vol1 & @CRLF)
 EndFunc
 
 Func MountedDisk()						;Mounted Disk Information
-   Local $md1 = $shellex & ' .\Tools\SysinternalsSuite\diskext -accepteula > "' & $RptsDir & '\DiskMounts.txt"'
+   Local $md1 = $shellex & '.\Tools\SysinternalsSuite\diskext -accepteula > "' & $RptsDir & '\DiskMounts.txt"'
 
    RunWait($md1, "", @SW_HIDE)
 	  FileWriteLine($Log, @YEAR&"-"&@MON&"-"&@MDAY&@TAB&@HOUR&":"&@MIN&":"&@SEC&":"&@MSEC&@TAB&"Executed command:" &@TAB& $md1 & @CRLF)
 EndFunc
 
 Func Directory()						;Get list of directory structure
-   Local $dir1 = $shellex & ' tree c:\ /f /a > "' & $RptsDir & '\DirectoryInfo.txt"'
+   Local $dir1 = $shellex & 'tree c:\ /f /a > "' & $RptsDir & '\DirectoryInfo.txt"'
 
    RunWait($dir1, "", @SW_HIDE)
 	  FileWriteLine($Log, @YEAR&"-"&@MON&"-"&@MDAY&@TAB&@HOUR&":"&@MIN&":"&@SEC&":"&@MSEC&@TAB&"Executed command:" &@TAB& $dir1 & @CRLF)
 EndFunc
 
 Func ScheduledTasks()					;List any scheduled tasks
-   Local $schedtask1 = $shellex & ' schtasks /query /FO CSV /V > "' & $RptsDir & '\ScheduledTasks.csv"'
+   Local $schedtask1 = $shellex & 'schtasks /query /FO CSV /V > "' & $RptsDir & '\ScheduledTasks.csv"'
 
    RunWait($schedtask1, "", @SW_HIDE)
 	  FileWriteLine($Log, @YEAR&"-"&@MON&"-"&@MDAY&@TAB&@HOUR&":"&@MIN&":"&@SEC&":"&@MSEC&@TAB&"Executed command:" &@TAB& $schedtask1 & @CRLF)
@@ -1603,9 +1603,9 @@ Func SystemRRip()						;Copy the SYSTEM HIV for analysis
    Local $sysrip
 
    If @OSVersion = "WIN_XP" Then
-	  $sysrip = $shellex & ' REG SAVE HKLM\SYSTEM "' & $EvDir & 'SYSTEM_' & @ComputerName & '.hiv"'
+	  $sysrip = $shellex & 'REG SAVE HKLM\SYSTEM "' & $EvDir & 'SYSTEM_' & @ComputerName & '.hiv"'
    Else
-	  $sysrip = $shellex & ' REG SAVE HKLM\SYSTEM "' & $EvDir & 'SYSTEM_' & @ComputerName & '.hiv" /y'
+	  $sysrip = $shellex & 'REG SAVE HKLM\SYSTEM "' & $EvDir & 'SYSTEM_' & @ComputerName & '.hiv" /y'
    EndIf
 
    RunWait($sysrip, "", @SW_HIDE)
@@ -1616,9 +1616,9 @@ Func SecurityRRip()						;Copy the SECURITY HIV for analysis
    Local $secrip
 
    If @OSVersion = "WIN_XP" Then
-	  $secrip = $shellex & ' REG SAVE HKLM\SECURITY "' & $EvDir & 'SECURITY_' & @ComputerName & '.hiv"'
+	  $secrip = $shellex & 'REG SAVE HKLM\SECURITY "' & $EvDir & 'SECURITY_' & @ComputerName & '.hiv"'
    Else
-	  $secrip = $shellex & ' REG SAVE HKLM\SECURITY "' & $EvDir & 'SECURITY_' & @ComputerName & '.hiv" /y'
+	  $secrip = $shellex & 'REG SAVE HKLM\SECURITY "' & $EvDir & 'SECURITY_' & @ComputerName & '.hiv" /y'
    EndIf
 
    RunWait($secrip, "", @SW_HIDE)
@@ -1629,9 +1629,9 @@ Func SAMRRip()							;Copy the SAM HIV for analysis
    Local $samrip
 
    If @OSVersion = "WIN_XP" Then
-	  $samrip = $shellex & ' REG SAVE HKLM\SAM "' & $EvDir & 'SAM_' & @ComputerName & '.hiv"'
+	  $samrip = $shellex & 'REG SAVE HKLM\SAM "' & $EvDir & 'SAM_' & @ComputerName & '.hiv"'
    Else
-	  $samrip = $shellex & ' REG SAVE HKLM\SAM "' & $EvDir & 'SAM_' & @ComputerName & '.hiv" /y'
+	  $samrip = $shellex & 'REG SAVE HKLM\SAM "' & $EvDir & 'SAM_' & @ComputerName & '.hiv" /y'
    EndIf
 
    RunWait($samrip, "", @SW_HIDE)
@@ -1642,9 +1642,9 @@ Func SoftwareRRip()						;Copy the SOFTWARE HIV for analysis
    Local $softrip
 
    If @OSVersion = "WIN_XP" Then
-	  $softrip = $shellex & ' REG SAVE HKLM\SOFTWARE "' & $EvDir & 'SOFTWARE_' & @ComputerName & '.hiv"'
+	  $softrip = $shellex & 'REG SAVE HKLM\SOFTWARE "' & $EvDir & 'SOFTWARE_' & @ComputerName & '.hiv"'
    Else
-	  $softrip = $shellex & ' REG SAVE HKLM\SOFTWARE "' & $EvDir & 'SOFTWARE_' & @ComputerName & '.hiv" /y'
+	  $softrip = $shellex & 'REG SAVE HKLM\SOFTWARE "' & $EvDir & 'SOFTWARE_' & @ComputerName & '.hiv" /y'
    EndIf
 
    RunWait($softrip, "", @SW_HIDE)
@@ -1655,9 +1655,9 @@ Func HKCURRip()							;Copy the HKCU HIV for analysis
    Local $hkcurip
 
    If @OSVersion = "WIN_XP" Then
-	  $hkcurip = $shellex & ' REG SAVE HKCU "' & $EvDir & '\HKCU_' & @ComputerName & '.hiv"'
+	  $hkcurip = $shellex & 'REG SAVE HKCU "' & $EvDir & '\HKCU_' & @ComputerName & '.hiv"'
    Else
-	  $hkcurip = $shellex & ' REG SAVE HKCU "' & $EvDir & '\HKCU_' & @ComputerName & '.hiv" /y'
+	  $hkcurip = $shellex & 'REG SAVE HKCU "' & $EvDir & '\HKCU_' & @ComputerName & '.hiv" /y'
    EndIf
 
    RunWait($hkcurip, "", @SW_HIDE)
@@ -1685,9 +1685,9 @@ Func NTUserRRip()						;Copy all NTUSER.dat files from each profile
 			Local $nturip
 
 			If @OSVersion = "WIN_XP" Then
-			   $nturip = $shellex & ' REG SAVE ' & $s_Val & ' "' & $EvDir & '\' & @ComputerName &'_USER_' & $i+1 & '.dat"'
+			   $nturip = $shellex & 'REG SAVE ' & $s_Val & ' "' & $EvDir & '\' & @ComputerName &'_USER_' & $i+1 & '.dat"'
 			Else
-			   $nturip = $shellex & ' REG SAVE ' & $s_Val & ' "' & $EvDir & '\' & @ComputerName &'_USER_' & $i+1 & '.dat" /y'
+			   $nturip = $shellex & 'REG SAVE ' & $s_Val & ' "' & $EvDir & '\' & @ComputerName &'_USER_' & $i+1 & '.dat" /y'
 			EndIf
 
 			RunWait($nturip, "", @SW_HIDE)
@@ -1697,8 +1697,8 @@ Func NTUserRRip()						;Copy all NTUSER.dat files from each profile
 EndFunc
 
 Func MD5()								;Special thanks to Jesse Kornblum for his amazing hashing tools
-   Local $md51 = $shellex & ' .\Tools\md5deep -rbtk "' & $HashDir & '" >> "' & $RptsDir & '\MD5Hashes.txt"'
-   Local $md52 = $shellex & ' .\Tools\md5deep64 -rbtk "' & $HashDir & '" >> "' & $RptsDir & '\MD5Hashes.txt"'
+   Local $md51 = $shellex & '.\Tools\md5deep -rbtk "' & $HashDir & '" >> "' & $RptsDir & '\MD5Hashes.txt"'
+   Local $md52 = $shellex & '.\Tools\md5deep64 -rbtk "' & $HashDir & '" >> "' & $RptsDir & '\MD5Hashes.txt"'
 
    If @OSArch = "X86" Then
 	  $arch = "32"
@@ -1718,8 +1718,8 @@ Func MD5()								;Special thanks to Jesse Kornblum for his amazing hashing tool
 EndFunc
 
 Func SHA1()								;Special thanks to Jesse Kornblum for his amazing hashing tools
-   Local $sha11 = $shellex & ' .\Tools\sha1deep -rbtk "' & $HashDir & '" >> "' & $RptsDir & '\SHA1Hashes.txt"'
-   Local $sha12 = $shellex & ' .\Tools\sha1deep64 -rbtk "' & $HashDir & '" >> "' & $RptsDir & '\SHA1Hashes.txt"'
+   Local $sha11 = $shellex & '.\Tools\sha1deep -rbtk "' & $HashDir & '" >> "' & $RptsDir & '\SHA1Hashes.txt"'
+   Local $sha12 = $shellex & '.\Tools\sha1deep64 -rbtk "' & $HashDir & '" >> "' & $RptsDir & '\SHA1Hashes.txt"'
 
    If @OSArch = "X86" Then
 	  $arch = "32"
@@ -1783,7 +1783,7 @@ Func RegRipper()						;Special thanks to Harlan Carvey for his excellent tool.
 EndFunc
 
 Func SysIntAdd()						;Add registry key to accept Sysinternals
-   Local $RegAdd1 = $shellex & ' REG ADD HKCU\Software\Sysinternals\NTFSInfo /v EulaAccepted /t REG_DWORD /d 1 /f'
+   Local $RegAdd1 = $shellex & 'REG ADD HKCU\Software\Sysinternals\NTFSInfo /v EulaAccepted /t REG_DWORD /d 1 /f'
 
    RunWait($RegAdd1, "", @SW_HIDE)
 	  FileWriteLine($Log, @YEAR&"-"&@MON&"-"&@MDAY&@TAB&@HOUR&":"&@MIN&":"&@SEC&":"&@MSEC&@TAB&"Executed command:" &@TAB& $RegAdd1 & @CRLF)
@@ -1797,9 +1797,9 @@ Func EvtCopy()							;Copy all event logs from local machine
    Local $robocopy = '"' & @ScriptDir & '\Tools\robocopy.exe"'
    Local $robo7 = '"' & @ScriptDir & '\Tools\robo7.exe"'
 
-   Local $evtc1 = $shellex & ' .\Tools\SysinternalsSuite\psloglist.exe -accepteula -s Application > "' & $RptsDir & '\ApplicationLog.csv"'
-   Local $evtc2 = $shellex & ' .\Tools\SysinternalsSuite\psloglist.exe -accepteula -s System > "' & $RptsDir & '\SystemLog.csv"'
-   Local $evtc3 = $shellex & ' .\Tools\SysinternalsSuite\psloglist.exe -accepteula -s Security > "' & $RptsDir & '\SecurityLog.csv"'
+   Local $evtc1 = $shellex & '.\Tools\SysinternalsSuite\psloglist.exe -accepteula -s Application > "' & $RptsDir & '\ApplicationLog.csv"'
+   Local $evtc2 = $shellex & '.\Tools\SysinternalsSuite\psloglist.exe -accepteula -s System > "' & $RptsDir & '\SystemLog.csv"'
+   Local $evtc3 = $shellex & '.\Tools\SysinternalsSuite\psloglist.exe -accepteula -s Security > "' & $RptsDir & '\SecurityLog.csv"'
 
    RunWait($evtc1, "", @SW_HIDE)
 	  FileWriteLine($Log, @YEAR&"-"&@MON&"-"&@MDAY&@TAB&@HOUR&":"&@MIN&":"&@SEC&":"&@MSEC&@TAB&"Executed command:" &@TAB& $evtc1 & @CRLF)
@@ -1878,7 +1878,7 @@ Func _Usrclass($prof)					;Performs the function of copying the USRCLASS.dat
 
 	   ;ifind.exe: Finds the meta data structure that has a given file name pointing to it or the meta data structure that points to a given data unit.
 
-		Local $usrce = $shellex & ' .\Tools\sleuthkit-4.2.0\bin\ifind.exe -n /users/' & $prof & '/appdata/local/microsoft/windows/usrclass.dat \\.\C: > MFTEntries.log'
+		Local $usrce = $shellex & '.\Tools\sleuthkit-4.2.0\bin\ifind.exe -n /users/' & $prof & '/appdata/local/microsoft/windows/usrclass.dat \\.\C: > MFTEntries.log'
 
 		RunWait($usrce)
 
@@ -1888,7 +1888,7 @@ Func _Usrclass($prof)					;Performs the function of copying the USRCLASS.dat
 
 		;icat.exe: Extracts the data units of a file, which is specified by its meta data address (instead of the file name).
 
-		Local $catusrce = $shellex & ' .\Tools\sleuthkit-4.2.0\bin\icat.exe \\.\c: ' & $MFTlog & ' > "' & $EvDir & $prof & '-usrclass.dat1"'
+		Local $catusrce = $shellex & '.\Tools\sleuthkit-4.2.0\bin\icat.exe \\.\c: ' & $MFTlog & ' > "' & $EvDir & $prof & '-usrclass.dat1"'
 
 		RunWait($catusrce, "", @SW_HIDE)
 
@@ -1904,7 +1904,7 @@ EndFunc
 
 Func MFTgrab()							;Use iCat to rip a file from NTFS file system
 
-   Local $MFTc = $shellex & ' .\Tools\sleuthkit-4.2.0\bin\icat.exe \\.\c: 0 > "' & $EvDir & '$MFTcopy"'
+   Local $MFTc = $shellex & '.\Tools\sleuthkit-4.2.0\bin\icat.exe \\.\c: 0 > "' & $EvDir & '$MFTcopy"'
 
    RunWait($MFTc, "", @SW_HIDE)
 	  FileWriteLine($Log, @YEAR&"-"&@MON&"-"&@MDAY&@TAB&@HOUR&":"&@MIN&":"&@SEC&":"&@MSEC&@TAB&"Executed command:" &@TAB& $MFTc & @CRLF)
@@ -1946,7 +1946,7 @@ Func VSC_Prefetch()						;Copy Prefetch data from any Volume Shadow Copies
 
    Local $robocopy = '"' & @ScriptDir & '\Tools\Robocopy.exe"'
    Local $v = 1
-   Local $vscpf1 = $shellex & ' ' & $robocopy & ' "C:\VSC_' & $v & '\Windows\Prefetch" "' & $EvDir & '\VSC_' & $v & '\Prefetch" /copyall /ZB /TS /r:4 /w:3 /FP /NP /log:"' & $EvDir & 'VSC_' & $v & '\VSC_' & $v & ' Prefetch Copy Log.txt"'
+   Local $vscpf1 = $shellex & $robocopy & ' "C:\VSC_' & $v & '\Windows\Prefetch" "' & $EvDir & '\VSC_' & $v & '\Prefetch" /copyall /ZB /TS /r:4 /w:3 /FP /NP /log:"' & $EvDir & 'VSC_' & $v & '\VSC_' & $v & ' Prefetch Copy Log.txt"'
 
    Do
 	  If FileExists("C:\VSC_" & $v) = 1 Then
@@ -2074,7 +2074,7 @@ Func VSC_RobocopyJL($path, $output)		;Copy Jumplist information while maintainin
    Local $robocmd
    Local $autodest
    Local $customdest
-   Local $shellex = '"' & @ScriptDir & '\Tools\cmd.exe" /c'
+   Local $shellex = '"' & @ScriptDir & '\Tools\cmd.exe" /c '
    Local $autodest = $EvDir & "VSC_" & $vjlc & '\Jump Lists\' & $output & '\Automatic'
    Local $customdest = $EvDir & "VSC_" & $vjlc & '\Jump Lists\' & $output & '\Custom'
 
@@ -2208,7 +2208,7 @@ Func VSC_RobocopyNTU($path, $output)	;Copy function for NTUSER.DAT (Volume Shado
 
    Local $robocopy
    Local $robocmd
-   Local $shellex = '"' & @ScriptDir & '\Tools\cmd.exe" /c'
+   Local $shellex = '"' & @ScriptDir & '\Tools\cmd.exe" /c '
    Local $ntudest = $EvDir & "VSC_" & $vntc & '\Registry\' & $output
 
 
@@ -2685,7 +2685,6 @@ Func RegRipperTools()
 				  DirCreate(@ScriptDir & "\Tools\RegRipper\")
 			   Until FileExists(@ScriptDir & "\Tools\RegRipper\")
 			EndIf
-			   FileInstall(".\Compile\Tools\cmd.exe", @ScriptDir & "\Tools\RegRipper\", 0)
 			   FileInstall(".\Compile\Tools\RegRipper2.8\p2x5124.dll", @ScriptDir & "\Tools\RegRipper\", 0)
 			   FileInstall(".\Compile\Tools\RegRipper2.8\rip.exe", @ScriptDir & "\Tools\RegRipper\", 0)
 			   FileInstall(".\Compile\Tools\RegRipper2.8\rip.pl", @ScriptDir & "\Tools\RegRipper\", 0)
