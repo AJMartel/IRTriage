@@ -35,6 +35,20 @@
 ;			7zip Command Line
 ;				-http://www.7-zip.org/download.html  (standalone console version)
 ;
+; 	Fixes/Changes:
+; 			-Changed name of project from Triage-IR to IRTriage (Triage-IR is no longer under development)
+; 			-Fixed broken command logging = Now logs all commands that were executed to TAB delimited csv file
+; 			-Updated software = all software packages are updated 10 Feb 2016 (no longer using software from Nov 2012)
+; 			-Using FDpro vs windd (windd is limited to 4GB crash dump, FDpro is a full memory image)
+; 			-Fixed issues with software not running
+;					*Sleuthkit (icat, ifind) not functioning due to miss-matched dlls (64 vs 32bit) and known dlls (local files no first)
+;						**Using custom compiled executables compiled with static libraries
+;					*RegRipper not able to find plugins due to working directory issue
+;						**RegRipper's working directory is now set to .\Tools\RegRipper\
+; 			-Separation of output from commands (no longer appending to same file from multiple commands, easier to automate parsing)
+;			-Using csv as output whenever possible (**Future import into database will be easier)
+; 			-Fixed compatability now works with WinXP through to Win10
+;
 ;===========================================================================================================================================
 
 #Include <GUIConstantsEx.au3>
