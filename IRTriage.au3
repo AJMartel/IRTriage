@@ -1,16 +1,19 @@
 ;==========================================================================================================================================
 ;	Tool:			Incident Respone Triage:    (GUI)
 ;
-;	Version:		0.0.1.9
+;	Version:		2.16.02.11       (Version 2, Last updated: 2016 Feb 11)
 ;
-;	Author:			Michael Ahrendt (Nov 2012)
-;   Modified by:    Alain Martel (Oct 2015)
+;	Original Author:	Michael Ahrendt (TriageIR v.851 uploaded 9 Nov 2012)
+;                           https://storage.googleapis.com/google-code-archive-downloads/v2/code.google.com/triage-ir/TriageIR%20v.851.zip
+;
+;   Forked by:          Alain Martel (Oct 2015)
+;							https://github.com/AJMartel/IRTriage
 ;
 ;	Description:	IRTriage is intended for incident responders who need to gather host data rapidly.
 ;			The tool will run a plethora of commands automatically based on selection.
-;			It has the ability to copy data to an external USB drive as well.
 ;			Data will copy to wherever the script is stored.
-;			IRTriage is intended to be run off a flash drive locally on the machine, or via a network location.
+;			IRTriage is intended to be run from a flash drive locally on the machine, or
+;			via a network share (example: connected via RDP).
 ;
 ; 	Tools used:	Fast Dump pro by HBGary
 ;				-http://www.countertack.com/
@@ -73,7 +76,7 @@ Global 	$fcnt
 Global  $p_chkc = 1                                                  ;fixed missing value that killed command logging
 Global  $r_chk = 0                                                   ;fixed missing value that killed command logging
 Global  $r_ini = 0                                                   ;fixed missing value that killed command logging
-Global  $Version = "0.0.1.9"                                         ;Added to facilitate display of version info
+Global  $Version = "2.16.02.11"                                      ;Added to facilitate display of version info (MajorVer.YY.MM.DD)
 
 $ini_file = "IRTriage.ini"
 
