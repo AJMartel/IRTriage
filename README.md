@@ -1,9 +1,9 @@
 Incident Response Triage: Scripted collection of system information. (Must be "Run As ADMINISTRATOR"!)  
 Original source was Triage-ir a script written by Michael Ahrendt https://code.google.com/p/triage-ir/ 
-Unfortunately Michael's last changes were posted in November 2012
+Unfortunately Michael's last changes were posted on 9th November 2012
 http://mikeahrendt.blogspot.ca/p/triage-incident-response.html
 
-I have since fixed some logging errors and updated the project.
+I have since fixed the "commands executed" logging errors and updated the project to currently available tools.
 I have commented out Moonsol's memory acquisition software in favor of HBGary's FDpro.
 
 What if having a full disk image is not an option during an incident?
@@ -18,6 +18,7 @@ IRTriage will collect:
 -registry hives
 -disk information, and 
 -dump memory. 
+
 One of the powerful capabilities of IRTriage is collecting information from Volume Shadow Copy which can defeat many anti-forensics techniques.
 
 The IRTriage is itself just an autoit script that depend on other tools such as: 
