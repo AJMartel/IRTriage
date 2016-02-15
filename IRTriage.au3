@@ -1,9 +1,9 @@
 ;==========================================================================================================================================
 ;	Tool:			Incident Respone Triage:    (GUI)
 ;
-;	Version:		2.16.02.11       (Version 2, Last updated: 2016 Feb 11)
+;	Version:		2.16.02.15       (Version 2, Last updated: 2016 Feb 15)
 ;
-;	Original Author:	Michael Ahrendt (TriageIR v.851 uploaded 9 Nov 2012)
+;	Original Author:	Michael Ahrendt (TriageIR v.851 last uploaded\modified 9 Nov 2012)
 ;                           https://storage.googleapis.com/google-code-archive-downloads/v2/code.google.com/triage-ir/TriageIR%20v.851.zip
 ;
 ;   Forked by:          Alain Martel (Oct 2015)
@@ -76,7 +76,7 @@ Global 	$fcnt
 Global  $p_chkc = 1                                                  ;fixed missing value that killed command logging
 Global  $r_chk = 0                                                   ;fixed missing value that killed command logging
 Global  $r_ini = 0                                                   ;fixed missing value that killed command logging
-Global  $Version = "2.16.02.11"                                      ;Added to facilitate display of version info (MajorVer.YY.MM.DD)
+Global  $Version = "2.16.02.15"                                      ;Added to facilitate display of version info (MajorVer.YY.MM.DD)
 
 $ini_file = "IRTriage.ini"
 
@@ -384,7 +384,7 @@ Func TriageGUI()						;Creates a graphical user interface for Triage
 		 If $msg = $helpitem1 Then ShellExecute('"' & @ScriptDir & '\Triage Help.pdf"')
 
 		 If $msg = $helpitem2 Then MsgBox _
-			(64, "About:", "Incident Response Triage: " & @CRLF & @CRLF & "Version: " & $Version & @CRLF & @CRLF & "IRTriage is a utility to help incident responders collect information quickly from a live system.  It is highly customizable to meet the needs of modern investigative processes.")
+			(64, "About: Incident Response Triage: Version: " & $Version , "IRTriage 2.[YY.MM.DD] is a renamed fork of:" & @CRLF & "Triage-ir v0.851 by Mike Ahrendt" & @CRLF & "Triage-ir was last released 9 Nov 2012 under GPL v3" & @CRLF & @CRLF & "IRTriage is a utility to help incident responders quickly gather system artifacts and information from a live system.  The utility is highly customizable, meeting the needs of modern investigative processes." & @CRLF & @CRLF & "Why use IRTriage?" & @CRLF & "With the size of todays drives, the time required to do full disk imaging is an outdated practice and should be avoided if at all possible. Though Triage-ir is a great utility, and adhered to the modern forensic practice of triaging the data that is to be gathered, it is currently out of date. IRTriage is a currently maintained version of Triage-ir. The code has been updated to use current toolsets, compatible up to Win10, and has fixed a major issue with commands not being completely logged. Future releases will include a wider selection of artifacts to collect." & @CRLF & @CRLF & "Maintainer:   Alain Martel" & @CRLF & "Contact:  Alain74Martel@gmail.com" & @CRLF & "Repo:  https://github.com/AJMartel/IRTriage")
 
 		 If $msg = $GUI_EVENT_CLOSE Then ExitLoop
 
