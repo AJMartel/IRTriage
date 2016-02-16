@@ -223,7 +223,7 @@ Func TriageGUI()						;Creates a graphical user interface for Triage
 
 	  $inidsp = StringTrimLeft($ini_file, StringInStr($ini_file, "\", 0, -1))
 
-	  $iniread = GUICtrlCreateLabel(" Reading configuration from " & $inidsp & ", Running on " & @OSVersion & ", " & $OS_Arch & " System.", 2, 253, 470, 20, BitOR($SS_SIMPLE, $SS_SUNKEN))
+	  $iniread = GUICtrlCreateLabel(" Running on " & @OSVersion & ", " & $OS_Arch & " System. Reading configuration from " & $inidsp, 2, 253, 470, 20, BitOR($SS_SIMPLE, $SS_SUNKEN))
 
 	  $tr_tab = GUICtrlCreateTab(3, 5, 805, 235)
 
@@ -368,7 +368,7 @@ Func TriageGUI()						;Creates a graphical user interface for Triage
 			_Ini2GUI()
 			GUICtrlSetState($iniread, $GUI_HIDE)
 			$inidsp = StringTrimLeft($ini_file, StringInStr($ini_file, "\", 0, -1))
-			$iniread = GUICtrlCreateLabel(" Reading configuration from " & $inidsp & ", Running on " & @OSVersion & ", " & $OS_Arch & " System.", 2, 253, 470, 20, BitOR($SS_SIMPLE, $SS_SUNKEN))
+			$iniread = GUICtrlCreateLabel(" Running on " & @OSVersion & ", " & $OS_Arch & " System. Reading configuration from " & $inidsp, 2, 253, 470, 20, BitOR($SS_SIMPLE, $SS_SUNKEN))
 			GUICtrlSetState($iniread, $GUI_SHOW)
 		 EndIf
 
@@ -1566,7 +1566,7 @@ EndFunc
 Func AutoRun()							;Information regarding startup
    Local $autorun1 = $shellex & '.\Tools\SysinternalsSuite\autorunsc.exe -accepteula > "' & $RptsDir & '\AutoRunInfo.txt"'
    Local $autorun2 = $shellex & 'wmic startup list full > "' & $RptsDir & '\StartUpWMIInfo.txt"'
-   Local $autorun3 = $shellex & '.\Tools\SysinternalsSuite\autorunsc.exe -accepteula -a * -s -c > "' & $RptsDir & '\AutoRunInfo.csv"'
+   Local $autorun3 = $shellex & '.\Tools\SysinternalsSuite\autorunsc.exe -accepteula -a * -s -ct > "' & $RptsDir & '\AutoRunInfo.csv"'
 
    RunWait($autorun1, "", @SW_HIDE)
 	  FileWriteLine($Log, @YEAR&"-"&@MON&"-"&@MDAY&@TAB&@HOUR&":"&@MIN&":"&@SEC&":"&@MSEC&@TAB&"Executed command:" &@TAB& $autorun1 & @CRLF)
