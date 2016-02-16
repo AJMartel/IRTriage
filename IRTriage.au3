@@ -1,12 +1,13 @@
 ;==========================================================================================================================================
 ;	Tool:			Incident Respone Triage:    (GUI)
 ;
-;	Version:		2.16.02.15       (Version 2, Last updated: 2016 Feb 15)
+;	Version:		2.16.02.16       (Version 2, Last updated: 2016 Feb 16)
 ;
 ;	Original Author:	Michael Ahrendt (TriageIR v.851 last uploaded\modified 9 Nov 2012)
 ;                           https://storage.googleapis.com/google-code-archive-downloads/v2/code.google.com/triage-ir/TriageIR%20v.851.zip
 ;
-;   Forked by:          Alain Martel (Oct 2015)
+;   Forked and Currently
+;   Maintained by:      Alain Martel (Oct 2015)
 ;							https://github.com/AJMartel/IRTriage
 ;
 ;	Description:	IRTriage is intended for incident responders who need to gather host data rapidly.
@@ -76,7 +77,7 @@ Global 	$fcnt
 Global  $p_chkc = 1                                                  ;fixed missing value that killed command logging
 Global  $r_chk = 0                                                   ;fixed missing value that killed command logging
 Global  $r_ini = 0                                                   ;fixed missing value that killed command logging
-Global  $Version = "2.16.02.15"                                      ;Added to facilitate display of version info (MajorVer.YY.MM.DD)
+Global  $Version = "2.16.02.16"                                      ;Added to facilitate display of version info (MajorVer.YY.MM.DD)
 
 $ini_file = "IRTriage.ini"
 
@@ -189,6 +190,13 @@ Func TriageGUI()						;Creates a graphical user interface for Triage
 
    GUICreate("Incident Response Triage: version "& $Version, 810, 300)
 
+   		; Determine whether it is a 32 bit or 64 bit system
+		if @OSArch = "X86" then
+			$OS_Arch = "32 Bit"
+		Else
+			$OS_Arch = "64 Bit"
+		EndIf
+
 	  $font = "Arial"
 
 	  GUISetFont(10, 400, "",$font)
@@ -215,7 +223,7 @@ Func TriageGUI()						;Creates a graphical user interface for Triage
 
 	  $inidsp = StringTrimLeft($ini_file, StringInStr($ini_file, "\", 0, -1))
 
-	  $iniread = GUICtrlCreateLabel("Reading from " & $inidsp & " configuration.", 0, 262, 460, 20, BitOR($SS_SIMPLE, $SS_SUNKEN))
+	  $iniread = GUICtrlCreateLabel(" Reading configuration from " & $inidsp & ", Running on " & @OSVersion & ", " & $OS_Arch & " System.", 2, 253, 470, 20, BitOR($SS_SIMPLE, $SS_SUNKEN))
 
 	  $tr_tab = GUICtrlCreateTab(3, 5, 805, 235)
 
@@ -360,7 +368,7 @@ Func TriageGUI()						;Creates a graphical user interface for Triage
 			_Ini2GUI()
 			GUICtrlSetState($iniread, $GUI_HIDE)
 			$inidsp = StringTrimLeft($ini_file, StringInStr($ini_file, "\", 0, -1))
-			$iniread = GUICtrlCreateLabel("Reading from " & $inidsp & " configuration.", 0, 262, 350, 20, BitOR($SS_SIMPLE, $SS_SUNKEN))
+			$iniread = GUICtrlCreateLabel(" Reading configuration from " & $inidsp & ", Running on " & @OSVersion & ", " & $OS_Arch & " System.", 2, 253, 470, 20, BitOR($SS_SIMPLE, $SS_SUNKEN))
 			GUICtrlSetState($iniread, $GUI_SHOW)
 		 EndIf
 
@@ -430,7 +438,7 @@ Func TriageGUI()						;Creates a graphical user interface for Triage
 			   If $sysintchk = 7 Then ExitLoop
 			EndIf
 
-			   $progGUI = GUICreate("Triage Progress", 250, 70, -1, -1, -1, BitOR($WS_EX_TOPMOST, $WS_EX_OVERLAPPEDWINDOW))
+			   $progGUI = GUICreate("IRTriage Progress", 250, 70, -1, -1, -1, BitOR($WS_EX_TOPMOST, $WS_EX_OVERLAPPEDWINDOW))
 
 			   $progress = GUICtrlCreateProgress(10, 25, 230, 25)
 
