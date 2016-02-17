@@ -1,7 +1,7 @@
 Incident Response Triage: Scripted collection of system information. (Must be "Run As ADMINISTRATOR"!)  
 Original source was Triage-ir a script written by Michael Ahrendt https://code.google.com/p/triage-ir/ 
 Unfortunately Michael's last changes were posted on 9th November 2012
-http://mikeahrendt.blogspot.ca/p/triage-incident-response.html
+http://mikeahrendt.blogspot.ca/2012/01/automated-triage-utility.html
 
 I have since fixed the "commands executed" logging errors and updated the project to currently available tools.
 I have commented out Moonsol's memory acquisition software in favor of HBGary's FDpro.
