@@ -3,7 +3,7 @@
 
 	Script Function:	Forensic Triage Application
 
-	Version:		2.16.02.16       (Version 2, Last updated: 2016 Feb 16)
+	Version:		2.16.02.17       (Version 2, Last updated: 2016 Feb 17)
 
 	Original Author:	Michael Ahrendt (TriageIR v.851 last uploaded\modified 9 Nov 2012)
                            https://storage.googleapis.com/google-code-archive-downloads/v2/code.google.com/triage-ir/TriageIR%20v.851.zip
@@ -82,7 +82,7 @@ Global 	$fcnt
 Global  $p_chkc = 1                                                  ;fixed missing value that killed command logging
 Global  $r_chk = 0                                                   ;fixed missing value that killed command logging
 Global  $r_ini = 0                                                   ;fixed missing value that killed command logging
-Global  $Version = "2.16.02.16"                                      ;Added to facilitate display of version info (MajorVer.YY.MM.DD)
+Global  $Version = "2.16.02.17"                                      ;Added to facilitate display of version info (MajorVer.YY.MM.DD)
 
 $ini_file = "IRTriage.ini"
 
