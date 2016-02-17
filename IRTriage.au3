@@ -1,59 +1,64 @@
-;==========================================================================================================================================
-;	Tool:			Incident Respone Triage:    (GUI)
-;
-;	Version:		2.16.02.16       (Version 2, Last updated: 2016 Feb 16)
-;
-;	Original Author:	Michael Ahrendt (TriageIR v.851 last uploaded\modified 9 Nov 2012)
-;                           https://storage.googleapis.com/google-code-archive-downloads/v2/code.google.com/triage-ir/TriageIR%20v.851.zip
-;
-;   Forked and Currently
-;   Maintained by:      Alain Martel (Oct 2015)
-;							https://github.com/AJMartel/IRTriage
-;
-;	Description:	IRTriage is intended for incident responders who need to gather host data rapidly.
-;			The tool will run a plethora of commands automatically based on selection.
-;			Data will copy to wherever the script is stored.
-;			IRTriage is intended to be run from a flash drive locally on the machine, or
-;			via a network share (example: connected via RDP).
-;
-; 	Tools used:	Fast Dump pro by HBGary
-;				-http://www.countertack.com/
-;
-;		       **Win(32|64)DD from MoonSols (Replaced by Fast Dump pro, code was commented out not removed.)
-;				-http://www.moonsols.com/
-;
-;			Sysinternals Suite from Microsoft and Mark Russinovich
-;				-http://technet.microsoft.com/en-us/sysinternals/bb842062
-;               -https://download.sysinternals.com/files/sysinternalssuite.zip
-;
-;           The SleuthKit
-;                -http://sourceforge.net/projects/sleuthkit/files/sleuthkit/4.2.0/sleuthkit-4.2.0-win32.zip/download
-;                 Using custom icat.exe and ifind.exe, compiled without any external DLLs
-;
-;			RegRipper from Harlan Carvey
-;				-https://github.com/keydet89/RegRipper2.8/archive/master.zip
-;
-;			md5deep and sha1deep from Jesse Kornblum
-;				-http://sourceforge.net/projects/md5deep/files/md5deep/md5deep-4.3/md5deep-4.3.zip/download?use_mirror=kent
-;
-;			7zip Command Line
-;				-http://www.7-zip.org/download.html  (standalone console version)
-;
-; 	Fixes/Changes:
-; 			-Changed name of project from Triage-IR to IRTriage (Triage-IR is no longer under development)
-; 			-Fixed broken command logging = Now logs all commands that were executed to TAB delimited csv file
-; 			-Updated software = all software packages are updated 10 Feb 2016 (no longer using software from Nov 2012)
-; 			-Using FDpro vs windd (windd is limited to 4GB crash dump, FDpro is a full memory image)
-; 			-Fixed issues with software not running
-;					*Sleuthkit (icat, ifind) not functioning due to miss-matched dlls (64 vs 32bit) and known dlls (local files no first)
-;						**Using custom compiled executables compiled with static libraries
-;					*RegRipper not able to find plugins due to working directory issue
-;						**RegRipper's working directory is now set to .\Tools\RegRipper\
-; 			-Separation of output from commands (no longer appending to same file from multiple commands, easier to automate parsing)
-;			-Using csv as output whenever possible (**Future import into database will be easier)
-; 			-Fixed compatability now works with WinXP through to Win10
-;
-;===========================================================================================================================================
+#comments-start =============================================================================================================================
+	Tool:			Incident Respone Triage:    (GUI)
+
+	Script Function:	Forensic Triage Application
+
+	Version:		2.16.02.16       (Version 2, Last updated: 2016 Feb 16)
+
+	Original Author:	Michael Ahrendt (TriageIR v.851 last uploaded\modified 9 Nov 2012)
+                           https://storage.googleapis.com/google-code-archive-downloads/v2/code.google.com/triage-ir/TriageIR%20v.851.zip
+
+	Forked and Currently
+	Maintained by:      Alain Martel (Oct 2015)
+							https://github.com/AJMartel/IRTriage
+
+	Description:	IRTriage is intended for incident responders who need to gather host data rapidly.
+			The tool will run a plethora of commands automatically based on selection.
+			Data will copy to wherever the script is stored.
+			IRTriage is intended to be run from a flash drive locally on the machine, or
+			via a network share (example: connected via RDP).
+
+ 	Tools used:	Fast Dump pro by HBGary
+				-FDPro is included with Responder™ Professional. FDPro is the most complete memory acquisition software in the industry.
+					FDPro is the only application that can preserve Windows™ physical memory and Pagefile for information security and
+					computer forensic purposes.
+				-http://www.countertack.com/
+
+				**Win(32|64)DD from MoonSols (Replaced by Fast Dump pro, code was commented out not removed.)
+				-http://www.moonsols.com/
+
+			Sysinternals Suite from Microsoft and Mark Russinovich
+				-http://technet.microsoft.com/en-us/sysinternals/bb842062
+               -https://download.sysinternals.com/files/sysinternalssuite.zip
+
+			The SleuthKit
+                -http://sourceforge.net/projects/sleuthkit/files/sleuthkit/4.2.0/sleuthkit-4.2.0-win32.zip/download
+                 Using custom icat.exe and ifind.exe, compiled without any external DLLs
+
+			RegRipper from Harlan Carvey
+				-https://github.com/keydet89/RegRipper2.8/archive/master.zip
+
+			md5deep and sha1deep from Jesse Kornblum
+				-http://sourceforge.net/projects/md5deep/files/md5deep/md5deep-4.3/md5deep-4.3.zip/download?use_mirror=kent
+
+			7zip Command Line
+				-http://www.7-zip.org/download.html  (standalone console version)
+
+ 	Fixes/Changes:
+ 			-Changed name of project from Triage-IR to IRTriage (Triage-IR is no longer under development)
+ 			-Fixed broken command logging = Now logs all commands that were executed to TAB delimited csv file
+ 			-Updated software = all software packages are updated 10 Feb 2016 (no longer using software from Nov 2012)
+ 			-Using FDpro vs windd (windd is limited to 4GB crash dump, FDpro is a full memory image)
+ 			-Fixed issues with software not running
+					*Sleuthkit (icat, ifind) not functioning due to miss-matched dlls (64 vs 32bit) and known dlls (local files no first)
+						**Using custom compiled executables compiled with static libraries
+					*RegRipper not able to find plugins due to working directory issue
+						**RegRipper's working directory is now set to .\Tools\RegRipper\
+ 			-Separation of output from commands (no longer appending to same file from multiple commands, easier to automate parsing)
+			-Using csv as output whenever possible (**Future import into database will be easier)
+ 			-Fixed compatability now works with WinXP through to Win10
+
+#comments-end================================================================================================================================
 
 #Include <GUIConstantsEx.au3>
 #Include <WindowsConstants.au3>
@@ -3066,3 +3071,15 @@ Func RegRipperTools()
 			   FileInstall(".\Compile\Tools\RegRipper2.8\plugins\yahoo_lm.pl", @ScriptDir & "\Tools\RegRipper\plugins\", 0)
 
 EndFunc
+
+#comments-start
+function that was in triage-ir ver 0.64
+
+	If(GUICtrlRead($OpenFolder) = 1) Then
+	;Open folder after completion
+		ShellExecute($ReportsDir)
+	EndIf
+
+$OpenFolder = GUICtrlCreateCheckbox("Open Report Folder When Done", 280, 265, 200, 20)
+
+#comments-end
