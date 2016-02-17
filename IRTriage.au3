@@ -19,8 +19,8 @@
 			via a network share (example: connected via RDP).
 
  	Tools used:	Fast Dump pro by HBGary
-				-FDPro is included with Responderâ„¢ Professional. FDPro is the most complete memory acquisition software in the industry.
-					FDPro is the only application that can preserve Windowsâ„¢ physical memory and Pagefile for information security and
+				-FDPro is included with Responder™ Professional. FDPro is the most complete memory acquisition software in the industry.
+					FDPro is the only application that can preserve Windows™ physical memory and Pagefile for information security and
 					computer forensic purposes.
 				-http://www.countertack.com/
 
@@ -397,7 +397,14 @@ Func TriageGUI()						;Creates a graphical user interface for Triage
 		 If $msg = $helpitem1 Then ShellExecute('"' & @ScriptDir & '\Triage Help.pdf"')
 
 		 If $msg = $helpitem2 Then MsgBox _
-			(64, "About: Incident Response Triage: Version: " & $Version , "IRTriage 2.[YY.MM.DD] is a renamed fork of:" & @CRLF & "Triage-ir v0.851 by Mike Ahrendt" & @CRLF & "Triage-ir was last released 9 Nov 2012 under GPL v3" & @CRLF & @CRLF & "IRTriage is a utility to help incident responders quickly gather system artifacts and information from a live system.  The utility is highly customizable, meeting the needs of modern investigative processes." & @CRLF & @CRLF & "Why use IRTriage?" & @CRLF & "With the size of todays drives, the time required to do full disk imaging is an outdated practice and should be avoided if at all possible. Though Triage-ir is a great utility, and adhered to the modern forensic practice of triaging the data that is to be gathered, it is currently out of date. IRTriage is a currently maintained version of Triage-ir. The code has been updated to use current toolsets, compatible up to Win10, and has fixed a major issue with commands not being completely logged. Future releases will include a wider selection of artifacts to collect." & @CRLF & @CRLF & "Maintainer:   Alain Martel" & @CRLF & "Contact:  Alain74Martel@gmail.com" & @CRLF & "Repo:  https://github.com/AJMartel/IRTriage")
+			(64, "About: Incident Response Triage: Version: " & $Version , "IRTriage 2.[YY.MM.DD] is a renamed fork of:" & @CRLF & _
+			"Triage-ir v0.851 by Mike Ahrendt" & @CRLF & "Triage-ir was last released 9 Nov 2012 under GPL v3" & @CRLF & @CRLF & _
+			"IRTriage is a utility to help incident responders quickly gather system artifacts and information from a live system.  The utility is highly customizable, meeting the needs " & _
+			"of modern investigative processes." & @CRLF & @CRLF & "Why use IRTriage?" & @CRLF & "With the size of todays drives, the time required to do full disk imaging is an outdated " & _
+			"practice and should be avoided if at all possible. Though Triage-ir is a great utility, and adhered to the modern forensic practice of triaging the data that is to be gathered," & _
+			" it is currently out of date. IRTriage is a currently maintained version of Triage-ir. The code has been updated to use current toolsets, compatible up to Win10, and has fixed " & _
+			"a major issue with commands not being completely logged. Future releases will include a wider selection of artifacts to collect." & @CRLF & @CRLF & _
+			"Maintainer:   Alain Martel" & @CRLF & "Contact:  Alain74Martel@gmail.com" & @CRLF & "Repo:  https://github.com/AJMartel/IRTriage")
 
 		 If $msg = $GUI_EVENT_CLOSE Then ExitLoop
 
@@ -3073,7 +3080,6 @@ Func RegRipperTools()
 EndFunc
 
 #comments-start
-function that was in triage-ir ver 0.64
 
 	If(GUICtrlRead($OpenFolder) = 1) Then
 	;Open folder after completion
