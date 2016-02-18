@@ -3,7 +3,7 @@
 
 	Script Function:	Forensic Triage Application
 
-	Version:		2.16.02.17       (Version 2, Last updated: 2016 Feb 17)
+	Version:		2.16.02.18       (Version 2, Last updated: 2016 Feb 18)
 
 	Original Author:	Michael Ahrendt (TriageIR v.851 last uploaded\modified 9 Nov 2012)
                            https://storage.googleapis.com/google-code-archive-downloads/v2/code.google.com/triage-ir/TriageIR%20v.851.zip
@@ -60,12 +60,16 @@
 
 #comments-end================================================================================================================================
 
+#RequireAdmin                       ;Application will attempt to start in run as admin mode (does not work in Win XP)
+
 #Include <GUIConstantsEx.au3>
 #Include <WindowsConstants.au3>
 #Include <StaticConstants.au3>
 #Include <Date.au3>
 #Include <File.au3>
 
+
+Global  $Version = "2.16.02.18"                                      ;Added to facilitate display of version info (MajorVer.YY.MM.DD)
 Global 	$tStamp = @YEAR & @MON & @MDAY & @HOUR & @MIN & @SEC
 Global	$RptsDir = @ScriptDir & "\" & $tStamp & "-" & @ComputerName
 Global	$EvDir = $RptsDir & "\Evidence\"
@@ -82,7 +86,6 @@ Global 	$fcnt
 Global  $p_chkc = 1                                                  ;fixed missing value that killed command logging
 Global  $r_chk = 0                                                   ;fixed missing value that killed command logging
 Global  $r_ini = 0                                                   ;fixed missing value that killed command logging
-Global  $Version = "2.16.02.17"                                      ;Added to facilitate display of version info (MajorVer.YY.MM.DD)
 
 $ini_file = "IRTriage.ini"
 
@@ -2561,6 +2564,8 @@ Func Install()							;Function to install binary files necessary for execution i
 			   FileInstall(".\Compile\Tools\robocopy.exe", @ScriptDir & "\Tools\", 0)
 			   FileInstall(".\Compile\Tools\sha1deep.exe", @ScriptDir & "\Tools\", 0)
 			   FileInstall(".\Compile\Tools\sha1deep64.exe", @ScriptDir & "\Tools\", 0)
+;			   Local $varCMD = '"' & @WindowsDir & '\System32\cmd.exe"'
+;			   FileInstall($varCMD, @ScriptDir & "\Tools\", 0)
 
 			If Not FileExists(@ScriptDir & "\Tools\sleuthkit-4.2.0\bin\") Then
 				Do
@@ -2585,19 +2590,19 @@ Func Install()							;Function to install binary files necessary for execution i
 ;			   FileInstall(".\Compile\Tools\sleuthkit-4.2.0\bin\istat.exe", @ScriptDir & "\Tools\sleuthkit-4.2.0\bin\", 0)
 ;			   FileInstall(".\Compile\Tools\sleuthkit-4.2.0\bin\jcat.exe", @ScriptDir & "\Tools\sleuthkit-4.2.0\bin\", 0)
 ;			   FileInstall(".\Compile\Tools\sleuthkit-4.2.0\bin\jls.exe", @ScriptDir & "\Tools\sleuthkit-4.2.0\bin\", 0)
-;			   FileInstall(".\Compile\Tools\sleuthkit-4.2.0\bin\libewf.dll", @ScriptDir & "\Tools\sleuthkit-4.2.0\bin\", 0)
+;			   FileInstall(".\Compile\Tools\sleuthkit-4.2.0\bin\libewf.dll", @ScriptDir & "\Tools\sleuthkit-4.2.0\bin\", 0)          ;required if not using custom compiled executables
 ;			   FileInstall(".\Compile\Tools\sleuthkit-4.2.0\bin\libtsk_jni.dll", @ScriptDir & "\Tools\sleuthkit-4.2.0\bin\", 0)
 ;			   FileInstall(".\Compile\Tools\sleuthkit-4.2.0\bin\mactime.pl", @ScriptDir & "\Tools\sleuthkit-4.2.0\bin\", 0)
 ;			   FileInstall(".\Compile\Tools\sleuthkit-4.2.0\bin\mmcat.exe", @ScriptDir & "\Tools\sleuthkit-4.2.0\bin\", 0)
 ;			   FileInstall(".\Compile\Tools\sleuthkit-4.2.0\bin\mmls.exe", @ScriptDir & "\Tools\sleuthkit-4.2.0\bin\", 0)
 ;			   FileInstall(".\Compile\Tools\sleuthkit-4.2.0\bin\mmstat.exe", @ScriptDir & "\Tools\sleuthkit-4.2.0\bin\", 0)
-;			   FileInstall(".\Compile\Tools\sleuthkit-4.2.0\bin\msvcp100.dll", @ScriptDir & "\Tools\sleuthkit-4.2.0\bin\", 0)
-;			   FileInstall(".\Compile\Tools\sleuthkit-4.2.0\bin\msvcr100.dll", @ScriptDir & "\Tools\sleuthkit-4.2.0\bin\", 0)
+;			   FileInstall(".\Compile\Tools\sleuthkit-4.2.0\bin\msvcp100.dll", @ScriptDir & "\Tools\sleuthkit-4.2.0\bin\", 0)         ;required if not using custom compiled executables
+;			   FileInstall(".\Compile\Tools\sleuthkit-4.2.0\bin\msvcr100.dll", @ScriptDir & "\Tools\sleuthkit-4.2.0\bin\", 0)         ;required if not using custom compiled executables
 ;			   FileInstall(".\Compile\Tools\sleuthkit-4.2.0\bin\tsk_comparedir.exe", @ScriptDir & "\Tools\sleuthkit-4.2.0\bin\", 0)
 ;			   FileInstall(".\Compile\Tools\sleuthkit-4.2.0\bin\tsk_gettimes.exe", @ScriptDir & "\Tools\sleuthkit-4.2.0\bin\", 0)
 ;			   FileInstall(".\Compile\Tools\sleuthkit-4.2.0\bin\tsk_loaddb.exe", @ScriptDir & "\Tools\sleuthkit-4.2.0\bin\", 0)
 ;			   FileInstall(".\Compile\Tools\sleuthkit-4.2.0\bin\tsk_recover.exe", @ScriptDir & "\Tools\sleuthkit-4.2.0\bin\", 0)
-;			   FileInstall(".\Compile\Tools\sleuthkit-4.2.0\bin\zlib.dll", @ScriptDir & "\Tools\sleuthkit-4.2.0\bin\", 0)
+;			   FileInstall(".\Compile\Tools\sleuthkit-4.2.0\bin\zlib.dll", @ScriptDir & "\Tools\sleuthkit-4.2.0\bin\", 0)             ;required if not using custom compiled executables
 
 ;			If Not FileExists(@ScriptDir & "\Tools\sleuthkit-4.2.0\lib\") Then
 ;				Do
