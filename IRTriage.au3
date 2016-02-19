@@ -1,9 +1,27 @@
+;#pragma compile(Out, IRTriage.exe)
+;#pragma compile(Icon, IRTriage.ico)
+#pragma compile(ExecLevel, requireAdministrator)
+;#pragma compile(UPX, False)
+#pragma compile(Compression, 1)
+#pragma compile(Comments, 'Based on triage-ir v0.851, ''by Michael Ahrendt'')
+#pragma compile(CompanyName, 'Digital Forensic Community')
+#pragma compile(FileDescription, IRTriage - Digital Forensic Incident Response Triage Tool)
+#pragma compile(ProductName, IRTriage)
+#pragma compile(ProductVersion, 2)
+#pragma compile(FileVersion, 2.16.02.19)
+#pragma compile(InternalName, "IRTriage")
+#pragma compile(LegalCopyright, © Alain Martel)
+#pragma compile(LegalTrademarks, 'Released under GPL 3, Free Open Source Software')
+#pragma compile(OriginalFilename, IRTriage.exe)
+#pragma compile(ProductName, Incident Response Triage)
+#pragma compile(ProductVersion, 2.16.02.19)
+
 #comments-start =============================================================================================================================
 	Tool:			Incident Respone Triage:    (GUI)
 
 	Script Function:	Forensic Triage Application
 
-	Version:		2.16.02.18       (Version 2, Last updated: 2016 Feb 18)
+	Version:		2.16.02.19       (Version 2, Last updated: 2016 Feb 19)
 
 	Original Author:	Michael Ahrendt (TriageIR v.851 last uploaded\modified 9 Nov 2012)
                            https://storage.googleapis.com/google-code-archive-downloads/v2/code.google.com/triage-ir/TriageIR%20v.851.zip
@@ -60,8 +78,6 @@
 
 #comments-end================================================================================================================================
 
-#RequireAdmin                       ;Application will attempt to start in run as admin mode (does not work in Win XP)
-
 #Include <GUIConstantsEx.au3>
 #Include <WindowsConstants.au3>
 #Include <StaticConstants.au3>
@@ -69,7 +85,7 @@
 #Include <File.au3>
 
 
-Global  $Version = "2.16.02.18"                                      ;Added to facilitate display of version info (MajorVer.YY.MM.DD)
+Global  $Version = "2.16.02.19"                                      ;Added to facilitate display of version info (MajorVer.YY.MM.DD)
 Global 	$tStamp = @YEAR & @MON & @MDAY & @HOUR & @MIN & @SEC
 Global	$RptsDir = @ScriptDir & "\" & $tStamp & "-" & @ComputerName
 Global	$EvDir = $RptsDir & "\Evidence\"
