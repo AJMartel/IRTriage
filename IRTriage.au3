@@ -1,27 +1,26 @@
 ;#pragma compile(Out, IRTriage.exe)
-;#pragma compile(Icon, IRTriage.ico)
 #pragma compile(ExecLevel, requireAdministrator)
-;#pragma compile(UPX, False)
+;#pragma compile(UPX, True)
 #pragma compile(Compression, 1)
 #pragma compile(Comments, 'Based on triage-ir v0.851, ''by Michael Ahrendt'')
 #pragma compile(CompanyName, 'Digital Forensic Community')
 #pragma compile(FileDescription, IRTriage - Digital Forensic Incident Response Triage Tool)
 #pragma compile(ProductName, IRTriage)
 #pragma compile(ProductVersion, 2)
-#pragma compile(FileVersion, 2.16.02.19)
+#pragma compile(FileVersion, 2.16.02.22)
 #pragma compile(InternalName, "IRTriage")
 #pragma compile(LegalCopyright, © Alain Martel)
 #pragma compile(LegalTrademarks, 'Released under GPL 3, Free Open Source Software')
 #pragma compile(OriginalFilename, IRTriage.exe)
 #pragma compile(ProductName, Incident Response Triage)
-#pragma compile(ProductVersion, 2.16.02.19)
+#pragma compile(ProductVersion, 2.16.02.22)
 
 #comments-start =============================================================================================================================
 	Tool:			Incident Respone Triage:    (GUI)
 
 	Script Function:	Forensic Triage Application
 
-	Version:		2.16.02.19       (Version 2, Last updated: 2016 Feb 19)
+	Version:		2.16.02.22       (Version 2, Last updated: 2016 Feb 22)
 
 	Original Author:	Michael Ahrendt (TriageIR v.851 last uploaded\modified 9 Nov 2012)
                            https://storage.googleapis.com/google-code-archive-downloads/v2/code.google.com/triage-ir/TriageIR%20v.851.zip
@@ -85,7 +84,7 @@
 #Include <File.au3>
 
 
-Global  $Version = "2.16.02.19"                                      ;Added to facilitate display of version info (MajorVer.YY.MM.DD)
+Global  $Version = "2.16.02.22"                                      ;Added to facilitate display of version info (MajorVer.YY.MM.DD)
 Global 	$tStamp = @YEAR & @MON & @MDAY & @HOUR & @MIN & @SEC
 Global	$RptsDir = @ScriptDir & "\" & $tStamp & "-" & @ComputerName
 Global	$EvDir = $RptsDir & "\Evidence\"
@@ -1888,7 +1887,7 @@ Func EvtCopy()							;Copy all event logs from local machine
    If $OS = "Users" Then $EvtCmd = $robo7 & " " & $evtdir & ' "' & $LogDir & '" /copyall /ZB /TS /r:4 /w:3 /FP /NP /log:"' & $RptsDir & '\EventLogCopy.txt"'
 
    RunWait($EvtCmd, "", @SW_HIDE)
-	  FileWriteLine($Log, @YEAR&"-"&@MON&"-"&@MDAY&@TAB&@HOUR&":"&@MIN&":"&@SEC&":"&@MSEC&@TAB&"Copied ." & $evtext & " files " &@TAB& $EvtCmd & @CRLF)
+	  FileWriteLine($Log, @YEAR&"-"&@MON&"-"&@MDAY&@TAB&@HOUR&":"&@MIN&":"&@SEC&":"&@MSEC&@TAB&"Executed command:" &@TAB& $EvtCmd & @CRLF)
 EndFunc
 
 Func UsrclassE()  						;Search for profiles and initiate the copy of USRCLASS.dat
@@ -1953,7 +1952,8 @@ Func _Usrclass($prof)					;Performs the function of copying the USRCLASS.dat
 		FileDelete("MFTEntries.log")
 
    Else
-		FileWriteLine($Log, @YEAR&"-"&@MON&"-"&@MDAY&@TAB&@HOUR&":"&@MIN&":"&@SEC&":"&@MSEC&@TAB& "File NOT Found" & @TAB & $profUsrCls & @CRLF)
+		Local $sString = StringReplace ( $profUsrCls, "/", "\" , 0 )
+		FileWriteLine($Log, @YEAR&"-"&@MON&"-"&@MDAY&@TAB&@HOUR&":"&@MIN&":"&@SEC&":"&@MSEC&@TAB& "File NOT Found" & @TAB & "C:" & $sString & @CRLF)
    EndIf
 
 EndFunc
@@ -2176,7 +2176,7 @@ Func VSC_EvtCopy()						;Copy all event logs from local machine (Volume Shadow C
 		 Local $VSC_EvtCmd = $robo7 & ' "C:\VSC_' & $vevc & '\Windows\system32\winevt\Logs" "' & $EvDir & "VSC_" & $vevc & '\Logs' & '" /copyall /ZB /TS /r:4 /w:3 /FP /NP /log:"' & $EvDir & "VSC_" & $vevc & '\EventLogCopy.txt"'
 
 		 RunWait($VSC_EvtCmd, "", @SW_HIDE)
-			FileWriteLine($Log, @YEAR&"-"&@MON&"-"&@MDAY&@TAB&@HOUR&":"&@MIN&":"&@SEC&":"&@MSEC&@TAB&"Copied ." & $evtext & " files " &@TAB& $VSC_EvtCmd & @CRLF)
+			FileWriteLine($Log, @YEAR&"-"&@MON&"-"&@MDAY&@TAB&@HOUR&":"&@MIN&":"&@SEC&":"&@MSEC&@TAB&"Executed command:" &@TAB& $VSC_EvtCmd & @CRLF)
 
 		 $vevc = $vevc + 1
 
