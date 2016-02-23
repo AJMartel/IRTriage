@@ -7,20 +7,20 @@
 #pragma compile(FileDescription, IRTriage - Digital Forensic Incident Response Triage Tool)
 #pragma compile(ProductName, IRTriage)
 #pragma compile(ProductVersion, 2)
-#pragma compile(FileVersion, 2.16.02.22)
+#pragma compile(FileVersion, 2.16.02.23)
 #pragma compile(InternalName, "IRTriage")
 #pragma compile(LegalCopyright, © Alain Martel)
 #pragma compile(LegalTrademarks, 'Released under GPL 3, Free Open Source Software')
 #pragma compile(OriginalFilename, IRTriage.exe)
 #pragma compile(ProductName, Incident Response Triage)
-#pragma compile(ProductVersion, 2.16.02.22)
+#pragma compile(ProductVersion, 2.16.02.23)
 
 #comments-start =============================================================================================================================
 	Tool:			Incident Respone Triage:    (GUI)
 
 	Script Function:	Forensic Triage Application
 
-	Version:		2.16.02.22       (Version 2, Last updated: 2016 Feb 22)
+	Version:		2.16.02.23       (Version 2, Last updated: 2016 Feb 23)
 
 	Original Author:	Michael Ahrendt (TriageIR v.851 last uploaded\modified 9 Nov 2012)
                            https://storage.googleapis.com/google-code-archive-downloads/v2/code.google.com/triage-ir/TriageIR%20v.851.zip
@@ -84,11 +84,12 @@
 #Include <File.au3>
 
 
-Global  $Version = "2.16.02.22"                                      ;Added to facilitate display of version info (MajorVer.YY.MM.DD)
+Global  $Version = "2.16.02.23"                                      ;Added to facilitate display of version info (MajorVer.YY.MM.DD)
 Global 	$tStamp = @YEAR & @MON & @MDAY & @HOUR & @MIN & @SEC
 Global	$RptsDir = @ScriptDir & "\" & $tStamp & "-" & @ComputerName
 Global	$EvDir = $RptsDir & "\Evidence\"
 Global	$MemDir = $EvDir & "Memory\"                                 ;added to make finding the memory image easier
+Global	$RegDir = $EvDir & "Registry\"                               ;added to make finding the registry files easier
 Global 	$HashDir = $RptsDir & "\Evidence"
 Global	$JmpLst = $EvDir & "Jump Lists"
 Global	$shell = '"' & @ScriptDir & '\Tools\cmd.exe"'
@@ -147,7 +148,7 @@ Func INI_Check($ini_file)				;Check the INI file included in triage for function
    $VS_SAMREG_ini = IniRead($ini_file, "Function", "VSsamreg", "No")
    $VS_SOFTREG_ini = IniRead($ini_file, "Function", "VSsoftware", "No")
    $VS_USERREG_ini = IniRead($ini_file, "Function", "VSuserreg", "No")
-   $SysIntAdd_ini = IniRead($ini_file, "Function", "SysIntAdd", "Yes")
+   $SysIntAdd_ini = IniRead($ini_file, "Function", "SysIntAdd", "No")
    $IPs_ini = IniRead($ini_file, "Function", "IPs", "Yes")
    $DNS_ini = IniRead($ini_file, "Function", "DNS", "Yes")
    $Arp_ini = IniRead($ini_file, "Function", "Arp", "Yes")
@@ -431,6 +432,7 @@ Func TriageGUI()						;Creates a graphical user interface for Triage
 			If Not FileExists($RptsDir) Then DirCreate($RptsDir)
 			If Not FileExists($EvDir) Then DirCreate($EvDir)
 			If Not FileExists($MemDir) Then DirCreate($MemDir)
+			If Not FileExists($RegDir) Then DirCreate($RegDir)
 
 			If Not FileExists(@ScriptDir & "\Tools\") Then
 			   Do
@@ -1109,6 +1111,8 @@ Func INI2Command()						;Correlate the INI file into executing the selected func
 
    If Not FileExists($RptsDir) Then DirCreate($RptsDir)
    If Not FileExists($EvDir) Then DirCreate($EvDir)
+   If Not FileExists($MemDir) Then DirCreate($MemDir)
+   If Not FileExists($RegDir) Then DirCreate($RegDir)
 
    If Not FileExists(@ScriptDir & "\Tools\FDpro.exe") Then
 	   FileInstall(".\Compile\Tools\FDpro.exe", @ScriptDir & "\Tools\", 0)
@@ -1658,9 +1662,9 @@ Func SystemRRip()						;Copy the SYSTEM HIV for analysis
    Local $sysrip
 
    If @OSVersion = "WIN_XP" Then
-	  $sysrip = $shellex & 'REG SAVE HKLM\SYSTEM "' & $EvDir & 'SYSTEM_' & @ComputerName & '.hiv"'
+	  $sysrip = $shellex & 'REG SAVE HKLM\SYSTEM "' & $RegDir & 'SYSTEM_' & @ComputerName & '.hiv"'
    Else
-	  $sysrip = $shellex & 'REG SAVE HKLM\SYSTEM "' & $EvDir & 'SYSTEM_' & @ComputerName & '.hiv" /y'
+	  $sysrip = $shellex & 'REG SAVE HKLM\SYSTEM "' & $RegDir & 'SYSTEM_' & @ComputerName & '.hiv" /y'
    EndIf
 
    RunWait($sysrip, "", @SW_HIDE)
@@ -1671,9 +1675,9 @@ Func SecurityRRip()						;Copy the SECURITY HIV for analysis
    Local $secrip
 
    If @OSVersion = "WIN_XP" Then
-	  $secrip = $shellex & 'REG SAVE HKLM\SECURITY "' & $EvDir & 'SECURITY_' & @ComputerName & '.hiv"'
+	  $secrip = $shellex & 'REG SAVE HKLM\SECURITY "' & $RegDir & 'SECURITY_' & @ComputerName & '.hiv"'
    Else
-	  $secrip = $shellex & 'REG SAVE HKLM\SECURITY "' & $EvDir & 'SECURITY_' & @ComputerName & '.hiv" /y'
+	  $secrip = $shellex & 'REG SAVE HKLM\SECURITY "' & $RegDir & 'SECURITY_' & @ComputerName & '.hiv" /y'
    EndIf
 
    RunWait($secrip, "", @SW_HIDE)
@@ -1684,9 +1688,9 @@ Func SAMRRip()							;Copy the SAM HIV for analysis
    Local $samrip
 
    If @OSVersion = "WIN_XP" Then
-	  $samrip = $shellex & 'REG SAVE HKLM\SAM "' & $EvDir & 'SAM_' & @ComputerName & '.hiv"'
+	  $samrip = $shellex & 'REG SAVE HKLM\SAM "' & $RegDir & 'SAM_' & @ComputerName & '.hiv"'
    Else
-	  $samrip = $shellex & 'REG SAVE HKLM\SAM "' & $EvDir & 'SAM_' & @ComputerName & '.hiv" /y'
+	  $samrip = $shellex & 'REG SAVE HKLM\SAM "' & $RegDir & 'SAM_' & @ComputerName & '.hiv" /y'
    EndIf
 
    RunWait($samrip, "", @SW_HIDE)
@@ -1697,9 +1701,9 @@ Func SoftwareRRip()						;Copy the SOFTWARE HIV for analysis
    Local $softrip
 
    If @OSVersion = "WIN_XP" Then
-	  $softrip = $shellex & 'REG SAVE HKLM\SOFTWARE "' & $EvDir & 'SOFTWARE_' & @ComputerName & '.hiv"'
+	  $softrip = $shellex & 'REG SAVE HKLM\SOFTWARE "' & $RegDir & 'SOFTWARE_' & @ComputerName & '.hiv"'
    Else
-	  $softrip = $shellex & 'REG SAVE HKLM\SOFTWARE "' & $EvDir & 'SOFTWARE_' & @ComputerName & '.hiv" /y'
+	  $softrip = $shellex & 'REG SAVE HKLM\SOFTWARE "' & $RegDir & 'SOFTWARE_' & @ComputerName & '.hiv" /y'
    EndIf
 
    RunWait($softrip, "", @SW_HIDE)
@@ -1710,9 +1714,9 @@ Func HKCURRip()							;Copy the HKCU HIV for analysis
    Local $hkcurip
 
    If @OSVersion = "WIN_XP" Then
-	  $hkcurip = $shellex & 'REG SAVE HKCU "' & $EvDir & '\HKCU_' & @ComputerName & '.hiv"'
+	  $hkcurip = $shellex & 'REG SAVE HKCU "' & $RegDir & '\HKCU_' & @ComputerName & '.hiv"'
    Else
-	  $hkcurip = $shellex & 'REG SAVE HKCU "' & $EvDir & '\HKCU_' & @ComputerName & '.hiv" /y'
+	  $hkcurip = $shellex & 'REG SAVE HKCU "' & $RegDir & '\HKCU_' & @ComputerName & '.hiv" /y'
    EndIf
 
    RunWait($hkcurip, "", @SW_HIDE)
@@ -1740,9 +1744,9 @@ Func NTUserRRip()						;Copy all NTUSER.dat files from each profile
 			Local $nturip
 
 			If @OSVersion = "WIN_XP" Then
-			   $nturip = $shellex & 'REG SAVE ' & $s_Val & ' "' & $EvDir & '\' & @ComputerName &'_USER_' & $i+1 & '.dat"'
+			   $nturip = $shellex & 'REG SAVE ' & $s_Val & ' "' & $RegDir & '\' & @ComputerName &'_USER_' & $i+1 & '.dat"'
 			Else
-			   $nturip = $shellex & 'REG SAVE ' & $s_Val & ' "' & $EvDir & '\' & @ComputerName &'_USER_' & $i+1 & '.dat" /y'
+			   $nturip = $shellex & 'REG SAVE ' & $s_Val & ' "' & $RegDir & '\' & @ComputerName &'_USER_' & $i+1 & '.dat" /y'
 			EndIf
 
 			RunWait($nturip, "", @SW_HIDE)
@@ -1804,11 +1808,11 @@ Func RegRipper()						;Special thanks to Harlan Carvey for his excellent tool.
    Local $samhiv = 'SAM_' & @ComputerName & '.hiv'
    Local $sechiv = 'SECURITY_' & @ComputerName & '.hiv'
    Local $hkcuhiv = 'HKCU_' & @ComputerName & '.hiv'
-   Local $sysexe1 = $shellex & 'rip.exe -r "' & $EvDir & $syshiv & '" -f system > "' & $EvDir & 'SYSTEM_Ripped_Report.txt"'
-   Local $softexe1 = $shellex & 'rip.exe -r "' & $EvDir & $softhiv & '" -f software > "' & $EvDir & 'SOFTWARE_Ripped_Report.txt"'
-   Local $samexe1 = $shellex & 'rip.exe -r "' & $EvDir & $samhiv & '" -f sam > "' & $EvDir & 'SAM_Ripped_Report.txt"'
-   Local $secexe1 = $shellex & 'rip.exe -r "' & $EvDir & $sechiv & '" -f security > "' & $EvDir & 'SECURITY_Ripped_Report.txt"'
-   Local $ntuexe1 = $shellex & 'rip.exe -r "' & $EvDir & $hkcuhiv & '" -f NTUSER > "' & $EvDir & 'NTUSER_Ripped_Report.txt"'
+   Local $sysexe1 = $shellex & 'rip.exe -r "' & $RegDir & $syshiv & '" -f system > "' & $RegDir & 'SYSTEM_Ripped_Report.txt"'
+   Local $softexe1 = $shellex & 'rip.exe -r "' & $RegDir & $softhiv & '" -f software > "' & $RegDir & 'SOFTWARE_Ripped_Report.txt"'
+   Local $samexe1 = $shellex & 'rip.exe -r "' & $RegDir & $samhiv & '" -f sam > "' & $RegDir & 'SAM_Ripped_Report.txt"'
+   Local $secexe1 = $shellex & 'rip.exe -r "' & $RegDir & $sechiv & '" -f security > "' & $RegDir & 'SECURITY_Ripped_Report.txt"'
+   Local $ntuexe1 = $shellex & 'rip.exe -r "' & $RegDir & $hkcuhiv & '" -f NTUSER > "' & $RegDir & 'NTUSER_Ripped_Report.txt"'
 
    RunWait($sysexe1, @ScriptDir & "\Tools\RegRipper\", @SW_HIDE)
    	  FileWriteLine($Log, @YEAR&"-"&@MON&"-"&@MDAY&@TAB&@HOUR&":"&@MIN&":"&@SEC&":"&@MSEC&@TAB&"Executed command:" &@TAB& $sysexe1 & @CRLF)
@@ -1821,12 +1825,12 @@ Func RegRipper()						;Special thanks to Harlan Carvey for his excellent tool.
    RunWait($ntuexe1, @ScriptDir & "\Tools\RegRipper\", @SW_HIDE)
 	  FileWriteLine($Log, @YEAR&"-"&@MON&"-"&@MDAY&@TAB&@HOUR&":"&@MIN&":"&@SEC&":"&@MSEC&@TAB&"Executed command:" &@TAB& $ntuexe1 & @CRLF)
 
-	  Local $dat = FileFindFirstFile($EvDir & "*.dat")
+	  Local $dat = FileFindFirstFile($RegDir & "*.dat")
 
 	  While 1
 
 		 Local $nxtdat = FileFindNextFile($dat)
-		 Local $ntuexe2 = $shellex & 'rip.exe -r "' & $EvDir & $nxtdat & '" -f NTUSER > "' & $EvDir & $nxtdat & '_Ripped_Report.txt"'
+		 Local $ntuexe2 = $shellex & 'rip.exe -r "' & $RegDir & $nxtdat & '" -f NTUSER > "' & $RegDir & $nxtdat & '_Ripped_Report.txt"'
 
 		 If @Error Then ExitLoop
 
@@ -1943,7 +1947,7 @@ Func _Usrclass($prof)					;Performs the function of copying the USRCLASS.dat
 
 		;icat.exe: Extracts the data units of a file, which is specified by its meta data address (instead of the file name).
 
-		Local $catusrce = $shellex & '.\Tools\sleuthkit-4.2.0\bin\icat.exe \\.\c: ' & $MFTlog & ' > "' & $EvDir & $prof & '-usrclass.dat1"'
+		Local $catusrce = $shellex & '.\Tools\sleuthkit-4.2.0\bin\icat.exe \\.\c: ' & $MFTlog & ' > "' & $RegDir & $prof & '-usrclass.dat1"'
 
 		RunWait($catusrce, "", @SW_HIDE)
 
