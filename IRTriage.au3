@@ -7,20 +7,20 @@
 #pragma compile(FileDescription, IRTriage - Digital Forensic Incident Response Triage Tool)
 #pragma compile(ProductName, IRTriage)
 #pragma compile(ProductVersion, 2)
-#pragma compile(FileVersion, 2.16.02.23)
+#pragma compile(FileVersion, 2.16.02.24)
 #pragma compile(InternalName, "IRTriage")
 #pragma compile(LegalCopyright, © Alain Martel)
 #pragma compile(LegalTrademarks, 'Released under GPL 3, Free Open Source Software')
 #pragma compile(OriginalFilename, IRTriage.exe)
 #pragma compile(ProductName, Incident Response Triage)
-#pragma compile(ProductVersion, 2.16.02.23)
+#pragma compile(ProductVersion, 2.16.02.24)
 
 #comments-start =============================================================================================================================
 	Tool:			Incident Respone Triage:    (GUI)
 
 	Script Function:	Forensic Triage Application
 
-	Version:		2.16.02.23       (Version 2, Last updated: 2016 Feb 23)
+	Version:		2.16.02.24       (Version 2, Last updated: 2016 Feb 24)
 
 	Original Author:	Michael Ahrendt (TriageIR v.851 last uploaded\modified 9 Nov 2012)
                            https://storage.googleapis.com/google-code-archive-downloads/v2/code.google.com/triage-ir/TriageIR%20v.851.zip
@@ -84,7 +84,7 @@
 #Include <File.au3>
 
 
-Global  $Version = "2.16.02.23"                                      ;Added to facilitate display of version info (MajorVer.YY.MM.DD)
+Global  $Version = "2.16.02.24"                                      ;Added to facilitate display of version info (MajorVer.YY.MM.DD)
 Global 	$tStamp = @YEAR & @MON & @MDAY & @HOUR & @MIN & @SEC
 Global	$RptsDir = @ScriptDir & "\" & $tStamp & "-" & @ComputerName
 Global	$EvDir = $RptsDir & "\Evidence\"
@@ -1463,15 +1463,23 @@ Func RecentFolder()						;Send information to the recent folder copy function
    Local $robocopy
    Local $robocmd
 
-   If @OSVersion = "WIN_7" Then $OS = "Users"
+   ;@OSVersion returns one of the following:
+   ;for Windows Workstations "WIN_10", "WIN_81", "WIN_8", "WIN_7", "WIN_VISTA", "WIN_XP", "WIN_XPe",
+   ;for Windows Servers: "WIN_2016", "WIN_2012R2", "WIN_2012", "WIN_2008R2", "WIN_2008", "WIN_2003"".
+
    If @OSVersion = "WIN_XP" Then $OS = "Docs"
-   If @OSVersion = "WIN_VISTA" Then $OS = "Users"
    If @OSVersion = "WIN_XPe" Then $OS = "Docs"
+   If @OSVersion = "WIN_VISTA" Then $OS = "Users"
+   If @OSVersion = "WIN_7" Then $OS = "Users"
+   If @OSVersion = "WIN_8" Then $OS = "Users"
+   If @OSVersion = "WIN_81" Then $OS = "Users"
+   IF @OSVersion = "WIN_10" Then $OS = "Users"
    If @OSVersion = "WIN_2003" Then $OS = "Docs"
    If @OSVersion = "WIN_2008" Then $OS = "Users"
    If @OSVersion = "WIN_2008R2" Then $OS = "Users"
-   If @OSVersion = "WIN_8" Then $OS = "Users"
-   IF @OSVersion = "WIN_10" Then $OS = "Users"
+   If @OSVersion = "WIN_2012" Then $OS = "Users"
+   If @OSVersion = "WIN_2012R2" Then $OS = "Users"
+   If @OSVersion = "WIN_2016" Then $OS = "Users"
 
    $robocopy = '"' & @ScriptDir & '\Tools\robocopy.exe"'
 
@@ -1500,15 +1508,19 @@ Func _RobocopyRF($path, $output)		;Copy Recent folder from all profiles while ma
    Local $robocopy
    Local $robocmd
 
-   If @OSVersion = "WIN_7" Then $OS = "Users"
    If @OSVersion = "WIN_XP" Then $OS = "Docs"
-   If @OSVersion = "WIN_VISTA" Then $OS = "Users"
    If @OSVersion = "WIN_XPe" Then $OS = "Docs"
+   If @OSVersion = "WIN_VISTA" Then $OS = "Users"
+   If @OSVersion = "WIN_7" Then $OS = "Users"
+   If @OSVersion = "WIN_8" Then $OS = "Users"
+   If @OSVersion = "WIN_81" Then $OS = "Users"
+   IF @OSVersion = "WIN_10" Then $OS = "Users"
    If @OSVersion = "WIN_2003" Then $OS = "Docs"
    If @OSVersion = "WIN_2008" Then $OS = "Users"
    If @OSVersion = "WIN_2008R2" Then $OS = "Users"
-   If @OSVersion = "WIN_8" Then $OS = "Users"
-   IF @OSVersion = "WIN_10" Then $OS = "Users"
+   If @OSVersion = "WIN_2012" Then $OS = "Users"
+   If @OSVersion = "WIN_2012R2" Then $OS = "Users"
+   If @OSVersion = "WIN_2016" Then $OS = "Users"
 
    If Not FileExists($EvDir & '\Recent LNKs\' & $output) Then DirCreate($EvDir & '\Recent LNKs\' & $output)
 
@@ -1538,7 +1550,13 @@ Func JumpLists()						;Provide info to the Jumplist copy function
 
    If @OSVersion = "WIN_7" Then $OS = "Users"
    If @OSVersion = "WIN_8" Then $OS = "Users"
+   If @OSVersion = "WIN_81" Then $OS = "Users"
    IF @OSVersion = "WIN_10" Then $OS = "Users"
+   If @OSVersion = "WIN_2008" Then $OS = "Users"
+   If @OSVersion = "WIN_2008R2" Then $OS = "Users"
+   If @OSVersion = "WIN_2012" Then $OS = "Users"
+   If @OSVersion = "WIN_2012R2" Then $OS = "Users"
+   If @OSVersion = "WIN_2016" Then $OS = "Users"
 
    $robocopy = '"' & @ScriptDir & '\Tools\robocopy.exe"'
 
@@ -1577,7 +1595,13 @@ Func _RobocopyJL($path, $output)		;Copy Jumplist information while maintaining m
 
    If @OSVersion = "WIN_7" Then $OS = "Users"
    If @OSVersion = "WIN_8" Then $OS = "Users"
+   If @OSVersion = "WIN_81" Then $OS = "Users"
    IF @OSVersion = "WIN_10" Then $OS = "Users"
+   If @OSVersion = "WIN_2008" Then $OS = "Users"
+   If @OSVersion = "WIN_2008R2" Then $OS = "Users"
+   If @OSVersion = "WIN_2012" Then $OS = "Users"
+   If @OSVersion = "WIN_2012R2" Then $OS = "Users"
+   If @OSVersion = "WIN_2016" Then $OS = "Users"
 
    If Not FileExists($autodest) Then DirCreate($autodest)
    If Not FileExists($customdest) Then DirCreate($customdest)
@@ -1869,15 +1893,19 @@ Func EvtCopy()							;Copy all event logs from local machine
    RunWait($evtc3, "", @SW_HIDE)
 	  FileWriteLine($Log, @YEAR&"-"&@MON&"-"&@MDAY&@TAB&@HOUR&":"&@MIN&":"&@SEC&":"&@MSEC&@TAB&"Executed command:" &@TAB& $evtc3 & @CRLF)
 
-   If @OSVersion = "WIN_7" Then $OS = "Users"
    If @OSVersion = "WIN_XP" Then $OS = "Docs"
-   If @OSVersion = "WIN_VISTA" Then $OS = "Users"
    If @OSVersion = "WIN_XPe" Then $OS = "Docs"
+   If @OSVersion = "WIN_VISTA" Then $OS = "Users"
+   If @OSVersion = "WIN_7" Then $OS = "Users"
+   If @OSVersion = "WIN_8" Then $OS = "Users"
+   If @OSVersion = "WIN_81" Then $OS = "Users"
+   IF @OSVersion = "WIN_10" Then $OS = "Users"
    If @OSVersion = "WIN_2003" Then $OS = "Docs"
    If @OSVersion = "WIN_2008" Then $OS = "Users"
    If @OSVersion = "WIN_2008R2" Then $OS = "Users"
-   If @OSVersion = "WIN_8" Then $OS = "Users"
-   IF @OSVersion = "WIN_10" Then $OS = "Users"
+   If @OSVersion = "WIN_2012" Then $OS = "Users"
+   If @OSVersion = "WIN_2012R2" Then $OS = "Users"
+   If @OSVersion = "WIN_2016" Then $OS = "Users"
 
    If $OS = "Docs" Then $evtdir = '"C:\Windows\system32\config"'
    If $OS = "Users" Then $evtdir = '"C:\Windows\system32\winevt\Logs"'
@@ -1898,15 +1926,19 @@ Func UsrclassE()  						;Search for profiles and initiate the copy of USRCLASS.d
 
    Local $OS, $uPath, $usr, $profs, $uDir, $uPath, $uATB
 
-   If @OSVersion = "WIN_7" Then $OS = "Users"
    If @OSVersion = "WIN_XP" Then $OS = "Docs"
-   If @OSVersion = "WIN_VISTA" Then $OS = "Users"
    If @OSVersion = "WIN_XPe" Then $OS = "Docs"
+   If @OSVersion = "WIN_VISTA" Then $OS = "Users"
+   If @OSVersion = "WIN_7" Then $OS = "Users"
+   If @OSVersion = "WIN_8" Then $OS = "Users"
+   If @OSVersion = "WIN_81" Then $OS = "Users"
+   IF @OSVersion = "WIN_10" Then $OS = "Users"
    If @OSVersion = "WIN_2003" Then $OS = "Docs"
    If @OSVersion = "WIN_2008" Then $OS = "Users"
    If @OSVersion = "WIN_2008R2" Then $OS = "Users"
-   If @OSVersion = "WIN_8" Then $OS = "Users"
-   IF @OSVersion = "WIN_10" Then $OS = "Users"
+   If @OSVersion = "WIN_2012" Then $OS = "Users"
+   If @OSVersion = "WIN_2012R2" Then $OS = "Users"
+   If @OSVersion = "WIN_2016" Then $OS = "Users"
 
    If $OS = "Users" Then $uPath = "C:\Users\"
    If $OS = "Docs" Then $uPath = "C:\Documents and Settings\"
@@ -2058,15 +2090,19 @@ Func VSC_RobocopyRF($path, $output)		;Copy Recent folder from all profiles while
    Local $robocopy
    Local $robocmd
 
-   If @OSVersion = "WIN_7" Then $OS = "Users"
    If @OSVersion = "WIN_XP" Then $OS = "Docs"
-   If @OSVersion = "WIN_VISTA" Then $OS = "Users"
    If @OSVersion = "WIN_XPe" Then $OS = "Docs"
+   If @OSVersion = "WIN_VISTA" Then $OS = "Users"
+   If @OSVersion = "WIN_7" Then $OS = "Users"
+   If @OSVersion = "WIN_8" Then $OS = "Users"
+   If @OSVersion = "WIN_81" Then $OS = "Users"
+   IF @OSVersion = "WIN_10" Then $OS = "Users"
    If @OSVersion = "WIN_2003" Then $OS = "Docs"
    If @OSVersion = "WIN_2008" Then $OS = "Users"
    If @OSVersion = "WIN_2008R2" Then $OS = "Users"
-   If @OSVersion = "WIN_8" Then $OS = "Users"
-   IF @OSVersion = "WIN_10" Then $OS = "Users"
+   If @OSVersion = "WIN_2012" Then $OS = "Users"
+   If @OSVersion = "WIN_2012R2" Then $OS = "Users"
+   If @OSVersion = "WIN_2016" Then $OS = "Users"
 
    If Not FileExists($EvDir & 'VSC_' & $vrfc & '\Recent LNKs\' & $output) Then DirCreate($EvDir & 'VSC_' & $vrfc & '\Recent LNKs\' & $output)
 
@@ -2140,7 +2176,13 @@ Func VSC_RobocopyJL($path, $output)		;Copy Jumplist information while maintainin
 
    If @OSVersion = "WIN_7" Then $OS = "Users"
    If @OSVersion = "WIN_8" Then $OS = "Users"
+   If @OSVersion = "WIN_81" Then $OS = "Users"
    IF @OSVersion = "WIN_10" Then $OS = "Users"
+   If @OSVersion = "WIN_2008" Then $OS = "Users"
+   If @OSVersion = "WIN_2008R2" Then $OS = "Users"
+   If @OSVersion = "WIN_2012" Then $OS = "Users"
+   If @OSVersion = "WIN_2012R2" Then $OS = "Users"
+   If @OSVersion = "WIN_2016" Then $OS = "Users"
 
    If Not FileExists($autodest) Then DirCreate($autodest)
    If Not FileExists($customdest) Then DirCreate($customdest)
@@ -2274,7 +2316,13 @@ Func VSC_RobocopyNTU($path, $output)	;Copy function for NTUSER.DAT (Volume Shado
 
    If @OSVersion = "WIN_7" Then $OS = "Users"
    If @OSVersion = "WIN_8" Then $OS = "Users"
+   If @OSVersion = "WIN_81" Then $OS = "Users"
    IF @OSVersion = "WIN_10" Then $OS = "Users"
+   If @OSVersion = "WIN_2008" Then $OS = "Users"
+   If @OSVersion = "WIN_2008R2" Then $OS = "Users"
+   If @OSVersion = "WIN_2012" Then $OS = "Users"
+   If @OSVersion = "WIN_2012R2" Then $OS = "Users"
+   If @OSVersion = "WIN_2016" Then $OS = "Users"
 
    If Not FileExists($ntudest) Then DirCreate($ntudest)
 
