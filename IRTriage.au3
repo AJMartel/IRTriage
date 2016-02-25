@@ -7,20 +7,20 @@
 #pragma compile(FileDescription, IRTriage - Digital Forensic Incident Response Triage Tool)
 #pragma compile(ProductName, IRTriage)
 #pragma compile(ProductVersion, 2)
-#pragma compile(FileVersion, 2.16.02.24)
+#pragma compile(FileVersion, 2.16.02.25)
 #pragma compile(InternalName, "IRTriage")
 #pragma compile(LegalCopyright, © Alain Martel)
 #pragma compile(LegalTrademarks, 'Released under GPL 3, Free Open Source Software')
 #pragma compile(OriginalFilename, IRTriage.exe)
 #pragma compile(ProductName, Incident Response Triage)
-#pragma compile(ProductVersion, 2.16.02.24)
+#pragma compile(ProductVersion, 2.16.02.25)
 
 #comments-start =============================================================================================================================
 	Tool:			Incident Respone Triage:    (GUI)
 
 	Script Function:	Forensic Triage Application
 
-	Version:		2.16.02.24       (Version 2, Last updated: 2016 Feb 24)
+	Version:		2.16.02.25       (Version 2, Last updated: 2016 Feb 25)
 
 	Original Author:	Michael Ahrendt (TriageIR v.851 last uploaded\modified 9 Nov 2012)
                            https://storage.googleapis.com/google-code-archive-downloads/v2/code.google.com/triage-ir/TriageIR%20v.851.zip
@@ -84,7 +84,7 @@
 #Include <File.au3>
 
 
-Global  $Version = "2.16.02.24"                                      ;Added to facilitate display of version info (MajorVer.YY.MM.DD)
+Global  $Version = "2.16.02.25"                                      ;Added to facilitate display of version info (MajorVer.YY.MM.DD)
 Global 	$tStamp = @YEAR & @MON & @MDAY & @HOUR & @MIN & @SEC
 Global	$RptsDir = @ScriptDir & "\" & $tStamp & "-" & @ComputerName
 Global	$EvDir = $RptsDir & "\Evidence\"
@@ -440,6 +440,7 @@ Func TriageGUI()						;Creates a graphical user interface for Triage
 			   Until FileExists(@ScriptDir & "\Tools\")
 			EndIf
 
+;To change back to **Win(32|64)DD from MoonSols** add ";" to the following 4 lines and uncomment the 11 lines after ";  **Win(32|64)DD from MoonSols**"
 			If (GUICtrlRead($MemDmp_chk) = 1) Then
 			   If Not FileExists(@ScriptDir & "\Tools\FDpro.exe") Then
 				   FileInstall(".\Compile\Tools\FDpro.exe", @ScriptDir & "\Tools\", 0)
@@ -457,6 +458,7 @@ Func TriageGUI()						;Creates a graphical user interface for Triage
 ;					 FileInstall(".\Compile\Tools\win64dd.exe", @ScriptDir & "\Tools\", 0)
 ;				  EndIf
 ;			   EndIf
+
 			   MemDump()
 			EndIf
 
@@ -1258,7 +1260,8 @@ EndFunc
 Func MemDump()
 
    Local $dmpN = @ComputerName & @YEAR & @MON & @MDAY & @HOUR & @MIN & @SEC & @MSEC & '.bin'
-   Local $dmpl = @ComputerName & @YEAR & @MON & @MDAY & @HOUR & @MIN & @SEC & @MSEC & '.txt'     ;Added Memory Dump Log
+;To change back to **Win(32|64)DD from MoonSols** add ";" to the following 4 lines and uncomment the 7 lines after ";  **Win(32|64)DD from MoonSols**"
+   Local $dmpl = @ComputerName & @YEAR & @MON & @MDAY & @HOUR & @MIN & @SEC & @MSEC & '.txt'     ;Added Memory Dump Log for HBGary's FDpro
    Local $memFL = ' -mem -md5 -o "' & $MemDir & $dmpN & '" -log "' & $MemDir & $dmpL & '"'
 
    $windd = "FDpro.exe"
@@ -1325,9 +1328,14 @@ Func Routes()							;Gather list of active routes
 EndFunc
 
 Func NetBIOS()							;Get NetBIOS information
-   Local $nbt1 = $shellex & 'nbtstat.exe -A 127.0.0.1 > "' & $RptsDir & '\NBTstat.txt"'
+  If @OSArch = "X86" Then
+		 $nbt1 = $shellex & 'nbtstat.exe -A 127.0.0.1 > "' & $RptsDir & '\NBTstat.txt"'
+	  Else
+		 $nbt1 = $shellex & @WindowsDir & '\sysnative\nbtstat.exe -A 127.0.0.1 > "' & $RptsDir & '\NBTstat.txt"'
+	  EndIf
 
    RunWait($nbt1, "", @SW_HIDE)
+
 	  FileWriteLine($Log, @YEAR&"-"&@MON&"-"&@MDAY&@TAB&@HOUR&":"&@MIN&":"&@SEC&":"&@MSEC&@TAB&"Executed command:" &@TAB& $nbt1 & @CRLF)
 EndFunc
 
@@ -1387,9 +1395,25 @@ Func Hosts()							;Gather the HOST file
 EndFunc
 
 Func Workgroups()						;Gather possible information on PC Workgroups
-   Local $wkgrp1 = $shellex & 'net view > "' & $RptsDir & '\NetView.txt"'
+	  If @OSArch = "X86" Then
+		 $wkgrp1 = $shellex & 'net view > "' & $RptsDir & '\NetView.txt"'
+	  Else
+		 $wkgrp1 = $shellex & @WindowsDir & '\sysnative\net view > "' & $RptsDir & '\NetView.txt"'
+	  EndIf
 
-   RunWait($wkgrp1, "", @SW_HIDE)
+	  Local $iReturn = RunWait($wkgrp1, "", @SW_HIDE)
+	  Local $eNetView = $RptsDir & '\NetView.txt'
+
+	  FileWriteLine($eNetView, 'The "net view" command exited with errorlevel set to: ' & $iReturn & @CRLF)
+
+	  If @OSArch = "X86" Then
+		 $wkgrp2 = $shellex & 'net helpmsg ' & $iReturn & ' >> "' & $RptsDir & '\NetView.txt"'
+	  Else
+		 $wkgrp2 = $shellex & @WindowsDir & '\sysnative\net helpmsg ' & $iReturn & ' >> "' & $RptsDir & '\NetView.txt"'
+	  EndIf
+
+	  RunWait($wkgrp2, "", @SW_HIDE)
+
 	  FileWriteLine($Log, @YEAR&"-"&@MON&"-"&@MDAY&@TAB&@HOUR&":"&@MIN&":"&@SEC&":"&@MSEC&@TAB&"Executed command:" &@TAB& $wkgrp1 & @CRLF)
 EndFunc
 
@@ -1593,6 +1617,7 @@ Func _RobocopyJL($path, $output)		;Copy Jumplist information while maintaining m
    Local $autodest = $EvDir & '\Jump Lists\' & $output & '\Automatic'
    Local $customdest = $EvDir & '\Jump Lists\' & $output & '\Custom'
 
+; The following OSes support "Jump Lists"
    If @OSVersion = "WIN_7" Then $OS = "Users"
    If @OSVersion = "WIN_8" Then $OS = "Users"
    If @OSVersion = "WIN_81" Then $OS = "Users"
@@ -1645,7 +1670,7 @@ Func LoggedOn()							;Gather information on users logged on
 EndFunc
 
 Func NTFSInfo()							;Gather information regarding NTFS
-   Local $ntfs1 = $shellex & '.\Tools\SysinternalsSuite\ntfsinfo c > "' & $RptsDir & '\NTFSInfo.txt"'
+   Local $ntfs1 = $shellex & '.\Tools\SysinternalsSuite\ntfsinfo  -accepteula c > "' & $RptsDir & '\NTFSInfo.txt"'
    Local $ntfs2 = $shellex & 'fsutil fsinfo ntfsinfo C: >> "' & $RptsDir & '\NTFSInfo.txt"'
 
    RunWait($ntfs1, "", @SW_HIDE)
@@ -2174,6 +2199,7 @@ Func VSC_RobocopyJL($path, $output)		;Copy Jumplist information while maintainin
    Local $autodest = $EvDir & "VSC_" & $vjlc & '\Jump Lists\' & $output & '\Automatic'
    Local $customdest = $EvDir & "VSC_" & $vjlc & '\Jump Lists\' & $output & '\Custom'
 
+; The following OSes support "Jump Lists"
    If @OSVersion = "WIN_7" Then $OS = "Users"
    If @OSVersion = "WIN_8" Then $OS = "Users"
    If @OSVersion = "WIN_81" Then $OS = "Users"
