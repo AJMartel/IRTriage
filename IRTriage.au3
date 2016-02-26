@@ -66,7 +66,7 @@
  			-Fixed broken command logging = Now logs all commands that were executed to TAB delimited csv file
  			-Updated software = all software packages are updated 10 Feb 2016 (no longer using software from Nov 2012)
  			-Using FDpro vs windd (windd is limited to 4GB crash dump, FDpro is a full memory image)
- 			-Fixed issues with software not running
+ 			-Fixed issues with software not running (*=Main Package, **=Changes)
 					*Sleuthkit (icat, ifind) not functioning due to miss-matched dlls (64 vs 32bit) and known dlls (local files no first)
 						**Using custom compiled executables compiled with static libraries
 					*RegRipper not able to find plugins due to working directory issue
@@ -77,6 +77,15 @@
  			-Separation of output from commands (no longer appending to same file from multiple commands, easier to automate parsing)
 			-Using csv as output whenever possible (**Future import into database will be easier)
  			-Fixed compatability now works with WinXP through to Win10 and Windows Servers 2003 through to Server 2016
+			-Added funtionality (*=Function, **=Command added)
+					*Processes
+						**tcpvcon -anc -accepteula > Process2PortMap.csv
+						**tasklist /SVC /FO CSV > Processe2exeMap.csv
+						**wmic /output:ProcessesCmd.csv process get Caption,Commandline,Processid,ParentProcessId,SessionId /format:csv
+					*SystemInfo
+						**wmic /output:InstallList.csv product get /format:csv
+						**wmic /output:InstallHotfix.csv qfe get caption,csname,description,hotfixid,installedby,installedon /format:csv
+						**wmic /output:"' & $RptsDir & '\InstallList.csv" product get /format:csv
 
 #comments-end================================================================================================================================
 
@@ -1307,7 +1316,9 @@ Func Processes()						;Gather running process information
    RunWait($proc5, "", @SW_HIDE)
 	  FileWriteLine($Log, @YEAR&"-"&@MON&"-"&@MDAY&@TAB&@HOUR&":"&@MIN&":"&@SEC&":"&@MSEC&@TAB&"Executed command:" &@TAB& $proc5 & @CRLF)
    RunWait($proc6, "", @SW_HIDE)
-	  FileWriteLine($Log, @YEAR&"-"&@MON&"-"&@MDAY&@TAB&@HOUR&":"&@MIN&":"&@SEC&":"&@MSEC&@TAB&"Executed command:" &@TAB& $proc6 & @CRLF)
+		;Fix for IncidentLog.csv "," in commands replaced with "." fixing issue when importing into Excel
+	  Local $sString = StringReplace ( $proc6, "Caption,Commandline,Processid,ParentProcessId,SessionId", "Caption.Commandline.Processid.ParentProcessId.SessionId" , 0 )
+	  FileWriteLine($Log, @YEAR&"-"&@MON&"-"&@MDAY&@TAB&@HOUR&":"&@MIN&":"&@SEC&":"&@MSEC&@TAB&"Executed command:" &@TAB& $sString & @CRLF)
 EndFunc
 
 Func IPs()								;Gather network address for the computer
@@ -1427,8 +1438,7 @@ Func Workgroups()						;Gather possible information on PC Workgroups
 	  EndIf
 
 	  RunWait($wkgrp2, "", @SW_HIDE)
-
-	  FileWriteLine($Log, @YEAR&"-"&@MON&"-"&@MDAY&@TAB&@HOUR&":"&@MIN&":"&@SEC&":"&@MSEC&@TAB&"Executed command:" &@TAB& $wkgrp1 & @CRLF)
+		FileWriteLine($Log, @YEAR&"-"&@MON&"-"&@MDAY&@TAB&@HOUR&":"&@MIN&":"&@SEC&":"&@MSEC&@TAB&"Executed command:" &@TAB& $wkgrp1 & @CRLF)
 EndFunc
 
 Func SystemInfo()						;Gather valuable information regarding type of PC
@@ -1447,7 +1457,9 @@ Func SystemInfo()						;Gather valuable information regarding type of PC
    RunWait($sysinfo4, "", @SW_HIDE)
 	  FileWriteLine($Log, @YEAR&"-"&@MON&"-"&@MDAY&@TAB&@HOUR&":"&@MIN&":"&@SEC&":"&@MSEC&@TAB&"Executed command:" &@TAB& $sysinfo4 & @CRLF)
    RunWait($sysinfo5, "", @SW_HIDE)
-	  FileWriteLine($Log, @YEAR&"-"&@MON&"-"&@MDAY&@TAB&@HOUR&":"&@MIN&":"&@SEC&":"&@MSEC&@TAB&"Executed command:" &@TAB& $sysinfo5 & @CRLF)
+		;Fix for IncidentLog.csv "," in commands replaced with "." fixing issue when importing into Excel
+	  Local $sString = StringReplace ( $sysinfo5, "caption,csname,description,hotfixid,installedby,installedon", "caption.csname.description.hotfixid.installedby.installedon" , 0 )
+	  FileWriteLine($Log, @YEAR&"-"&@MON&"-"&@MDAY&@TAB&@HOUR&":"&@MIN&":"&@SEC&":"&@MSEC&@TAB&"Executed command:" &@TAB& $sString & @CRLF)
 EndFunc
 
 Func Services()							;Pertinent services information
