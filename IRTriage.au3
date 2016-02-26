@@ -7,20 +7,20 @@
 #pragma compile(FileDescription, IRTriage - Digital Forensic Incident Response Triage Tool)
 #pragma compile(ProductName, IRTriage)
 #pragma compile(ProductVersion, 2)
-#pragma compile(FileVersion, 2.16.02.25)
+#pragma compile(FileVersion, 2.16.02.26)
 #pragma compile(InternalName, "IRTriage")
 #pragma compile(LegalCopyright, © Alain Martel)
 #pragma compile(LegalTrademarks, 'Released under GPL 3, Free Open Source Software')
 #pragma compile(OriginalFilename, IRTriage.exe)
 #pragma compile(ProductName, Incident Response Triage)
-#pragma compile(ProductVersion, 2.16.02.25)
+#pragma compile(ProductVersion, 2.16.02.26)
 
 #comments-start =============================================================================================================================
 	Tool:			Incident Respone Triage:    (GUI)
 
 	Script Function:	Forensic Triage Application
 
-	Version:		2.16.02.25       (Version 2, Last updated: 2016 Feb 25)
+	Version:		2.16.02.26       (Version 2, Last updated: 2016 Feb 26)
 
 	Original Author:	Michael Ahrendt (TriageIR v.851 last uploaded\modified 9 Nov 2012)
                            https://storage.googleapis.com/google-code-archive-downloads/v2/code.google.com/triage-ir/TriageIR%20v.851.zip
@@ -71,9 +71,12 @@
 						**Using custom compiled executables compiled with static libraries
 					*RegRipper not able to find plugins due to working directory issue
 						**RegRipper's working directory is now set to .\Tools\RegRipper\
+					*Windows utilities
+						**nbtstat -no longer fails to log output
+						**net view -logs the errorlevel in the output file (at least now you will know why there is no output)
  			-Separation of output from commands (no longer appending to same file from multiple commands, easier to automate parsing)
 			-Using csv as output whenever possible (**Future import into database will be easier)
- 			-Fixed compatability now works with WinXP through to Win10
+ 			-Fixed compatability now works with WinXP through to Win10 and Windows Servers 2003 through to Server 2016
 
 #comments-end================================================================================================================================
 
@@ -84,7 +87,7 @@
 #Include <File.au3>
 
 
-Global  $Version = "2.16.02.25"                                      ;Added to facilitate display of version info (MajorVer.YY.MM.DD)
+Global  $Version = "2.16.02.26"                                      ;Added to facilitate display of version info (MajorVer.YY.MM.DD)
 Global 	$tStamp = @YEAR & @MON & @MDAY & @HOUR & @MIN & @SEC
 Global	$RptsDir = @ScriptDir & "\" & $tStamp & "-" & @ComputerName
 Global	$EvDir = $RptsDir & "\Evidence\"
@@ -1289,6 +1292,9 @@ Func Processes()						;Gather running process information
    Local $proc1 = $shellex & 'tasklist /V /FO CSV > "' & $RptsDir & '\Processes.csv"'
    Local $proc2 = $shellex & '.\Tools\SysinternalsSuite\pslist -accepteula >> "' & $RptsDir & '\Processes.txt"'
    Local $proc3 = $shellex & '.\Tools\SysinternalsSuite\pslist -t -accepteula >> "' & $RptsDir & '\ProcessTree.txt"'
+   Local $proc4 = $shellex & '.\Tools\SysinternalsSuite\tcpvcon -anc -accepteula >> "' & $RptsDir & '\Process2PortMap.csv"'
+   Local $proc5 = $shellex & 'tasklist /SVC /FO CSV > "' & $RptsDir & '\Processe2exeMap.csv"'
+   Local $proc6 = $shellex & 'wmic /output:"' & $RptsDir & '\ProcessesCmd.csv" process get Caption,Commandline,Processid,ParentProcessId,SessionId /format:csv'
 
    RunWait($proc1, "", @SW_HIDE)
 	  FileWriteLine($Log, @YEAR&"-"&@MON&"-"&@MDAY&@TAB&@HOUR&":"&@MIN&":"&@SEC&":"&@MSEC&@TAB&"Executed command:" &@TAB& $proc1 & @CRLF)
@@ -1296,6 +1302,12 @@ Func Processes()						;Gather running process information
 	  FileWriteLine($Log, @YEAR&"-"&@MON&"-"&@MDAY&@TAB&@HOUR&":"&@MIN&":"&@SEC&":"&@MSEC&@TAB&"Executed command:" &@TAB& $proc2 & @CRLF)
    RunWait($proc3, "", @SW_HIDE)
 	  FileWriteLine($Log, @YEAR&"-"&@MON&"-"&@MDAY&@TAB&@HOUR&":"&@MIN&":"&@SEC&":"&@MSEC&@TAB&"Executed command:" &@TAB& $proc3 & @CRLF)
+   RunWait($proc4, "", @SW_HIDE)
+	  FileWriteLine($Log, @YEAR&"-"&@MON&"-"&@MDAY&@TAB&@HOUR&":"&@MIN&":"&@SEC&":"&@MSEC&@TAB&"Executed command:" &@TAB& $proc4 & @CRLF)
+   RunWait($proc5, "", @SW_HIDE)
+	  FileWriteLine($Log, @YEAR&"-"&@MON&"-"&@MDAY&@TAB&@HOUR&":"&@MIN&":"&@SEC&":"&@MSEC&@TAB&"Executed command:" &@TAB& $proc5 & @CRLF)
+   RunWait($proc6, "", @SW_HIDE)
+	  FileWriteLine($Log, @YEAR&"-"&@MON&"-"&@MDAY&@TAB&@HOUR&":"&@MIN&":"&@SEC&":"&@MSEC&@TAB&"Executed command:" &@TAB& $proc6 & @CRLF)
 EndFunc
 
 Func IPs()								;Gather network address for the computer
@@ -1330,7 +1342,8 @@ EndFunc
 Func NetBIOS()							;Get NetBIOS information
   If @OSArch = "X86" Then
 		 $nbt1 = $shellex & 'nbtstat.exe -A 127.0.0.1 > "' & $RptsDir & '\NBTstat.txt"'
-	  Else
+	 Else
+		 ;For 32-bit processes on 64-bit systems, %windir%\system32 folder can only be accessed by specifying %windir%\sysnative folder.
 		 $nbt1 = $shellex & @WindowsDir & '\sysnative\nbtstat.exe -A 127.0.0.1 > "' & $RptsDir & '\NBTstat.txt"'
 	  EndIf
 
@@ -1398,14 +1411,15 @@ Func Workgroups()						;Gather possible information on PC Workgroups
 	  If @OSArch = "X86" Then
 		 $wkgrp1 = $shellex & 'net view > "' & $RptsDir & '\NetView.txt"'
 	  Else
+		 ;For 32-bit processes on 64-bit systems, %windir%\system32 folder can only be accessed by specifying %windir%\sysnative folder.
 		 $wkgrp1 = $shellex & @WindowsDir & '\sysnative\net view > "' & $RptsDir & '\NetView.txt"'
 	  EndIf
 
 	  Local $iReturn = RunWait($wkgrp1, "", @SW_HIDE)
 	  Local $eNetView = $RptsDir & '\NetView.txt'
-
+;The following is to report the exit errorlevel of "net view" to help identify why nothing was pushed to "NetView.txt"
 	  FileWriteLine($eNetView, 'The "net view" command exited with errorlevel set to: ' & $iReturn & @CRLF)
-
+;The following is to clarify the error code generated by "net view" and is pushed to "NetView.txt" after the line containing the error #
 	  If @OSArch = "X86" Then
 		 $wkgrp2 = $shellex & 'net helpmsg ' & $iReturn & ' >> "' & $RptsDir & '\NetView.txt"'
 	  Else
@@ -1421,6 +1435,8 @@ Func SystemInfo()						;Gather valuable information regarding type of PC
    Local $sysinfo1 = $shellex & '.\Tools\SysinternalsSuite\PsInfo -accepteula -s -d > "' & $RptsDir & '\SystemDetails.txt"'
    Local $sysinfo2 = $shellex & 'systeminfo > "' & $RptsDir & '\SystemInfo.txt"'
    Local $sysinfo3 = $shellex & 'set > "' & $RptsDir & '\SystemVariables.txt"'
+   Local $sysinfo4 = $shellex & 'wmic /output:"' & $RptsDir & '\InstallList.csv" product get /format:csv'
+   Local $sysinfo5 = $shellex & 'wmic /output:"' & $RptsDir & '\InstallHotfix.csv" qfe get caption,csname,description,hotfixid,installedby,installedon /format:csv'
 
    RunWait($sysinfo1, "", @SW_HIDE)
 	  FileWriteLine($Log, @YEAR&"-"&@MON&"-"&@MDAY&@TAB&@HOUR&":"&@MIN&":"&@SEC&":"&@MSEC&@TAB&"Executed command:" &@TAB& $sysinfo1 & @CRLF)
@@ -1428,6 +1444,10 @@ Func SystemInfo()						;Gather valuable information regarding type of PC
 	  FileWriteLine($Log, @YEAR&"-"&@MON&"-"&@MDAY&@TAB&@HOUR&":"&@MIN&":"&@SEC&":"&@MSEC&@TAB&"Executed command:" &@TAB& $sysinfo2 & @CRLF)
    RunWait($sysinfo3, "", @SW_HIDE)
 	  FileWriteLine($Log, @YEAR&"-"&@MON&"-"&@MDAY&@TAB&@HOUR&":"&@MIN&":"&@SEC&":"&@MSEC&@TAB&"Executed command:" &@TAB& $sysinfo3 & @CRLF)
+   RunWait($sysinfo4, "", @SW_HIDE)
+	  FileWriteLine($Log, @YEAR&"-"&@MON&"-"&@MDAY&@TAB&@HOUR&":"&@MIN&":"&@SEC&":"&@MSEC&@TAB&"Executed command:" &@TAB& $sysinfo4 & @CRLF)
+   RunWait($sysinfo5, "", @SW_HIDE)
+	  FileWriteLine($Log, @YEAR&"-"&@MON&"-"&@MDAY&@TAB&@HOUR&":"&@MIN&":"&@SEC&":"&@MSEC&@TAB&"Executed command:" &@TAB& $sysinfo5 & @CRLF)
 EndFunc
 
 Func Services()							;Pertinent services information
@@ -2798,7 +2818,7 @@ Func Install()							;Function to install binary files necessary for execution i
 ;			   FileInstall(".\Compile\Tools\SysinternalsSuite\strings.exe", @ScriptDir & "\Tools\SysinternalsSuite\", 0)
 ;			   FileInstall(".\Compile\Tools\SysinternalsSuite\sync.exe", @ScriptDir & "\Tools\SysinternalsSuite\", 0)
 ;			   FileInstall(".\Compile\Tools\SysinternalsSuite\Sysmon.exe", @ScriptDir & "\Tools\SysinternalsSuite\", 0)
-;			   FileInstall(".\Compile\Tools\SysinternalsSuite\Tcpvcon.exe", @ScriptDir & "\Tools\SysinternalsSuite\", 0)
+			   FileInstall(".\Compile\Tools\SysinternalsSuite\Tcpvcon.exe", @ScriptDir & "\Tools\SysinternalsSuite\", 0)
 ;			   FileInstall(".\Compile\Tools\SysinternalsSuite\tcpview.chm", @ScriptDir & "\Tools\SysinternalsSuite\", 0)
 ;			   FileInstall(".\Compile\Tools\SysinternalsSuite\Tcpview.exe", @ScriptDir & "\Tools\SysinternalsSuite\", 0)
 ;			   FileInstall(".\Compile\Tools\SysinternalsSuite\TCPVIEW.HLP", @ScriptDir & "\Tools\SysinternalsSuite\", 0)
@@ -3186,5 +3206,12 @@ EndFunc
 	EndIf
 
 $OpenFolder = GUICtrlCreateCheckbox("Open Report Folder When Done", 280, 265, 200, 20)
+
+
+wmic product list /format:csv
+wmic useraccount list brief
+wmic bios list brief
+wmic diskdrive list brief
+wmic shadowcopy list brief
 
 #comments-end
