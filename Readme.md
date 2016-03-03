@@ -22,7 +22,7 @@ IRTriage will collect:
 One of the powerful capabilities of IRTriage is collecting information from Volume Shadow Copy which can defeat many anti-forensics techniques.
 
 The IRTriage is itself just an autoit script that depend on other tools such as:
-- FDpro,
+- FDpro *
 - Sysinternals Suite
 - Regripper
 - md5deep
@@ -46,7 +46,6 @@ As of version 2016.02.24 IRTriage is now truly compatible with the following ver
    - Windows Servers: "WIN_2016", "WIN_2012R2", "WIN_2012", "WIN_2008R2", "WIN_2008", "WIN_2003".
 
 As of version 2016.02.26 I have started to add new funtions:
-	*Processes
 
 	*Processes
 		- tcpvcon -anc -accepteula > Process2PortMap.csv
@@ -56,7 +55,6 @@ As of version 2016.02.26 I have started to add new funtions:
 	*SystemInfo
 		- wmic /output:InstallList.csv product get /format:csv
 		- wmic /output:InstallHotfix.csv qfe get caption,csname,description,hotfixid,installedby,installedon /format:csv
-		- wmic /output:"' & $RptsDir & '\InstallList.csv" product get /format:csv
 
 Future Updates\Features will be based on this report: [On-scene_Triage_open_source_forensic_tool_chests_Are_they_effective](http://www.researchgate.net/profile/Stavros_Shiaeles/publication/236681282_On-scene_Triage_open_source_forensic_tool_chests_Are_they_effective/links/00b4953ac91d0d0086000000.pdf?inViewer=true&pdfJsDownload=true&disableCoverPage=true&origin=publication_detail)
 
