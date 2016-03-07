@@ -61,10 +61,10 @@ Future Updates\Features will be based on this report: [On-scene_Triage_open_sour
 I have finally compiled my own personalized version of ReactOS's "cmd.exe", 
 it can now use Linux equivalent commands:
 
-ls = dir
-cp = copy
-rm = delete
-ln = mklink
+    ls = dir
+    cp = copy
+    rm = delete
+    ln = mklink
 
 Just to name a few.
 
