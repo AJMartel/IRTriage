@@ -58,3 +58,15 @@ As of version 2016.02.26 I have started to add new funtions:
 
 Future Updates\Features will be based on this report: [On-scene_Triage_open_source_forensic_tool_chests_Are_they_effective](http://www.researchgate.net/profile/Stavros_Shiaeles/publication/236681282_On-scene_Triage_open_source_forensic_tool_chests_Are_they_effective/links/00b4953ac91d0d0086000000.pdf?inViewer=true&pdfJsDownload=true&disableCoverPage=true&origin=publication_detail)
 
+I have finally compiled my own personalized version of ReactOS's "cmd.exe", 
+it can now use Linux equivalent commands:
+
+ls = dir
+cp = copy
+rm = delete
+ln = mklink
+
+Just to name a few.
+
+Next step is to integrate [Didier Stevens](http://blog.didierstevens.com/2015/12/13/windows-backup-privilege-cmd-exe/)'s new commands: privilege and info. Both commands would be invaluable for a Forensic Analyst. I hope he is willing to help me integrate his mods into the latest version of ReactOS's "cmd.exe", so far I have failed any attempts;-(
+
