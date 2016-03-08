@@ -69,7 +69,7 @@ Just to name a few.
 
 As of version 2016.03.08 I have:
    - Started to cleanup the code, trying to make it easier to modualarize.
-   - added the option at compile time to use HBGary's FDpro (Commercial) or Moonsol's (Free) memory acquisition software.
+   - added the option at compile time to use HBGary's FDpro (Commercial) or [Moonsol's (Free)](http://www.moonsols.com/downloads/1) memory acquisition software.
    - +If you have HBGary's FDpro place it under the .\Compile\Tools folder in place of the "Zero byte" size file, is easy to switch back to Moonsol's memory acquisition software by replacing the FDpro.exe with a "zero byte" sized file;) 
 
 Future Updates\Features will be based on this report: [On-scene_Triage_open_source_forensic_tool_chests_Are_they_effective](http://www.researchgate.net/profile/Stavros_Shiaeles/publication/236681282_On-scene_Triage_open_source_forensic_tool_chests_Are_they_effective/links/00b4953ac91d0d0086000000.pdf?inViewer=true&pdfJsDownload=true&disableCoverPage=true&origin=publication_detail)
