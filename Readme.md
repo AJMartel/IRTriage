@@ -59,7 +59,7 @@ As of version 2016.02.26 I have started to add new funtions:
 As of version 2016.03.08 I have:
    - added a custom compiled version of ReactOS's "cmd.exe" based on v0.4.0, 
    -  +it can now use Linux equivalent commands:
-
+	
 	ls = dir
 	cp = copy
 	rm = delete
