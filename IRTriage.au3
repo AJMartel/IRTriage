@@ -7,20 +7,20 @@
 #pragma compile(FileDescription, IRTriage - Digital Forensic Incident Response Triage Tool)
 #pragma compile(ProductName, IRTriage)
 #pragma compile(ProductVersion, 2)
-#pragma compile(FileVersion, 2.16.03.07)
+#pragma compile(FileVersion, 2.16.03.08)
 #pragma compile(InternalName, "IRTriage")
 #pragma compile(LegalCopyright, © Alain Martel)
 #pragma compile(LegalTrademarks, 'Released under GPL 3, Free Open Source Software')
 #pragma compile(OriginalFilename, IRTriage.exe)
 #pragma compile(ProductName, Incident Response Triage)
-#pragma compile(ProductVersion, 2.16.03.07)
+#pragma compile(ProductVersion, 2.16.03.08)
 
 #comments-start =============================================================================================================================
 	Tool:			Incident Respone Triage:    (GUI)
 
 	Script Function:	Forensic Triage Application
 
-	Version:		2.16.03.07       (Version 2, Last updated: 2016 Mar 07)
+	Version:		2.16.03.08       (Version 2, Last updated: 2016 Mar 08)
 
 	Original Author:	Michael Ahrendt (TriageIR v.851 last uploaded\modified 9 Nov 2012)
                            https://storage.googleapis.com/google-code-archive-downloads/v2/code.google.com/triage-ir/TriageIR%20v.851.zip
@@ -41,8 +41,12 @@
 					computer forensic purposes.
 				-http://www.countertack.com/
 
-				**Win(32|64)DD from MoonSols (Replaced by Fast Dump pro, code was commented out not removed.)
-				-http://www.moonsols.com/
+				**Win(32|64)DD from MoonSols (IRTriage will default to the free Memory Acquasition software if FDpro is unavailable)
+				 - win32dd works for Microsoft Windows XP, 2003, 2008, Vista, 2008 R2, 7 32-bits Edition.
+				 - win64dd works for Microsoft Windows XP, 2003, 2008, Vista, 2008 R2, 7 64-bits (x64) Edition.
+				Download from the following:
+				-http://www.moonsols.com/downloads/1
+				Tested working on Windows up to Win7
 
 			Sysinternals Suite from Microsoft and Mark Russinovich
 				-http://technet.microsoft.com/en-us/sysinternals/bb842062
@@ -97,7 +101,7 @@
 #Include <File.au3>
 
 
-Global  $Version = "2.16.03.07"                                      ;Added to facilitate display of version info (MajorVer.YY.MM.DD)
+Global  $Version = "2.16.03.08"                                      ;Added to facilitate display of version info (MajorVer.YY.MM.DD)
 Global 	$tStamp = @YEAR & @MON & @MDAY & @HOUR & @MIN & @SEC
 Global	$RptsDir = @ScriptDir & "\" & $tStamp & "-" & @ComputerName
 Global	$EvDir = $RptsDir & "\Evidence\"
@@ -107,7 +111,6 @@ Global  $ColDir = $EvDir & "Collected\"                              ;added to m
 Global  $CpDir  = $RptsDir & "\CopyLogs"
 Global 	$HashDir = $RptsDir & "\Evidence"
 Global	$JmpLst = $EvDir & "JumpLists"
-Global	$shell = '"' & @ScriptDir & '\Tools\cmd.exe"'
 Global 	$shellex = '"' & @ScriptDir & '\Tools\cmd.exe" /c '
 Global 	$tools = '"' &@ScriptDir & '\Tools\'
 Global 	$RecentPath = RegRead("HKEY_CURRENT_USER\Software\Microsoft\Windows\CurrentVersion\Explorer\User Shell Folders", "Recent")
@@ -117,6 +120,31 @@ Global 	$fcnt
 Global  $p_chkc = 1                                                  ;fixed missing value that killed command logging
 Global  $r_chk = 0                                                   ;fixed missing value that killed command logging
 Global  $r_ini = 0                                                   ;fixed missing value that killed command logging
+
+   ;@OSVersion currently returns one of the following:
+   ;for Windows Workstations "WIN_10", "WIN_81", "WIN_8", "WIN_7", "WIN_VISTA", "WIN_XP", "WIN_XPe",
+   ;for Windows Servers: "WIN_2016", "WIN_2012R2", "WIN_2012", "WIN_2008R2", "WIN_2008", "WIN_2003"".
+
+   If @OSVersion = "WIN_XP" Then Global  $OS = "Docs"
+   If @OSVersion = "WIN_XPe" Then Global  $OS = "Docs"
+   If @OSVersion = "WIN_VISTA" Then Global  $OS = "Users"
+   If @OSVersion = "WIN_7" Then Global  $OS = "Users"
+   If @OSVersion = "WIN_8" Then Global  $OS = "Users"
+   If @OSVersion = "WIN_81" Then Global  $OS = "Users"
+   IF @OSVersion = "WIN_10" Then Global  $OS = "Users"
+   If @OSVersion = "WIN_2003" Then Global  $OS = "Docs"
+   If @OSVersion = "WIN_2008" Then Global  $OS = "Users"
+   If @OSVersion = "WIN_2008R2" Then Global  $OS = "Users"
+   If @OSVersion = "WIN_2012" Then Global  $OS = "Users"
+   If @OSVersion = "WIN_2012R2" Then Global  $OS = "Users"
+   If @OSVersion = "WIN_2016" Then Global  $OS = "Users"
+   If @OSVersion = "UNKNOWN" Then Global  $OS = "Users" ; Hopefully this will catch any "NEW" Windows OSes example "Win_101", "Win_102", ect...
+
+   If $OS = "Users" Then
+	   $uPath = "C:\Users\"
+   Else
+	   $uPath = "C:\Documents and Settings\"
+   EndIf
 
 $ini_file = "IRTriage.ini"
 
@@ -444,38 +472,9 @@ Func TriageGUI()						;Creates a graphical user interface for Triage
 
 		 If $msg = $run Then
 
-			If Not FileExists($RptsDir) Then DirCreate($RptsDir)
-			If Not FileExists($EvDir) Then DirCreate($EvDir)
-			If Not FileExists($MemDir) Then DirCreate($MemDir)
-			If Not FileExists($RegDir) Then DirCreate($RegDir)
-			If Not FileExists($ColDir) Then DirCreate($ColDir)
-			If Not FileExists($CpDir) Then DirCreate($CpDir)
+			InitDir()
 
-			If Not FileExists(@ScriptDir & "\Tools\") Then
-			   Do
-				  DirCreate(@ScriptDir & "\Tools\")
-			   Until FileExists(@ScriptDir & "\Tools\")
-			EndIf
-
-;To change back to **Win(32|64)DD from MoonSols** add ";" to the following 4 lines and uncomment the 11 lines after ";  **Win(32|64)DD from MoonSols**"
 			If (GUICtrlRead($MemDmp_chk) = 1) Then
-			   If Not FileExists(@ScriptDir & "\Tools\FDpro.exe") Then
-				   FileInstall(".\Compile\Tools\FDpro.exe", @ScriptDir & "\Tools\", 0)
-			   EndIf
-
-;  **Win(32|64)DD from MoonSols**
-;			   If @OSArch = "X86" Then
-;				  If Not FileExists(@ScriptDir & "\Tools\win32dd.exe") Then
-;					 FileInstall(".\Compile\Tools\win32dd.sys", @ScriptDir & "\Tools\", 0)
-;					 FileInstall(".\Compile\Tools\win32dd.exe", @ScriptDir & "\Tools\", 0)
-;				  EndIf
-;			   Else
-;				  If Not FileExists(@ScriptDir & "\Tools\win64dd.exe") Then
-;					 FileInstall(".\Compile\Tools\win64dd.sys", @ScriptDir & "\Tools\", 0)
-;					 FileInstall(".\Compile\Tools\win64dd.exe", @ScriptDir & "\Tools\", 0)
-;				  EndIf
-;			   EndIf
-
 			   MemDump()
 			EndIf
 
@@ -1128,29 +1127,7 @@ EndFunc
 
 Func INI2Command()						;Correlate the INI file into executing the selected functions
 
-   If Not FileExists($RptsDir) Then DirCreate($RptsDir)
-   If Not FileExists($EvDir) Then DirCreate($EvDir)
-   If Not FileExists($MemDir) Then DirCreate($MemDir)
-   If Not FileExists($RegDir) Then DirCreate($RegDir)
-   If Not FileExists($ColDir) Then DirCreate($ColDir)
-   If Not FileExists($CpDir) Then DirCreate($CpDir)
-
-   If Not FileExists(@ScriptDir & "\Tools\FDpro.exe") Then
-	   FileInstall(".\Compile\Tools\FDpro.exe", @ScriptDir & "\Tools\", 0)
-   EndIf
-
-;  **Win(32|64)DD from MoonSols**
-;   If @OSArch = "X86" Then
-;	  If Not FileExists(@ScriptDir & "\Tools\win32dd.exe") Then
-;		 FileInstall(".\Compile\Tools\win32dd.sys", @ScriptDir & "\Tools\", 0)
-;		 FileInstall(".\Compile\Tools\win32dd.exe", @ScriptDir & "\Tools\", 0)
-;	  EndIf
-;   Else
-;	  If Not FileExists(@ScriptDir & "\Tools\win64dd.exe") Then
-;		 FileInstall(".\Compile\Tools\win64dd.sys", @ScriptDir & "\Tools\", 0)
-;		 FileInstall(".\Compile\Tools\win64dd.exe", @ScriptDir & "\Tools\", 0)
-;	  EndIf
-;   EndIf
+   InitDir()
 
    If $md_ini = "Yes" Then MemDump()
 
@@ -1278,23 +1255,43 @@ EndFunc
 
 Func MemDump()
 
-   Local $dmpN = @ComputerName & @YEAR & @MON & @MDAY & @HOUR & @MIN & @SEC & @MSEC & '.bin'
-;To change back to **Win(32|64)DD from MoonSols** add ";" to the following 4 lines and uncomment the 7 lines after ";  **Win(32|64)DD from MoonSols**"
-   Local $dmpl = @ComputerName & @YEAR & @MON & @MDAY & @HOUR & @MIN & @SEC & @MSEC & '_MemoryCopy.txt'     ;Added Memory Dump Log for HBGary's FDpro
-   Local $memFL = ' -mem -md5 -o "' & $MemDir & $dmpN & '" -log "' & $CpDir & "\" & $dmpL & '"'
+	Local $dmpName = @ComputerName & @YEAR & @MON & @MDAY & @HOUR & @MIN & @SEC & @MSEC & '.bin'
+	Local $iFileSize = FileGetSize(@ScriptDir & "\Tools\FDpro.exe")
 
-   $windd = "FDpro.exe"
+	If Not FileExists(@ScriptDir & "\Tools\FDpro.exe") Then
+		FileInstall(".\Compile\Tools\FDpro.exe", @ScriptDir & "\Tools\", 0)
+	EndIf
 
-;  **Win(32|64)DD from MoonSols**
-;  Local $memFL = '/a /f "' & $MemDir & $dmpN & '"'
-;
-;  If @OSArch = "X86" Then
-;		 $windd = "win32dd.exe"
-;	  Else
-;		 $windd = "win64dd.exe"
-;	  EndIf
+	If $iFileSize = 0 Then
+		;HBGary's FDpro.exe not valid using **Win(32|64)DD from MoonSols**
+		Local $workDir = ".\Tools\Moonsols\"
+		Local $memFL = ' /a /m 1 /r /f "' & $MemDir & $dmpName & '"'
+		If @OSArch = "X86" Then
+			Global $windd = "win32dd.exe"
+			If Not FileExists(@ScriptDir & "\Tools\Moonsols\") Then DirCreate(@ScriptDir & "\Tools\Moonsols\")
+			If Not FileExists(@ScriptDir & "\Tools\win32dd.exe") Then
+				FileInstall(".\Compile\Tools\Moonsols\win32dd.exe", @ScriptDir & "\Tools\Moonsols\", 0)
+				FileInstall(".\Compile\Tools\Moonsols\win32dd.sys", @ScriptDir & "\Tools\Moonsols\", 0)
+			EndIf
+		Else
+			Global $windd = "win64dd.exe"
+			If Not FileExists(@ScriptDir & "\Tools\Moonsols\") Then DirCreate(@ScriptDir & "\Tools\Moonsols\")
+			If Not FileExists(@ScriptDir & "\Tools\win64dd.exe") Then
+				FileInstall(".\Compile\Tools\Moonsols\win64dd.exe", @ScriptDir & "\Tools\Moonsols\", 0)
+				FileInstall(".\Compile\Tools\Moonsols\win64dd.sys", @ScriptDir & "\Tools\Moonsols\", 0)
+			EndIf
+		EndIf
+	Else
+		;Valid file size HBGary's FDpro.exe
+		Local $workDir = ".\Tools\"
+		Local $dmpLog = @ComputerName & @YEAR & @MON & @MDAY & @HOUR & @MIN & @SEC & @MSEC & '_MemoryCopy.txt'     ;Added Memory Dump Log for HBGary's FDpro
+		Local $memFL = ' -mem -md5 -o "' & $MemDir & $dmpName & '" -log "' & $CpDir & "\" & $dmpLog & '"'
+		Global $windd = "FDpro.exe"
+	EndIf
 
-   ShellExecuteWait($windd, $memFL, '.\Tools\')
+   ShellExecuteWait($windd, $memFL, $workDir)
+;   sleep(1000)         ;Trying to find a fix for Win32/64dd.exe waiting for the {enter} key to be sent to the app.
+;   Send("{ENTER}")
 
    ProcessClose($windd)
 
@@ -1521,33 +1518,10 @@ Func RecentFolder()						;Send information to the recent folder copy function
    Local $profs
    Local $uDir
    Local $uATB
-   Local $uPath
-   Local $OS
    Local $robocopy
    Local $robocmd
 
-   ;@OSVersion returns one of the following:
-   ;for Windows Workstations "WIN_10", "WIN_81", "WIN_8", "WIN_7", "WIN_VISTA", "WIN_XP", "WIN_XPe",
-   ;for Windows Servers: "WIN_2016", "WIN_2012R2", "WIN_2012", "WIN_2008R2", "WIN_2008", "WIN_2003"".
-
-   If @OSVersion = "WIN_XP" Then $OS = "Docs"
-   If @OSVersion = "WIN_XPe" Then $OS = "Docs"
-   If @OSVersion = "WIN_VISTA" Then $OS = "Users"
-   If @OSVersion = "WIN_7" Then $OS = "Users"
-   If @OSVersion = "WIN_8" Then $OS = "Users"
-   If @OSVersion = "WIN_81" Then $OS = "Users"
-   IF @OSVersion = "WIN_10" Then $OS = "Users"
-   If @OSVersion = "WIN_2003" Then $OS = "Docs"
-   If @OSVersion = "WIN_2008" Then $OS = "Users"
-   If @OSVersion = "WIN_2008R2" Then $OS = "Users"
-   If @OSVersion = "WIN_2012" Then $OS = "Users"
-   If @OSVersion = "WIN_2012R2" Then $OS = "Users"
-   If @OSVersion = "WIN_2016" Then $OS = "Users"
-
    $robocopy = '"' & @ScriptDir & '\Tools\robocopy.exe"'
-
-   If $OS = "Users" Then $uPath = "C:\Users\"
-   If $OS = "Docs" Then $uPath = "C:\Documents and Settings\"
 
    $usr = FileFindFirstFile($uPath & "*.*")
 
@@ -1571,20 +1545,6 @@ Func _RobocopyRF($path, $output)		;Copy Recent folder from all profiles while ma
    Local $robocopy
    Local $robocmd
 
-   If @OSVersion = "WIN_XP" Then $OS = "Docs"
-   If @OSVersion = "WIN_XPe" Then $OS = "Docs"
-   If @OSVersion = "WIN_VISTA" Then $OS = "Users"
-   If @OSVersion = "WIN_7" Then $OS = "Users"
-   If @OSVersion = "WIN_8" Then $OS = "Users"
-   If @OSVersion = "WIN_81" Then $OS = "Users"
-   IF @OSVersion = "WIN_10" Then $OS = "Users"
-   If @OSVersion = "WIN_2003" Then $OS = "Docs"
-   If @OSVersion = "WIN_2008" Then $OS = "Users"
-   If @OSVersion = "WIN_2008R2" Then $OS = "Users"
-   If @OSVersion = "WIN_2012" Then $OS = "Users"
-   If @OSVersion = "WIN_2012R2" Then $OS = "Users"
-   If @OSVersion = "WIN_2016" Then $OS = "Users"
-
    If Not FileExists($EvDir & '\RecentLNKs\' & $output) Then DirCreate($EvDir & '\RecentLNKs\' & $output)
 
    $robocopy = '"' & @ScriptDir & '\Tools\robocopy.exe"'
@@ -1606,28 +1566,10 @@ Func JumpLists()						;Provide info to the Jumplist copy function
    Local $profs
    Local $uDir
    Local $uATB
-   Local $uPath
-   Local $OS
    Local $robocopy
    Local $robocmd
 
-   If @OSVersion = "WIN_7" Then $OS = "Users"
-   If @OSVersion = "WIN_8" Then $OS = "Users"
-   If @OSVersion = "WIN_81" Then $OS = "Users"
-   IF @OSVersion = "WIN_10" Then $OS = "Users"
-   If @OSVersion = "WIN_2008" Then $OS = "Users"
-   If @OSVersion = "WIN_2008R2" Then $OS = "Users"
-   If @OSVersion = "WIN_2012" Then $OS = "Users"
-   If @OSVersion = "WIN_2012R2" Then $OS = "Users"
-   If @OSVersion = "WIN_2016" Then $OS = "Users"
-
    $robocopy = '"' & @ScriptDir & '\Tools\robocopy.exe"'
-
-   If $OS = "Users" Then
-		 $uPath = "C:\Users\"
-	  Else
-	   $uPath = "C:\Documents and Settings\"
-	EndIf
 
 	  $usr = FileFindFirstFile($uPath & "*.*")
 
@@ -1655,17 +1597,6 @@ Func _RobocopyJL($path, $output)		;Copy Jumplist information while maintaining m
    Local $shellex = '"' & @ScriptDir & '\Tools\cmd.exe" /c '
    Local $autodest = $EvDir & '\JumpLists\' & $output & '\Automatic'
    Local $customdest = $EvDir & '\JumpLists\' & $output & '\Custom'
-
-; The following OSes support "Jump Lists"
-   If @OSVersion = "WIN_7" Then $OS = "Users"
-   If @OSVersion = "WIN_8" Then $OS = "Users"
-   If @OSVersion = "WIN_81" Then $OS = "Users"
-   IF @OSVersion = "WIN_10" Then $OS = "Users"
-   If @OSVersion = "WIN_2008" Then $OS = "Users"
-   If @OSVersion = "WIN_2008R2" Then $OS = "Users"
-   If @OSVersion = "WIN_2012" Then $OS = "Users"
-   If @OSVersion = "WIN_2012R2" Then $OS = "Users"
-   If @OSVersion = "WIN_2016" Then $OS = "Users"
 
    If Not FileExists($autodest) Then DirCreate($autodest)
    If Not FileExists($customdest) Then DirCreate($customdest)
@@ -1937,7 +1868,6 @@ Func SysIntAdd()						;Add registry key to accept Sysinternals
 EndFunc
 
 Func EvtCopy()							;Copy all event logs from local machine
-   Local $OS
    Local $evtdir
    Local $evtext
    Local $LogDir = $EvDir & 'Logs'
@@ -1957,20 +1887,6 @@ Func EvtCopy()							;Copy all event logs from local machine
    RunWait($evtc3, "", @SW_HIDE)
 	  FileWriteLine($Log, @YEAR&"-"&@MON&"-"&@MDAY&@TAB&@HOUR&":"&@MIN&":"&@SEC&":"&@MSEC&@TAB&"Executed command:" &@TAB& $evtc3 & @CRLF)
 
-   If @OSVersion = "WIN_XP" Then $OS = "Docs"
-   If @OSVersion = "WIN_XPe" Then $OS = "Docs"
-   If @OSVersion = "WIN_VISTA" Then $OS = "Users"
-   If @OSVersion = "WIN_7" Then $OS = "Users"
-   If @OSVersion = "WIN_8" Then $OS = "Users"
-   If @OSVersion = "WIN_81" Then $OS = "Users"
-   IF @OSVersion = "WIN_10" Then $OS = "Users"
-   If @OSVersion = "WIN_2003" Then $OS = "Docs"
-   If @OSVersion = "WIN_2008" Then $OS = "Users"
-   If @OSVersion = "WIN_2008R2" Then $OS = "Users"
-   If @OSVersion = "WIN_2012" Then $OS = "Users"
-   If @OSVersion = "WIN_2012R2" Then $OS = "Users"
-   If @OSVersion = "WIN_2016" Then $OS = "Users"
-
    If $OS = "Docs" Then $evtdir = '"C:\Windows\system32\config"'
    If $OS = "Users" Then $evtdir = '"C:\Windows\system32\winevt\Logs"'
 
@@ -1988,24 +1904,10 @@ EndFunc
 
 Func UsrclassE()  						;Search for profiles and initiate the copy of USRCLASS.dat
 
-   Local $OS, $uPath, $usr, $profs, $uDir, $uPath, $uATB
-
-   If @OSVersion = "WIN_XP" Then $OS = "Docs"
-   If @OSVersion = "WIN_XPe" Then $OS = "Docs"
-   If @OSVersion = "WIN_VISTA" Then $OS = "Users"
-   If @OSVersion = "WIN_7" Then $OS = "Users"
-   If @OSVersion = "WIN_8" Then $OS = "Users"
-   If @OSVersion = "WIN_81" Then $OS = "Users"
-   IF @OSVersion = "WIN_10" Then $OS = "Users"
-   If @OSVersion = "WIN_2003" Then $OS = "Docs"
-   If @OSVersion = "WIN_2008" Then $OS = "Users"
-   If @OSVersion = "WIN_2008R2" Then $OS = "Users"
-   If @OSVersion = "WIN_2012" Then $OS = "Users"
-   If @OSVersion = "WIN_2012R2" Then $OS = "Users"
-   If @OSVersion = "WIN_2016" Then $OS = "Users"
-
-   If $OS = "Users" Then $uPath = "C:\Users\"
-   If $OS = "Docs" Then $uPath = "C:\Documents and Settings\"
+   Local $usr
+   Local $profs
+   Local $uDir
+   Local $uATB
 
    $usr = FileFindFirstFile($uPath & "*.*")
 
@@ -2154,20 +2056,6 @@ Func VSC_RobocopyRF($path, $output)		;Copy Recent folder from all profiles while
    Local $robocopy
    Local $robocmd
 
-   If @OSVersion = "WIN_XP" Then $OS = "Docs"
-   If @OSVersion = "WIN_XPe" Then $OS = "Docs"
-   If @OSVersion = "WIN_VISTA" Then $OS = "Users"
-   If @OSVersion = "WIN_7" Then $OS = "Users"
-   If @OSVersion = "WIN_8" Then $OS = "Users"
-   If @OSVersion = "WIN_81" Then $OS = "Users"
-   IF @OSVersion = "WIN_10" Then $OS = "Users"
-   If @OSVersion = "WIN_2003" Then $OS = "Docs"
-   If @OSVersion = "WIN_2008" Then $OS = "Users"
-   If @OSVersion = "WIN_2008R2" Then $OS = "Users"
-   If @OSVersion = "WIN_2012" Then $OS = "Users"
-   If @OSVersion = "WIN_2012R2" Then $OS = "Users"
-   If @OSVersion = "WIN_2016" Then $OS = "Users"
-
    If Not FileExists($EvDir & 'VSC_' & $vrfc & '\RecentLNKs\' & $output) Then DirCreate($EvDir & 'VSC_' & $vrfc & '\RecentLNKs\' & $output)
 
    $robocopy = '"' & @ScriptDir & '\Tools\robocopy.exe"'
@@ -2237,17 +2125,6 @@ Func VSC_RobocopyJL($path, $output)		;Copy Jumplist information while maintainin
    Local $shellex = '"' & @ScriptDir & '\Tools\cmd.exe" /c '
    Local $autodest = $EvDir & "VSC_" & $vjlc & '\JumpLists\' & $output & '\Automatic'
    Local $customdest = $EvDir & "VSC_" & $vjlc & '\JumpLists\' & $output & '\Custom'
-
-; The following OSes support "Jump Lists"
-   If @OSVersion = "WIN_7" Then $OS = "Users"
-   If @OSVersion = "WIN_8" Then $OS = "Users"
-   If @OSVersion = "WIN_81" Then $OS = "Users"
-   IF @OSVersion = "WIN_10" Then $OS = "Users"
-   If @OSVersion = "WIN_2008" Then $OS = "Users"
-   If @OSVersion = "WIN_2008R2" Then $OS = "Users"
-   If @OSVersion = "WIN_2012" Then $OS = "Users"
-   If @OSVersion = "WIN_2012R2" Then $OS = "Users"
-   If @OSVersion = "WIN_2016" Then $OS = "Users"
 
    If Not FileExists($autodest) Then DirCreate($autodest)
    If Not FileExists($customdest) Then DirCreate($customdest)
@@ -2377,17 +2254,6 @@ Func VSC_RobocopyNTU($path, $output)	;Copy function for NTUSER.DAT (Volume Shado
    Local $robocmd
    Local $shellex = '"' & @ScriptDir & '\Tools\cmd.exe" /c '
    Local $ntudest = $EvDir & "VSC_" & $vntc & '\Registry\' & $output
-
-
-   If @OSVersion = "WIN_7" Then $OS = "Users"
-   If @OSVersion = "WIN_8" Then $OS = "Users"
-   If @OSVersion = "WIN_81" Then $OS = "Users"
-   IF @OSVersion = "WIN_10" Then $OS = "Users"
-   If @OSVersion = "WIN_2008" Then $OS = "Users"
-   If @OSVersion = "WIN_2008R2" Then $OS = "Users"
-   If @OSVersion = "WIN_2012" Then $OS = "Users"
-   If @OSVersion = "WIN_2012R2" Then $OS = "Users"
-   If @OSVersion = "WIN_2016" Then $OS = "Users"
 
    If Not FileExists($ntudest) Then DirCreate($ntudest)
 
@@ -2697,8 +2563,17 @@ Func Install()							;Function to install binary files necessary for execution i
 			   FileInstall(".\Compile\Tools\robocopy.exe", @ScriptDir & "\Tools\", 0)
 			   FileInstall(".\Compile\Tools\sha1deep.exe", @ScriptDir & "\Tools\", 0)
 			   FileInstall(".\Compile\Tools\sha1deep64.exe", @ScriptDir & "\Tools\", 0)
-;			   Local $varCMD = '"' & @WindowsDir & '\System32\cmd.exe"'
-;			   FileInstall($varCMD, @ScriptDir & "\Tools\", 0)
+			If Not FileExists(@ScriptDir & "\Tools\Moonsols\") Then
+				Do
+					DirCreate(@ScriptDir & "\Tools\Moonsols\")
+				Until FileExists(@ScriptDir & "\Tools\Moonsols\")
+			EndIf
+
+;			   FileInstall(".\Compile\Tools\Moonsols\bin2dmp.exe", @ScriptDir & "\Tools\Moonsols\", 0)
+;			   FileInstall(".\Compile\Tools\Moonsols\dmp2bin.exe", @ScriptDir & "\Tools\Moonsols\", 0)
+;			   FileInstall(".\Compile\Tools\Moonsols\hibr2bin.exe", @ScriptDir & "\Tools\Moonsols\", 0)
+;			   FileInstall(".\Compile\Tools\Moonsols\hibr2dmp.exe", @ScriptDir & "\Tools\Moonsols\", 0)
+;			   FileInstall(".\Compile\Tools\Moonsols\README.txt", @ScriptDir & "\Tools\Moonsols\", 0)
 
 			If Not FileExists(@ScriptDir & "\Tools\sleuthkit-4.2.0\bin\") Then
 				Do
@@ -3216,6 +3091,21 @@ Func RegRipperTools()
 			   FileInstall(".\Compile\Tools\RegRipper2.8\plugins\yahoo_lm.pl", @ScriptDir & "\Tools\RegRipper\plugins\", 0)
 
 EndFunc
+
+
+Func InitDir()
+
+			If Not FileExists($RptsDir) Then DirCreate($RptsDir)
+			If Not FileExists($EvDir) Then DirCreate($EvDir)
+			If Not FileExists($MemDir) Then DirCreate($MemDir)
+			If Not FileExists($RegDir) Then DirCreate($RegDir)
+			If Not FileExists($ColDir) Then DirCreate($ColDir)
+			If Not FileExists($CpDir) Then DirCreate($CpDir)
+			If Not FileExists(@ScriptDir & "\Tools\") Then DirCreate(@ScriptDir & "\Tools\")
+
+EndFunc
+
+
 
 #comments-start
 
