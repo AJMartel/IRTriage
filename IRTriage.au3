@@ -1262,7 +1262,7 @@ Func MemDump()
 		FileInstall(".\Compile\Tools\FDpro.exe", @ScriptDir & "\Tools\", 0)
 	EndIf
 
-	If $iFileSize = 0 Then
+	If $iFileSize < "100" Then
 		;HBGary's FDpro.exe not valid using **Win(32|64)DD from MoonSols**
 		Local $workDir = ".\Tools\Moonsols\"
 		Local $memFL = ' /a /m 1 /r /f "' & $MemDir & $dmpName & '"'
