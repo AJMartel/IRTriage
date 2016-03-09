@@ -7,20 +7,20 @@
 #pragma compile(FileDescription, IRTriage - Digital Forensic Incident Response Triage Tool)
 #pragma compile(ProductName, IRTriage)
 #pragma compile(ProductVersion, 2)
-#pragma compile(FileVersion, 2.16.03.08)
+#pragma compile(FileVersion, 2.16.03.09)
 #pragma compile(InternalName, "IRTriage")
 #pragma compile(LegalCopyright, © Alain Martel)
 #pragma compile(LegalTrademarks, 'Released under GPL 3, Free Open Source Software')
 #pragma compile(OriginalFilename, IRTriage.exe)
 #pragma compile(ProductName, Incident Response Triage)
-#pragma compile(ProductVersion, 2.16.03.08)
+#pragma compile(ProductVersion, 2.16.03.09)
 
 #comments-start =============================================================================================================================
 	Tool:			Incident Respone Triage:    (GUI)
 
 	Script Function:	Forensic Triage Application
 
-	Version:		2.16.03.08       (Version 2, Last updated: 2016 Mar 08)
+	Version:		2.16.03.09       (Version 2, Last updated: 2016 Mar 09)
 
 	Original Author:	Michael Ahrendt (TriageIR v.851 last uploaded\modified 9 Nov 2012)
                            https://storage.googleapis.com/google-code-archive-downloads/v2/code.google.com/triage-ir/TriageIR%20v.851.zip
@@ -99,9 +99,10 @@
 #Include <StaticConstants.au3>
 #Include <Date.au3>
 #Include <File.au3>
+#include <Array.au3>
 
 
-Global  $Version = "2.16.03.08"                                      ;Added to facilitate display of version info (MajorVer.YY.MM.DD)
+Global  $Version = "2.16.03.09"                                      ;Added to facilitate display of version info (MajorVer.YY.MM.DD)
 Global 	$tStamp = @YEAR & @MON & @MDAY & @HOUR & @MIN & @SEC
 Global	$RptsDir = @ScriptDir & "\" & $tStamp & "-" & @ComputerName
 Global	$EvDir = $RptsDir & "\Evidence\"
@@ -1257,15 +1258,17 @@ Func MemDump()
 
 	Local $dmpName = @ComputerName & @YEAR & @MON & @MDAY & @HOUR & @MIN & @SEC & @MSEC & '.bin'
 	Local $iFileSize = FileGetSize(@ScriptDir & "\Tools\FDpro.exe")
+	Local $dmpLog = $CpDir & "\" &@ComputerName & @YEAR & @MON & @MDAY & @HOUR & @MIN & @SEC & @MSEC & '_MemoryCopy.txt"'     ;Added Memory Dump Log for HBGary's FDpro
 
 	If Not FileExists(@ScriptDir & "\Tools\FDpro.exe") Then
 		FileInstall(".\Compile\Tools\FDpro.exe", @ScriptDir & "\Tools\", 0)
 	EndIf
 
 	If $iFileSize < 100 Then
-		;HBGary's FDpro.exe not valid executable using **Win(32|64)DD from MoonSols**
+		;HBGary's FDpro.exe not valid executable using **Win[32|64]DD from MoonSols**
 		Local $workDir = ".\Tools\Moonsols\"
 		Local $memFL = ' /a /m 1 /r /f "' & $MemDir & $dmpName & '"'
+
 		If @OSArch = "X86" Then
 			Global $windd = "win32dd.exe"
 			If Not FileExists(@ScriptDir & "\Tools\Moonsols\") Then DirCreate(@ScriptDir & "\Tools\Moonsols\")
@@ -1284,20 +1287,23 @@ Func MemDump()
 	Else
 		;Valid file size HBGary's FDpro.exe
 		Local $workDir = ".\Tools\"
-		Local $dmpLog = @ComputerName & @YEAR & @MON & @MDAY & @HOUR & @MIN & @SEC & @MSEC & '_MemoryCopy.txt'     ;Added Memory Dump Log for HBGary's FDpro
-		Local $memFL = ' -mem -md5 -o "' & $MemDir & $dmpName & '" -log "' & $CpDir & "\" & $dmpLog & '"'
+		Local $memFL = ' -mem -md5 -o "' & $MemDir & $dmpName & '" -log "' & $dmpLog
 		Global $windd = "FDpro.exe"
 	EndIf
 
-   ShellExecuteWait($windd, $memFL, $workDir)
-;   sleep(1000)         ;Trying to find a fix for Win32/64dd.exe waiting for the {enter} key to be sent to the app.
-;   Send("{ENTER}")
+;   Local $iPID = ShellExecuteWait($windd, $memFL, $workDir)
+   If StringRegExp($windd, 'win[36][24]dd.exe') = 1 then
+	   MsgBox(0, "Moonsol's " & $windd, "You must press Enter when Memory acquisition is finished that is one of the issues with the Moonsol's Community Edition.")
+	   Local $iPID = ShellExecuteWait($windd, $memFL, $workDir)
+   Else
+	   Local $iPID = ShellExecuteWait($windd, $memFL, $workDir)
+   EndIf
 
-   ProcessClose($windd)
+   ProcessWaitClose($iPID)
 
    	  FileWriteLine($Log, @YEAR&"-"&@MON&"-"&@MDAY&@TAB&@HOUR&":"&@MIN&":"&@SEC&":"&@MSEC&@TAB&"Executed command:" &@TAB& $windd & $memFL & @CRLF)
 
-   ProcessWaitClose($windd)
+   ProcessClose($iPID)
 
 EndFunc
 
@@ -3092,7 +3098,6 @@ Func RegRipperTools()
 
 EndFunc
 
-
 Func InitDir()
 
 			If Not FileExists($RptsDir) Then DirCreate($RptsDir)
@@ -3104,8 +3109,6 @@ Func InitDir()
 			If Not FileExists(@ScriptDir & "\Tools\") Then DirCreate(@ScriptDir & "\Tools\")
 
 EndFunc
-
-
 
 #comments-start
 
