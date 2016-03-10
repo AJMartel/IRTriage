@@ -1997,7 +1997,7 @@ Func _Usrclass($prof)					;Performs the function of copying the USRCLASS.dat
 
 		Local $usrce = $shellex & '.\Tools\sleuthkit-4.2.0\bin\ifind.exe -n /users/' & $prof & '/appdata/local/microsoft/windows/usrclass.dat \\.\C: > MFTEntries.log'
 
-		RunWait($usrce)
+		RunWait($usrce, "", @SW_HIDE)
 
 			FileWriteLine($Log, @YEAR&"-"&@MON&"-"&@MDAY&@TAB&@HOUR&":"&@MIN&":"&@SEC&":"&@MSEC&@TAB&"Executed command:" &@TAB& $usrce & @CRLF)
 
