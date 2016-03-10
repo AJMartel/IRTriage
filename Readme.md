@@ -26,8 +26,11 @@ One of the powerful capabilities of IRTriage is collecting information from "Vol
 The IRTriage is itself just an autoit script that depend on other tools such as:
 - Win32|64dd (free from Moonsols) or FDpro *(HBGary's commercial product)
 - Sysinternals Suite
+- The Sleuth Kit
 - Regripper
-- md5deep
+- mftdump
+- md5deep and sha1deep
+- CSVFileView
 - 7zip
 - and some windows built-in commands.
 
@@ -62,8 +65,14 @@ Version 2016.02.26
 	*SystemInfo()
 		- wmic /output:InstallList.csv product get /format:csv
 		- wmic /output:InstallHotfix.csv qfe get caption,csname,description,hotfixid,installedby,installedon /format:csv
-
-As of version 2016.03.08
+		- 
+	*Options()
+		- mftdump.exe /l /m ComputerName /o ComputerName-MFT_Dump.csv $MFTcopy
+		-
+	TriageGUI()
+		- CSVFileView.exe IncidentLog.csv ;Added Checkbox to view IncidentLog after Acquisition
+		
+Version 2016.03.08
    - added a custom compiled version of ReactOS's "cmd.exe" based on v0.4.0
    - +it can now use Linux equivalent commands:
      - ls = dir
@@ -72,10 +81,15 @@ As of version 2016.03.08
      - ln = mklink
 Just to name a few.
 
-As of version 2016.03.08
+Version 2016.03.08
    - Started to cleanup the code, trying to make it easier to modualarize.
    - Added the option at compile time to use HBGary's FDpro (Commercial) or [Moonsol's (Free)](http://www.moonsols.com/downloads/1) memory acquisition software.
      - If you have HBGary's FDpro place it under the .\Compile\Tools folder in place of the "Zero byte" size file, is easy to switch back to Moonsol's memory acquisition software by replacing the FDpro.exe with a "less than 100 byte" sized file:-)
+
+Version 2016.03.10
+     - Continued cleanup of the code, removed unused Function CommandROSLOG()
+     - Added $MFT parce to CSV
+     - Added Added ability to view IncidentLog.csv after acquisition completed.
 
 Future Updates\Features will be based on this report: [On-scene_Triage_open_source_forensic_tool_chests_Are_they_effective](http://www.researchgate.net/profile/Stavros_Shiaeles/publication/236681282_On-scene_Triage_open_source_forensic_tool_chests_Are_they_effective/links/00b4953ac91d0d0086000000.pdf?inViewer=true&pdfJsDownload=true&disableCoverPage=true&origin=publication_detail)
 
