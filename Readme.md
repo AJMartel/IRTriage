@@ -65,10 +65,10 @@ Version 2016.02.26
 	*SystemInfo()
 		- wmic /output:InstallList.csv product get /format:csv
 		- wmic /output:InstallHotfix.csv qfe get caption,csname,description,hotfixid,installedby,installedon /format:csv
-		- 
+		
 	*Options()
 		- mftdump.exe /l /m ComputerName /o ComputerName-MFT_Dump.csv $MFTcopy
-		-
+		
 	TriageGUI()
 		- CSVFileView.exe IncidentLog.csv ;Added Checkbox to view IncidentLog after Acquisition
 		
