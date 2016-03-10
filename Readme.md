@@ -87,9 +87,9 @@ Version 2016.03.08
      - If you have HBGary's FDpro place it under the .\Compile\Tools folder in place of the "Zero byte" size file, is easy to switch back to Moonsol's memory acquisition software by replacing the FDpro.exe with a "less than 100 byte" sized file:-)
 
 Version 2016.03.10
-     - Continued cleanup of the code, removed unused Function CommandROSLOG()
-     - Added $MFT parce to CSV
-     - Added Added ability to view IncidentLog.csv after acquisition completed.
+   - Continued cleanup of the code, removed unused Function CommandROSLOG()
+   - Added $MFT parce to CSV
+   - Added Added ability to view IncidentLog.csv after acquisition completed.
 
 Future Updates\Features will be based on this report: [On-scene_Triage_open_source_forensic_tool_chests_Are_they_effective](http://www.researchgate.net/profile/Stavros_Shiaeles/publication/236681282_On-scene_Triage_open_source_forensic_tool_chests_Are_they_effective/links/00b4953ac91d0d0086000000.pdf?inViewer=true&pdfJsDownload=true&disableCoverPage=true&origin=publication_detail)
 
