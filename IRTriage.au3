@@ -7,27 +7,27 @@
 #pragma compile(FileDescription, IRTriage - Digital Forensic Incident Response Triage Tool)
 #pragma compile(ProductName, IRTriage)
 #pragma compile(ProductVersion, 2)
-#pragma compile(FileVersion, 2.16.03.09)
+#pragma compile(FileVersion, 2.16.03.10)
 #pragma compile(InternalName, "IRTriage")
 #pragma compile(LegalCopyright, © Alain Martel)
 #pragma compile(LegalTrademarks, 'Released under GPL 3, Free Open Source Software')
 #pragma compile(OriginalFilename, IRTriage.exe)
 #pragma compile(ProductName, Incident Response Triage)
-#pragma compile(ProductVersion, 2.16.03.09)
+#pragma compile(ProductVersion, 2.16.03.10)
 
 #comments-start =============================================================================================================================
 	Tool:			Incident Respone Triage:    (GUI)
 
 	Script Function:	Forensic Triage Application
 
-	Version:		2.16.03.09       (Version 2, Last updated: 2016 Mar 09)
+	Version:		2.16.03.10       (Version 2, Last updated: 2016 Mar 10)
 
 	Original Author:	Michael Ahrendt (TriageIR v.851 last uploaded\modified 9 Nov 2012)
                            https://storage.googleapis.com/google-code-archive-downloads/v2/code.google.com/triage-ir/TriageIR%20v.851.zip
 
 	Forked and Currently
 	Maintained by:      Alain Martel (Oct 2015)
-							https://github.com/AJMartel/IRTriage
+						https://github.com/AJMartel/IRTriage
 
 	Description:	IRTriage is intended for incident responders who need to gather host data rapidly.
 			The tool will run a plethora of commands automatically based on selection.
@@ -56,8 +56,11 @@
                 -http://sourceforge.net/projects/sleuthkit/files/sleuthkit/4.2.0/sleuthkit-4.2.0-win32.zip/download
                  Using custom icat.exe and ifind.exe, compiled without any external DLLs
 
-			RegRipper from Harlan Carvey
+			RegRipper by Harlan Carvey
 				-https://github.com/keydet89/RegRipper2.8/archive/master.zip
+
+			MFTDump by Michael G. Spohn @ malware-hunters.net
+				-http://malware-hunters.net/wp-content/downloads/MFTDump_V.1.3.0.zip
 
 			md5deep and sha1deep from Jesse Kornblum
 				-http://sourceforge.net/projects/md5deep/files/md5deep/md5deep-4.3/md5deep-4.3.zip/download?use_mirror=kent
@@ -65,11 +68,14 @@
 			7zip Command Line
 				-http://www.7-zip.org/download.html  (standalone console version)
 
+			CSVFileView by NirSoft
+				-http://www.nirsoft.net/utils/csvfileview.zip
+
  	Fixes/Changes:
  			-Changed name of project from Triage-IR to IRTriage (Triage-IR is no longer under development)
  			-Fixed broken command logging = Now logs all commands that were executed to TAB delimited csv file
  			-Updated software = all software packages are updated 10 Feb 2016 (no longer using software from Nov 2012)
- 			-Using FDpro vs windd (windd is limited to 4GB crash dump, FDpro is a full memory image)
+ 			-Using FDpro if available otherwise defaults to win[32|64]dd community edition
  			-Fixed issues with software not running (*=Main Package, **=Changes)
 					*Sleuthkit (icat, ifind) not functioning due to miss-matched dlls (64 vs 32bit) and known dlls (local files no first)
 						**Using custom compiled executables compiled with static libraries
@@ -91,6 +97,10 @@
 						**wmic /output:InstallList.csv product get /format:csv
 						**wmic /output:InstallHotfix.csv qfe get caption,csname,description,hotfixid,installedby,installedon /format:csv
 						**wmic /output:"' & $RptsDir & '\InstallList.csv" product get /format:csv
+					*Options
+						**mftdump.exe /l /m ComputerName /o ComputerName-MFT_Dump.csv $MFTcopy
+					*GUI
+						**CSVFileView.exe IncidentLog.csv ;Added Checkbox to view IncidentLog after Acquisition
 
 #comments-end================================================================================================================================
 
@@ -102,13 +112,14 @@
 #include <Array.au3>
 
 
-Global  $Version = "2.16.03.09"                                      ;Added to facilitate display of version info (MajorVer.YY.MM.DD)
+Global  $Version = "2.16.03.10"                                      ;Added to facilitate display of version info (MajorVer.YY.MM.DD)
 Global 	$tStamp = @YEAR & @MON & @MDAY & @HOUR & @MIN & @SEC
 Global	$RptsDir = @ScriptDir & "\" & $tStamp & "-" & @ComputerName
 Global	$EvDir = $RptsDir & "\Evidence\"
 Global	$MemDir = $EvDir & "Memory\"                                 ;added to make finding the memory image easier
 Global	$RegDir = $EvDir & "Registry\"                               ;added to make finding the registry files easier
 Global  $ColDir = $EvDir & "Collected\"                              ;added to make finding the collected files easier
+Global  $MFTDir = $EvDir & "MFT\"                                    ;added to make finding the MFT record files easier
 Global  $CpDir  = $RptsDir & "\CopyLogs"
 Global 	$HashDir = $RptsDir & "\Evidence"
 Global	$JmpLst = $EvDir & "JumpLists"
@@ -168,7 +179,7 @@ Func INI_Check($ini_file)				;Check the INI file included in triage for function
    Global 	$fassoc_ini, $acctinfo_ini, $hostn_ini
    Global 	$autorun_ini, $st_ini, $logon_ini
    Global 	$NTFS_ini, $mntdsk_ini, $dir_ini, $VolInfo_ini
-   Global 	$regrip_ini
+   Global 	$regrip_ini, $MFTDump_ini
    Global 	$md5_ini, $sha1_ini
    Global 	$compress_ini
 
@@ -223,6 +234,7 @@ Func INI_Check($ini_file)				;Check the INI file included in triage for function
    $mntdsk_ini = IniRead($ini_file, "Function", "MountedDisk", "Yes")
    $dir_ini = IniRead($ini_file, "Function", "Directory", "Yes")
    $regrip_ini = IniRead($ini_file, "Function", "RegRipper", "Yes")
+   $MFTDump_ini = IniRead($ini_file, "Function", "MFTDump", "Yes")
    $md5_ini = IniRead($ini_file, "Function", "MD5", "Yes")
    $sha1_ini = IniRead($ini_file, "Function", "SHA1", "Yes")
    $compress_ini = IniRead($ini_file, "Function", "Compression", "No")
@@ -252,7 +264,7 @@ Func TriageGUI()						;Creates a graphical user interface for Triage
    Global 	$NTFSInfo_chk, $DiskMnt_chk, $Tree_chk, $VolInfo_chk
    Global 	$MemDmp_chk, $JmpLst_chk, $EvtCpy_chk
    Global 	$PF_chk, $RF_chk, $sysint_chk
-   Global 	$md5_chk, $sha1_chk, $regrip_chk, $compress_chk
+   Global 	$md5_chk, $sha1_chk, $regrip_chk, $MFTDump_chk, $compress_chk
    Global	$VS_PF_chk, $VS_RF_chk, $VS_JmpLst_chk, $VS_EvtCpy_chk, $VS_SYSREG_chk, $VS_SECREG_chk, $VS_SAMREG_chk, $VS_SOFTREG_chk, $VS_USERREG_chk
    Global	$MFTg_chk
 
@@ -409,9 +421,11 @@ Func TriageGUI()						;Creates a graphical user interface for Triage
 			GUICtrlSetTip($sha1_chk, "Use SHA1DEEP to hash all gathered evidence items.")
 		 $regrip_chk = GUICtrlCreateCheckbox("Run RegRipper against collected registry hives.", 10, 70)
 			GUICtrlSetTip($regrip_chk, "Use RegRipper to parse all current hive list that were gathered")
-		 $compress_chk = GUICtrlCreateCheckbox("Compress all of collected files and information in an archive.", 10, 90)
+		 $MFTDump_chk = GUICtrlCreateCheckbox("Run MFTDump against collected $MFT.", 10, 90)
+			GUICtrlSetTip($MFTDump_chk, "Use MFTDump to parse all current $MFT records that were gathered")
+		 $compress_chk = GUICtrlCreateCheckbox("Compress all of collected files and information in an archive.", 10, 110)
 			GUICtrlSetTip($compress_chk, "Use 7-zip to compress all collected evidence into one zipped archive.")
-		 $sysint_chk = GUICtrlCreateCheckbox("Add Registry Entry for SysInternals Suite.", 10, 110)
+		 $sysint_chk = GUICtrlCreateCheckbox("Add Registry Entry for SysInternals Suite.", 10, 130)
 			GUICtrlSetTip($sysint_chk, "Add registry entry to eliminate any risk of EULA stopping Sysinternals from running properly.")
 
 	  GUICtrlCreateTabItem("") ; end tabitem definition
@@ -419,6 +433,8 @@ Func TriageGUI()						;Creates a graphical user interface for Triage
 	  $all = GUICtrlCreateButton("Select All", 480, 244, 80, 30)
 
 	  $none = GUICtrlCreateButton("Select None", 570, 244, 80, 30)
+
+	  $OpenLog = GUICtrlCreateCheckbox("View Log", 660, 244, 80, 20)
 
 	  $run = GUICtrlCreateButton("Run", 755, 244, 50, 30)
 
@@ -806,7 +822,14 @@ Func TriageGUI()						;Creates a graphical user interface for Triage
 			   RegRipper()
 			   $fcnt = $fcnt + 1
 			   GUICtrlSetData($progress, (($fcnt/$p_chkc)*100))
-			   EndIf
+			EndIf
+
+			If (GUICtrlRead($MFTDump_chk) = 1) Then
+			   MFTDumpTools()
+			   MFTDump()
+			   $fcnt = $fcnt + 1
+			   GUICtrlSetData($progress, (($fcnt/$p_chkc)*100))
+			EndIf
 
 			If (GUICtrlRead($compress_chk) = 1) Then
 			   Compression()
@@ -816,9 +839,13 @@ Func TriageGUI()						;Creates a graphical user interface for Triage
 
 			GUIDelete($progGUI)
 
-			CommandROSLOG()
-
 			MsgBox(0, "Incident Response Triage: ", "Your selected tasks have completed.")
+
+			If(GUICtrlRead($OpenLog) = 1) Then
+				;Open IncidentLog.csv after completion
+				LogViewTools()
+				ShellExecute(@ScriptDir & '\Tools\NirSoft\CSVFileView.exe', ' "' & $Log &'"')
+			EndIf
 
 		 EndIf
 
@@ -1026,6 +1053,12 @@ Func _Ini2GUI()							;Correlate the INI into checking the boxes of the GUI to e
 	  GUICtrlSetState($regrip_chk, $GUI_CHECKED)
    Else
 	  GUICtrlSetState($regrip_chk, $GUI_UNCHECKED)
+   EndIf
+
+   If $MFTDump_ini = "Yes" Then
+	  GUICtrlSetState($MFTDump_chk, $GUI_CHECKED)
+   Else
+	  GUICtrlSetState($MFTDump_chk, $GUI_UNCHECKED)
    EndIf
 
    If $compress_ini = "Yes" Then
@@ -1242,6 +1275,11 @@ Func INI2Command()						;Correlate the INI file into executing the selected func
    If $regrip_ini = "Yes" Then
 	  RegRipperTools()
 	  RegRipper()
+	EndIf
+
+   If $MFTDump_ini = "Yes" Then
+	  MFTDumpTools()
+	  MFTDump()
    EndIf
 
    If $md5_ini = "Yes" Then MD5()
@@ -1249,8 +1287,6 @@ Func INI2Command()						;Correlate the INI file into executing the selected func
    If $sha1_ini = "Yes" Then SHA1()
 
    If $compress_ini = "Yes" Then Compression()
-
-   CommandROSLOG()
 
 EndFunc
 
@@ -1291,9 +1327,14 @@ Func MemDump()
 		Global $windd = "FDpro.exe"
 	EndIf
 
-;   Local $iPID = ShellExecuteWait($windd, $memFL, $workDir)
    If StringRegExp($windd, 'win[36][24]dd.exe') = 1 then
-	   MsgBox(0, "Moonsol's " & $windd, "You must press Enter when Memory acquisition is finished that is one of the issues with the Moonsol's Community Edition.")
+	   MsgBox(0, "Moonsol's " & $windd, "You must press Enter when Memory acquisition is finished!" & @CRLF & @CRLF & _
+										" The difference between the Professional and Community Editions" & @CRLF & _
+										" For the purpose of IRTriage;" & @CRLF & _
+										" Disabled functions in the Community Edition:" & @CRLF & _
+										" - Use scripts and/or batch files with win32dd and/or win64dd." & @CRLF & _
+										" - Save the win32dd and/or win64dd result in an output file.")
+
 	   Local $iPID = ShellExecuteWait($windd, $memFL, $workDir)
    Else
 	   Local $iPID = ShellExecuteWait($windd, $memFL, $workDir)
@@ -1866,6 +1907,19 @@ Func RegRipper()						;Special thanks to Harlan Carvey for his excellent tool.
 
 EndFunc
 
+Func MFTDump()						;Special thanks to Michael G. Spohn @ malware-hunters.net for his excellent tool.
+
+	If Not FileExists($MFTDir & '$MFTcopy"') Then
+		MFTgrab()
+	EndIf
+
+   Local $MFTDump = $shellex & '.\Tools\Malware-Hunters\mftdump.exe /l /m ' & @ComputerName & ' /o "' & $MFTDir & @ComputerName & '-MFT_Dump.csv" "'& $MFTDir & '$MFTcopy"'
+
+   RunWait($MFTDump, "", @SW_HIDE)
+	  FileWriteLine($Log, @YEAR&"-"&@MON&"-"&@MDAY&@TAB&@HOUR&":"&@MIN&":"&@SEC&":"&@MSEC&@TAB&"Executed command:" &@TAB& $MFTDump & @CRLF)
+
+EndFunc
+
 Func SysIntAdd()						;Add registry key to accept Sysinternals
    Local $RegAdd1 = $shellex & 'REG ADD HKCU\Software\Sysinternals\NTFSInfo /v EulaAccepted /t REG_DWORD /d 1 /f'
 
@@ -1968,7 +2022,7 @@ EndFunc
 
 Func MFTgrab()							;Use iCat to rip a file from NTFS file system
 
-   Local $MFTc = $shellex & '.\Tools\sleuthkit-4.2.0\bin\icat.exe \\.\c: 0 > "' & $EvDir & '$MFTcopy"'
+   Local $MFTc = $shellex & '.\Tools\sleuthkit-4.2.0\bin\icat.exe \\.\c: 0 > "' & $MFTDir & '$MFTcopy"'
 
    RunWait($MFTc, "", @SW_HIDE)
 	  FileWriteLine($Log, @YEAR&"-"&@MON&"-"&@MDAY&@TAB&@HOUR&":"&@MIN&":"&@SEC&":"&@MSEC&@TAB&"Executed command:" &@TAB& $MFTc & @CRLF)
@@ -2430,6 +2484,7 @@ Func ProgChkCount()						;Count number of functions executing for GUI Progress B
    If (GUICtrlRead($md5_chk) = 1) Then $p_chkc = $p_chkc + 1
    If (GUICtrlRead($sha1_chk) = 1) Then $p_chkc = $p_chkc + 1
    If (GUICtrlRead($regrip_chk) = 1) Then $p_chkc = $p_chkc + 1
+   If (GUICtrlRead($MFTDump_chk) = 1) Then $p_chkc = $p_chkc + 1
    If (GUICtrlRead($compress_chk) = 1) Then $p_chkc = $p_chkc + 1
 
 EndFunc
@@ -2484,6 +2539,7 @@ Func SelectAll()						;Function to select all functions within a GUI
    GUICtrlSetState($md5_chk, $GUI_CHECKED)
    GUICtrlSetState($sha1_chk, $GUI_CHECKED)
    GUICtrlSetState($regrip_chk, $GUI_CHECKED)
+   GUICtrlSetState($MFTDump_chk, $GUI_CHECKED)
    GUICtrlSetState($compress_chk, $GUI_CHECKED)
 
 EndFunc
@@ -2538,19 +2594,10 @@ Func SelectNone()						;Function to deselect all functions within the GUI
    GUICtrlSetState($md5_chk, $GUI_UNCHECKED)
    GUICtrlSetState($sha1_chk, $GUI_UNCHECKED)
    GUICtrlSetState($regrip_chk, $GUI_UNCHECKED)
+   GUICtrlSetState($MFTDump_chk, $GUI_UNCHECKED)
    GUICtrlSetState($compress_chk, $GUI_UNCHECKED)
 
 EndFunc
-
-Func CommandROSLOG()					;Copy the log data from ReactOS command prompt
-
-   Local $ROSlog = @ScriptDir & "\Commands.log"
-
-   If FileExists($ROSlog) = 1 Then
-	  FileMove($ROSlog, $RptsDir)
-   EndIf
-
-   EndFunc
 
 Func Install()							;Function to install binary files necessary for execution if not already present
 
@@ -3098,6 +3145,33 @@ Func RegRipperTools()
 
 EndFunc
 
+Func MFTDumpTools()
+
+			If Not FileExists(@ScriptDir & "\Tools\Malware-Hunters\") Then
+			   Do
+				  DirCreate(@ScriptDir & "\Tools\Malware-Hunters\")
+			   Until FileExists(@ScriptDir & "\Tools\Malware-Hunters\")
+			EndIf
+			   FileInstall(".\Compile\Tools\Malware-Hunters\mftdump.exe", @ScriptDir & "\Tools\Malware-Hunters\", 0)
+;			   FileInstall(".\Compile\Tools\Malware-Hunters\MFTDump_FAQ.pdf", @ScriptDir & "\Tools\Malware-Hunters\", 0)
+;			   FileInstall(".\Compile\Tools\Malware-Hunters\MFTDump_Quick-Start.v.1.3.0.pdf", @ScriptDir & "\Tools\Malware-Hunters\", 0)
+
+EndFunc
+
+Func LogViewTools()
+
+			If Not FileExists(@ScriptDir & "\Tools\NirSoft\") Then
+			   Do
+				  DirCreate(@ScriptDir & "\Tools\NirSoft\")
+			   Until FileExists(@ScriptDir & "\Tools\NirSoft\")
+			EndIf
+			   FileInstall(".\Compile\Tools\NirSoft\CSVFileView.exe", @ScriptDir & "\Tools\NirSoft\", 0)
+;			   FileInstall(".\Compile\Tools\NirSoft\CSVFileView.chm", @ScriptDir & "\Tools\NirSoft\", 0)
+;			   FileInstall(".\Compile\Tools\NirSoft\readme.txt", @ScriptDir & "\Tools\NirSoft\", 0)
+
+EndFunc
+
+
 Func InitDir()
 
 			If Not FileExists($RptsDir) Then DirCreate($RptsDir)
@@ -3106,6 +3180,7 @@ Func InitDir()
 			If Not FileExists($RegDir) Then DirCreate($RegDir)
 			If Not FileExists($ColDir) Then DirCreate($ColDir)
 			If Not FileExists($CpDir) Then DirCreate($CpDir)
+			If Not FileExists($MFTDir) Then DirCreate($MFTDir)
 			If Not FileExists(@ScriptDir & "\Tools\") Then DirCreate(@ScriptDir & "\Tools\")
 
 EndFunc
@@ -3127,3 +3202,4 @@ wmic diskdrive list brief
 wmic shadowcopy list brief
 
 #comments-end
+
