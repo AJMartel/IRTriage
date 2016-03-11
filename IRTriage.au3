@@ -1344,11 +1344,9 @@ Func MemDump()
 										" Disabled functions in the Community Edition:" & @CRLF & _
 										" - Use scripts and/or batch files with win32dd and/or win64dd." & @CRLF & _
 										" - Save the win32dd and/or win64dd result in an output file.")
-
-	   Local $iPID = ShellExecuteWait($windd, $memFL, $workDir)
-   Else
-	   Local $iPID = ShellExecuteWait($windd, $memFL, $workDir)
    EndIf
+
+   Local $iPID = ShellExecuteWait($windd, $memFL, $workDir)
 
    ProcessWaitClose($iPID)
 
