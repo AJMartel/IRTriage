@@ -7,20 +7,20 @@
 #pragma compile(FileDescription, IRTriage - Digital Forensic Incident Response Triage Tool)
 #pragma compile(ProductName, IRTriage)
 #pragma compile(ProductVersion, 2)
-#pragma compile(FileVersion, 2.16.03.10)
+#pragma compile(FileVersion, 2.16.03.11)
 #pragma compile(InternalName, "IRTriage")
 #pragma compile(LegalCopyright, © Alain Martel)
 #pragma compile(LegalTrademarks, 'Released under GPL 3, Free Open Source Software')
 #pragma compile(OriginalFilename, IRTriage.exe)
 #pragma compile(ProductName, Incident Response Triage)
-#pragma compile(ProductVersion, 2.16.03.10)
+#pragma compile(ProductVersion, 2.16.03.11)
 
 #comments-start =============================================================================================================================
 	Tool:			Incident Respone Triage:    (GUI)
 
 	Script Function:	Forensic Triage Application
 
-	Version:		2.16.03.10       (Version 2, Last updated: 2016 Mar 10)
+	Version:		2.16.03.11       (Version 2, Last updated: 2016 Mar 11)
 
 	Original Author:	Michael Ahrendt (TriageIR v.851 last uploaded\modified 9 Nov 2012)
                            https://storage.googleapis.com/google-code-archive-downloads/v2/code.google.com/triage-ir/TriageIR%20v.851.zip
@@ -101,6 +101,7 @@
 						**mftdump.exe /l /m ComputerName /o ComputerName-MFT_Dump.csv $MFTcopy
 					*GUI
 						**CSVFileView.exe IncidentLog.csv ;Added Checkbox to view IncidentLog after Acquisition
+						**CMD.exe                         ;Added Checkbox to open custom IRtriage command prompt after Acquisition
 
 #comments-end================================================================================================================================
 
@@ -112,7 +113,7 @@
 #include <Array.au3>
 
 
-Global  $Version = "2.16.03.10"                                      ;Added to facilitate display of version info (MajorVer.YY.MM.DD)
+Global  $Version = "2.16.03.11"                                      ;Added to facilitate display of version info (MajorVer.YY.MM.DD)
 Global 	$tStamp = @YEAR & @MON & @MDAY & @HOUR & @MIN & @SEC
 Global	$RptsDir = @ScriptDir & "\" & $tStamp & "-" & @ComputerName
 Global	$EvDir = $RptsDir & "\Evidence\"
@@ -434,7 +435,11 @@ Func TriageGUI()						;Creates a graphical user interface for Triage
 
 	  $none = GUICtrlCreateButton("Select None", 570, 244, 80, 30)
 
-	  $OpenLog = GUICtrlCreateCheckbox("View Log", 660, 244, 80, 20)
+	  $OpenLog = GUICtrlCreateCheckbox("View Log", 660, 240, 80, 20)
+		GUICtrlSetTip($OpenLog, "Open IncidentLog.csv after acquisition completed.")
+
+	  $OpenCMD = GUICtrlCreateCheckbox("Open CMD", 660, 260, 80, 20)
+		GUICtrlSetTip($OpenCMD, "Open Command prompt after acquisition completed.")
 
 	  $run = GUICtrlCreateButton("Run", 755, 244, 50, 30)
 
@@ -845,6 +850,11 @@ Func TriageGUI()						;Creates a graphical user interface for Triage
 				;Open IncidentLog.csv after completion
 				LogViewTools()
 				ShellExecute(@ScriptDir & '\Tools\NirSoft\CSVFileView.exe', ' "' & $Log &'"')
+			EndIf
+
+			If(GUICtrlRead($OpenCMD) = 1) Then
+				;Open Custom IRTriage Command Prompt after completion
+				Run(@ScriptDir & '\Tools\cmd.exe /K', $RptsDir & "\", @SW_SHOWNORMAL )
 			EndIf
 
 		 EndIf
