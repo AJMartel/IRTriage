@@ -71,14 +71,24 @@ Version 2016.02.26
 		
 	TriageGUI()
 		- CSVFileView.exe IncidentLog.csv ;Added Checkbox to view IncidentLog after Acquisition
+		- cmd.exe                         ;Added Checkbox to open IRTriage commandline after Acquisition
 		
 Version 2016.03.08
    - added a custom compiled version of ReactOS's "cmd.exe" based on v0.4.0
    - +it can now use Linux equivalent commands:
-     - ls = dir
+     - clear = cls
      - cp = copy
-     - rm = delete
+     - df = free
+     - env = set
      - ln = mklink
+     - ls = dir
+     - mv = move
+     - pwd = cd, chdir
+     - rm = delete, del, erase
+     - sleep = pause
+     - uname = ver, version
+     - vmstat = memory, mem
+     - # = rem
 Just to name a few.
 
 Version 2016.03.08
@@ -89,9 +99,14 @@ Version 2016.03.08
 Version 2016.03.10
    - Continued cleanup of the code, removed unused Function CommandROSLOG()
    - Added $MFT parce to CSV
-   - Added Added ability to view IncidentLog.csv after acquisition completed.
+   - Added ability to view IncidentLog.csv after acquisition completed.
+
+Version 2016.03.11
+   - Updated cmd.exe
+   - Added ability to open IRTriage's cmd.exe after acquisition completed.
 
 Future Updates\Features will be based on this report: [On-scene_Triage_open_source_forensic_tool_chests_Are_they_effective](http://www.researchgate.net/profile/Stavros_Shiaeles/publication/236681282_On-scene_Triage_open_source_forensic_tool_chests_Are_they_effective/links/00b4953ac91d0d0086000000.pdf?inViewer=true&pdfJsDownload=true&disableCoverPage=true&origin=publication_detail)
 
 Next step is to integrate [Didier Stevens](http://blog.didierstevens.com/2015/12/13/windows-backup-privilege-cmd-exe/)'s new commands: privilege and info. Both new commands would be invaluable for a Forensic Analyst. I hope he is willing to help me integrate his mods into the latest version of ReactOS's "cmd.exe", so far I have failed any attempts;-(
 
+Source for [IRTriage command processor](https://github.com/AJMartel/IRTriageCMD)
