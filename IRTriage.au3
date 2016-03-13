@@ -7,20 +7,20 @@
 #pragma compile(FileDescription, IRTriage - Digital Forensic Incident Response Triage Tool)
 #pragma compile(ProductName, IRTriage)
 #pragma compile(ProductVersion, 2)
-#pragma compile(FileVersion, 2.16.03.11)
+#pragma compile(FileVersion, 2.16.03.13)
 #pragma compile(InternalName, "IRTriage")
 #pragma compile(LegalCopyright, © Alain Martel)
 #pragma compile(LegalTrademarks, 'Released under GPL 3, Free Open Source Software')
 #pragma compile(OriginalFilename, IRTriage.exe)
 #pragma compile(ProductName, Incident Response Triage)
-#pragma compile(ProductVersion, 2.16.03.11)
+#pragma compile(ProductVersion, 2.16.03.13)
 
 #comments-start =============================================================================================================================
 	Tool:			Incident Respone Triage:    (GUI)
 
 	Script Function:	Forensic Triage Application
 
-	Version:		2.16.03.11       (Version 2, Last updated: 2016 Mar 11)
+	Version:		2.16.03.13       (Version 2, Last updated: 2016 Mar 13)
 
 	Original Author:	Michael Ahrendt (TriageIR v.851 last uploaded\modified 9 Nov 2012)
                            https://storage.googleapis.com/google-code-archive-downloads/v2/code.google.com/triage-ir/TriageIR%20v.851.zip
@@ -113,7 +113,7 @@
 #include <Array.au3>
 
 
-Global  $Version = "2.16.03.11"                                      ;Added to facilitate display of version info (MajorVer.YY.MM.DD)
+Global  $Version = "2.16.03.13"                                      ;Added to facilitate display of version info (MajorVer.YY.MM.DD)
 Global 	$tStamp = @YEAR & @MON & @MDAY & @HOUR & @MIN & @SEC
 Global	$RptsDir = @ScriptDir & "\" & $tStamp & "-" & @ComputerName
 Global	$EvDir = $RptsDir & "\Evidence\"
@@ -254,7 +254,7 @@ Func TriageGUI()						;Creates a graphical user interface for Triage
 
    Local 	$filemenu, $fileitem1, $fileitem2
    Local 	$helpmenu, $helpitem1, $helpitem2
-   Local 	$iniread, $inidsp
+   Local 	$iniread, $inidsp, $iniAval
    Local 	$msg, $run, $os
    Global 	$inifile, $tr_tab
    Global 	$Sys_chk, $Proc_chk, $Serv_chk, $FileAssoc_chk, $STsk_chk
@@ -276,6 +276,12 @@ Func TriageGUI()						;Creates a graphical user interface for Triage
 			$OS_Arch = "32 Bit"
 		Else
 			$OS_Arch = "64 Bit"
+		EndIf
+
+		If FileExists(@ScriptDir & "\IRTriage.ini") Then
+			$iniAval = " System. Reading configuration from IRTriage.ini"
+		Else
+			$iniAval = " System. IRTriage.ini unavailable, defaults used."
 		EndIf
 
 	  $font = "Arial"
@@ -304,7 +310,7 @@ Func TriageGUI()						;Creates a graphical user interface for Triage
 
 	  $inidsp = StringTrimLeft($ini_file, StringInStr($ini_file, "\", 0, -1))
 
-	  $iniread = GUICtrlCreateLabel(" Running on " & @OSVersion & ", " & $OS_Arch & " System. Reading configuration from " & $inidsp, 2, 253, 470, 20, BitOR($SS_SIMPLE, $SS_SUNKEN))
+	  $iniread = GUICtrlCreateLabel(" Running on " & @OSVersion & ", " & $OS_Arch & $iniAval, 2, 253, 470, 20, BitOR($SS_SIMPLE, $SS_SUNKEN))
 
 	  $tr_tab = GUICtrlCreateTab(3, 5, 805, 235)
 
