@@ -7,20 +7,20 @@
 #pragma compile(FileDescription, IRTriage - Digital Forensic Incident Response Triage Tool)
 #pragma compile(ProductName, IRTriage)
 #pragma compile(ProductVersion, 2)
-#pragma compile(FileVersion, 2.16.03.13)
+#pragma compile(FileVersion, 2.16.03.14)
 #pragma compile(InternalName, "IRTriage")
 #pragma compile(LegalCopyright, © Alain Martel)
 #pragma compile(LegalTrademarks, 'Released under GPL 3, Free Open Source Software')
 #pragma compile(OriginalFilename, IRTriage.exe)
 #pragma compile(ProductName, Incident Response Triage)
-#pragma compile(ProductVersion, 2.16.03.13)
+#pragma compile(ProductVersion, 2.16.03.14)
 
 #comments-start =============================================================================================================================
 	Tool:			Incident Respone Triage:    (GUI)
 
 	Script Function:	Forensic Triage Application
 
-	Version:		2.16.03.13       (Version 2, Last updated: 2016 Mar 13)
+	Version:		2.16.03.14       (Version 2, Last updated: 2016 Mar 14)
 
 	Original Author:	Michael Ahrendt (TriageIR v.851 last uploaded\modified 9 Nov 2012)
                            https://storage.googleapis.com/google-code-archive-downloads/v2/code.google.com/triage-ir/TriageIR%20v.851.zip
@@ -96,7 +96,9 @@
 					*SystemInfo
 						**wmic /output:InstallList.csv product get /format:csv
 						**wmic /output:InstallHotfix.csv qfe get caption,csname,description,hotfixid,installedby,installedon /format:csv
-						**wmic /output:"' & $RptsDir & '\InstallList.csv" product get /format:csv
+						**wmic /output:InstallList.csv product get /format:csv
+					*Prefetch
+						**WinPrefetchView /Folder Prefetch /stab Prefetch.csv
 					*Options
 						**mftdump.exe /l /m ComputerName /o ComputerName-MFT_Dump.csv $MFTcopy
 					*GUI
@@ -113,7 +115,7 @@
 #include <Array.au3>
 
 
-Global  $Version = "2.16.03.13"                                      ;Added to facilitate display of version info (MajorVer.YY.MM.DD)
+Global  $Version = "2.16.03.14"                                      ;Added to facilitate display of version info (MajorVer.YY.MM.DD)
 Global 	$tStamp = @YEAR & @MON & @MDAY & @HOUR & @MIN & @SEC
 Global	$RptsDir = @ScriptDir & "\" & $tStamp & "-" & @ComputerName
 Global	$EvDir = $RptsDir & "\Evidence\"
@@ -134,6 +136,7 @@ Global  $p_chkc = 1                                                  ;fixed miss
 Global  $r_chk = 0                                                   ;fixed missing value that killed command logging
 Global  $r_ini = 0                                                   ;fixed missing value that killed command logging
 
+   ;Determining the operating system since file paths between them are different
    ;@OSVersion currently returns one of the following:
    ;for Windows Workstations "WIN_10", "WIN_81", "WIN_8", "WIN_7", "WIN_VISTA", "WIN_XP", "WIN_XPe",
    ;for Windows Servers: "WIN_2016", "WIN_2012R2", "WIN_2012", "WIN_2008R2", "WIN_2008", "WIN_2003"".
@@ -860,7 +863,7 @@ Func TriageGUI()						;Creates a graphical user interface for Triage
 
 			If(GUICtrlRead($OpenCMD) = 1) Then
 				;Open Custom IRTriage Command Prompt after completion
-				Run(@ScriptDir & '\Tools\cmd.exe /K', $RptsDir & "\", @SW_SHOWNORMAL )
+				Run(@ScriptDir & '\Tools\cmd.exe /K prompt %username%@%computername%$_$P$$$S', $RptsDir & "\", @SW_SHOWNORMAL )
 			EndIf
 
 		 EndIf
@@ -1567,11 +1570,17 @@ EndFunc
 Func Prefetch()							;Copy any prefecth data while maintaining metadata
    Local $robocopy = '"' & @ScriptDir & '\Tools\robocopy.exe"'
    Local $pf1 = $shellex & $robocopy & ' "' & @WindowsDir & '\Prefetch" "' & $EvDir & '\Prefetch" /copyall /ZB /TS /r:4 /w:3 /FP /NP /log:"' & $CpDir & '\PrefetchCopyLog.txt"'
+   Local $WinPrefetchView = '"' & @ScriptDir & '\Tools\NirSoft\WinPrefetchView.exe"'
+   Local $pf2 = $shellex & $WinPrefetchView & ' /Folder "' & $EvDir & 'Prefetch" /stab "' & $ColDir & 'Prefetch.csv"'
+
+   PrefetchParseTools()
 
    If Not FileExists($EvDir & "\Prefetch") Then DirCreate($EvDir & "\Prefetch")
 
    ShellExecuteWait($robocopy, ' "' & @WindowsDir & '\Prefetch" "' & $EvDir & '\Prefetch" /copyall /ZB /TS /r:4 /w:3 /FP /NP /log:"' & $CpDir & '\PrefetchCopyLog.txt"', $tools, "", @SW_HIDE)
 	  FileWriteLine($Log, @YEAR&"-"&@MON&"-"&@MDAY&@TAB&@HOUR&":"&@MIN&":"&@SEC&":"&@MSEC&@TAB&"Executed command:" &@TAB& $pf1 & @CRLF)
+   ShellExecuteWait($WinPrefetchView, ' /Folder "' & $EvDir & 'Prefetch" /stab "' & $ColDir & 'Prefetch.csv"', $tools & "NirSoft\", "", @SW_HIDE)
+	  FileWriteLine($Log, @YEAR&"-"&@MON&"-"&@MDAY&@TAB&@HOUR&":"&@MIN&":"&@SEC&":"&@MSEC&@TAB&"Executed command:" &@TAB& $pf2 & @CRLF)
 EndFunc
 
 Func RecentFolder()						;Send information to the recent folder copy function
@@ -3181,10 +3190,22 @@ Func LogViewTools()
 			EndIf
 			   FileInstall(".\Compile\Tools\NirSoft\CSVFileView.exe", @ScriptDir & "\Tools\NirSoft\", 0)
 ;			   FileInstall(".\Compile\Tools\NirSoft\CSVFileView.chm", @ScriptDir & "\Tools\NirSoft\", 0)
-;			   FileInstall(".\Compile\Tools\NirSoft\readme.txt", @ScriptDir & "\Tools\NirSoft\", 0)
+;			   FileInstall(".\Compile\Tools\NirSoft\CSVFileViewReadme.txt", @ScriptDir & "\Tools\NirSoft\", 0)
 
 EndFunc
 
+Func PrefetchParseTools()
+
+			If Not FileExists(@ScriptDir & "\Tools\NirSoft\") Then
+			   Do
+				  DirCreate(@ScriptDir & "\Tools\NirSoft\")
+			   Until FileExists(@ScriptDir & "\Tools\NirSoft\")
+			EndIf
+			   FileInstall(".\Compile\Tools\NirSoft\WinPrefetchView.exe", @ScriptDir & "\Tools\NirSoft\", 0)
+;			   FileInstall(".\Compile\Tools\NirSoft\WinPrefetchView.chm", @ScriptDir & "\Tools\NirSoft\", 0)
+;			   FileInstall(".\Compile\Tools\NirSoft\WinPrefetchViewReadme.txt", @ScriptDir & "\Tools\NirSoft\", 0)
+
+EndFunc
 
 Func InitDir()
 
@@ -3214,6 +3235,8 @@ wmic useraccount list brief
 wmic bios list brief
 wmic diskdrive list brief
 wmic shadowcopy list brief
+
+C:\windows\system32\wbem\wmic.exe
 
 #comments-end
 
