@@ -28,7 +28,7 @@ The IRTriage is itself just an autoit script that depend on other tools such as:
 - Sysinternals Suite
 - The Sleuth Kit
 - Regripper
-- mftdump
+- NirSoft => MFTDump and WinPrefetchView
 - md5deep and sha1deep
 - CSVFileView
 - 7zip
@@ -66,6 +66,9 @@ Version 2016.02.26
 		- wmic /output:InstallList.csv product get /format:csv
 		- wmic /output:InstallHotfix.csv qfe get caption,csname,description,hotfixid,installedby,installedon /format:csv
 		
+	*Prefetch
+		**WinPrefetchView /Folder Prefetch /stab Prefetch.csv 
+		
 	*Options()
 		- mftdump.exe /l /m ComputerName /o ComputerName-MFT_Dump.csv $MFTcopy
 		
@@ -89,6 +92,7 @@ Version 2016.03.08
      - uname = ver, version
      - vmstat = memory, mem
      - # = rem
+
 Just to name a few.
 
 Version 2016.03.08
@@ -104,9 +108,12 @@ Version 2016.03.10
 Version 2016.03.11
    - Updated cmd.exe
    - Added ability to open IRTriage's cmd.exe after acquisition completed.
+    
+Version 2016.03.14
+   - Added Prefetch parce to CSV
 
-Future Updates\Features will be based on this report: [On-scene_Triage_open_source_forensic_tool_chests_Are_they_effective](http://www.researchgate.net/profile/Stavros_Shiaeles/publication/236681282_On-scene_Triage_open_source_forensic_tool_chests_Are_they_effective/links/00b4953ac91d0d0086000000.pdf?inViewer=true&pdfJsDownload=true&disableCoverPage=true&origin=publication_detail)
+Future Updates\Features will be based on this report: [On-scene Triage open source forensic tool chests are they effective.](http://www.researchgate.net/profile/Stavros_Shiaeles/publication/236681282_On-scene_Triage_open_source_forensic_tool_chests_Are_they_effective/links/00b4953ac91d0d0086000000.pdf?inViewer=true&pdfJsDownload=true&disableCoverPage=true&origin=publication_detail)
 
 Next step is to integrate [Didier Stevens](http://blog.didierstevens.com/2015/12/13/windows-backup-privilege-cmd-exe/)'s new commands: privilege and info. Both new commands would be invaluable for a Forensic Analyst. I hope he is willing to help me integrate his mods into the latest version of ReactOS's "cmd.exe", so far I have failed any attempts;-(
 
-Source for [IRTriage command processor](https://github.com/AJMartel/IRTriageCMD)
+Source for [IRTriage command processor.](https://github.com/AJMartel/IRTriageCMD)
