@@ -7,21 +7,23 @@
 #pragma compile(FileDescription, IRTriage - Digital Forensic Incident Response Triage Tool)
 #pragma compile(ProductName, IRTriage)
 #pragma compile(ProductVersion, 2)
-#pragma compile(FileVersion, 2.16.03.16)
+#pragma compile(FileVersion, 2.16.03.21)
 #pragma compile(InternalName, "IRTriage")
 #pragma compile(LegalCopyright, © Alain Martel)
 #pragma compile(LegalTrademarks, 'Released under GPL 3, Free Open Source Software')
 #pragma compile(OriginalFilename, IRTriage.exe)
 #pragma compile(ProductName, Incident Response Triage)
-#pragma compile(ProductVersion, 2.16.03.16)
+#pragma compile(ProductVersion, 2.16.03.21)
 #AutoIt3Wrapper_icon=IRTriage.ico
+;#Compiler_Res_Language=1033
+;#AutoIt3Wrapper_Res_Language=1033
 
 #comments-start =============================================================================================================================
 	Tool:			Incident Respone Triage:    (GUI)
 
 	Script Function:	Forensic Triage Application
 
-	Version:		2.16.03.16       (Version 2, Last updated: 2016 Mar 16)
+	Version:		2.16.03.21       (Version 2, Last updated: 2016 Mar 21)
 
 	Original Author:	Michael Ahrendt (TriageIR v.851 last uploaded\modified 9 Nov 2012)
                            https://storage.googleapis.com/google-code-archive-downloads/v2/code.google.com/triage-ir/TriageIR%20v.851.zip
@@ -116,12 +118,13 @@
 #include <Array.au3>
 
 
-Global  $Version = "2.16.03.16"                                      ;Added to facilitate display of version info (MajorVer.YY.MM.DD)
+Global  $Version = "2.16.03.21"                                      ;Added to facilitate display of version info (MajorVer.YY.MM.DD)
 Global 	$tStamp = @YEAR & @MON & @MDAY & @HOUR & @MIN & @SEC
 Global	$RptsDir = @ScriptDir & "\" & $tStamp & "-" & @ComputerName
 Global	$EvDir = $RptsDir & "\Evidence\"
 Global	$MemDir = $EvDir & "Memory\"                                 ;added to make finding the memory image easier
 Global	$RegDir = $EvDir & "Registry\"                               ;added to make finding the registry files easier
+Global	$RegReportDir = $EvDir & "Registry\Report\"                  ;added to make finding the RegRipper Reports easier
 Global  $ColDir = $EvDir & "Collected\"                              ;added to make finding the collected files easier
 Global  $MFTDir = $EvDir & "MFT\"                                    ;added to make finding the MFT record files easier
 Global  $CpDir  = $RptsDir & "\CopyLogs"
@@ -1898,11 +1901,11 @@ Func RegRipper()						;Special thanks to Harlan Carvey for his excellent tool.
    Local $samhiv = 'SAM_' & @ComputerName & '.hiv'
    Local $sechiv = 'SECURITY_' & @ComputerName & '.hiv'
    Local $hkcuhiv = 'HKCU_' & @ComputerName & '.hiv'
-   Local $sysexe1 = $shellex & 'rip.exe -r "' & $RegDir & $syshiv & '" -f system > "' & $RegDir & 'SYSTEM_Ripped_Report.txt"'
-   Local $softexe1 = $shellex & 'rip.exe -r "' & $RegDir & $softhiv & '" -f software > "' & $RegDir & 'SOFTWARE_Ripped_Report.txt"'
-   Local $samexe1 = $shellex & 'rip.exe -r "' & $RegDir & $samhiv & '" -f sam > "' & $RegDir & 'SAM_Ripped_Report.txt"'
-   Local $secexe1 = $shellex & 'rip.exe -r "' & $RegDir & $sechiv & '" -f security > "' & $RegDir & 'SECURITY_Ripped_Report.txt"'
-   Local $ntuexe1 = $shellex & 'rip.exe -r "' & $RegDir & $hkcuhiv & '" -f NTUSER > "' & $RegDir & 'NTUSER_Ripped_Report.txt"'
+   Local $sysexe1 = $shellex & 'rip.exe -r "' & $RegDir & $syshiv & '" -f system > "' & $RegReportDir & 'SYSTEM_Ripped_Report.txt"'
+   Local $softexe1 = $shellex & 'rip.exe -r "' & $RegDir & $softhiv & '" -f software > "' & $RegReportDir & 'SOFTWARE_Ripped_Report.txt"'
+   Local $samexe1 = $shellex & 'rip.exe -r "' & $RegDir & $samhiv & '" -f sam > "' & $RegReportDir & 'SAM_Ripped_Report.txt"'
+   Local $secexe1 = $shellex & 'rip.exe -r "' & $RegDir & $sechiv & '" -f security > "' & $RegReportDir & 'SECURITY_Ripped_Report.txt"'
+   Local $ntuexe1 = $shellex & 'rip.exe -r "' & $RegDir & $hkcuhiv & '" -f NTUSER > "' & $RegReportDir & 'NTUSER_Ripped_Report.txt"'
 
    RunWait($sysexe1, @ScriptDir & "\Tools\RegRipper\", @SW_HIDE)
    	  FileWriteLine($Log, @YEAR&"-"&@MON&"-"&@MDAY&@TAB&@HOUR&":"&@MIN&":"&@SEC&":"&@MSEC&@TAB&"Executed command:" &@TAB& $sysexe1 & @CRLF)
@@ -1920,7 +1923,7 @@ Func RegRipper()						;Special thanks to Harlan Carvey for his excellent tool.
 	  While 1
 
 		 Local $nxtdat = FileFindNextFile($dat)
-		 Local $ntuexe2 = $shellex & 'rip.exe -r "' & $RegDir & $nxtdat & '" -f NTUSER > "' & $RegDir & $nxtdat & '_Ripped_Report.txt"'
+		 Local $ntuexe2 = $shellex & 'rip.exe -r "' & $RegDir & $nxtdat & '" -f NTUSER > "' & $RegReportDir & $nxtdat & '_Ripped_Report.txt"'
 
 		 If @Error Then ExitLoop
 
@@ -2061,12 +2064,34 @@ Func GetShadowNames()					;Query WMIC for list of Volume Shadow Copy mount point
 			   ("Select * from Win32_ShadowCopy")
 
    $n = 1
-   $str = ''
+   $strVSC = ''
    For $objList In $colAdapters
-	  $str &= $objList.DeviceObject & @CRLF
+	  $strVSC &= $objList.DeviceObject & @CRLF
    Next
 
-   FileWrite("VSCmnts.txt", $str)
+   FileWrite("VSCmnts.txt", $strVSC)
+
+
+;The following works as a standalone vbs script
+;
+;	strComputer = "."
+;	Set objWMIService = GetObject("winmgmts:{impersonationLevel=impersonate}!\\" & strComputer & "\root\cimv2")
+;	set colAdapters = objWMIService.ExecQuery("Select * from Win32_ShadowCopy")
+
+;	For Each objList In colAdapters
+;		strVSC = objList.DeviceObject
+;		WriteLineToFile()
+;	Next
+
+;	Function WriteLineToFile
+;	   Const ForReading = 1, ForWriting = 2, ForAppending = 8
+;	   Dim fso, f
+;	   Set fso = CreateObject("Scripting.FileSystemObject")
+;	   Set f = fso.OpenTextFile("VSCmnts.txt", ForAppending, True)
+;	   f.WriteLine strVSC
+;	   Set f = fso.OpenTextFile("VSCmnts.txt", ForReading)
+;	   WriteLineToFile = f.ReadAll
+;	End Function
 
 EndFunc
 
@@ -2536,7 +2561,7 @@ Func SelectAll()						;Function to select all functions within a GUI
    GUICtrlSetState($VS_SAMREG_chk, $GUI_CHECKED)
    GUICtrlSetState($VS_SOFTREG_chk, $GUI_CHECKED)
    GUICtrlSetState($VS_USERREG_chk, $GUI_CHECKED)
-   GUICtrlSetState($sysint_chk, $GUI_CHECKED)
+   GUICtrlSetState($sysint_chk, $GUI_UNCHECKED)
    GUICtrlSetState($IPs_chk, $GUI_CHECKED)
    GUICtrlSetState($DNS_chk, $GUI_CHECKED)
    GUICtrlSetState($ARP_chk, $GUI_CHECKED)
@@ -2564,7 +2589,7 @@ Func SelectAll()						;Function to select all functions within a GUI
    GUICtrlSetState($sha1_chk, $GUI_CHECKED)
    GUICtrlSetState($regrip_chk, $GUI_CHECKED)
    GUICtrlSetState($MFTDump_chk, $GUI_CHECKED)
-   GUICtrlSetState($compress_chk, $GUI_CHECKED)
+   GUICtrlSetState($compress_chk, $GUI_UNCHECKED)
 
 EndFunc
 
@@ -3214,6 +3239,7 @@ Func InitDir()
 			If Not FileExists($EvDir) Then DirCreate($EvDir)
 			If Not FileExists($MemDir) Then DirCreate($MemDir)
 			If Not FileExists($RegDir) Then DirCreate($RegDir)
+			If Not FileExists($RegReportDir) Then DirCreate($RegReportDir)
 			If Not FileExists($ColDir) Then DirCreate($ColDir)
 			If Not FileExists($CpDir) Then DirCreate($CpDir)
 			If Not FileExists($MFTDir) Then DirCreate($MFTDir)
