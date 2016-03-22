@@ -7,13 +7,13 @@
 #pragma compile(FileDescription, IRTriage - Digital Forensic Incident Response Triage Tool)
 #pragma compile(ProductName, IRTriage)
 #pragma compile(ProductVersion, 2)
-#pragma compile(FileVersion, 2.16.03.21)
+#pragma compile(FileVersion, 2.16.03.22)
 #pragma compile(InternalName, "IRTriage")
 #pragma compile(LegalCopyright, © Alain Martel)
 #pragma compile(LegalTrademarks, 'Released under GPL 3, Free Open Source Software')
 #pragma compile(OriginalFilename, IRTriage.exe)
 #pragma compile(ProductName, Incident Response Triage)
-#pragma compile(ProductVersion, 2.16.03.21)
+#pragma compile(ProductVersion, 2.16.03.22)
 #AutoIt3Wrapper_icon=IRTriage.ico
 ;#Compiler_Res_Language=1033
 ;#AutoIt3Wrapper_Res_Language=1033
@@ -23,7 +23,7 @@
 
 	Script Function:	Forensic Triage Application
 
-	Version:		2.16.03.21       (Version 2, Last updated: 2016 Mar 21)
+	Version:		2.16.03.22       (Version 2, Last updated: 2016 Mar 22)
 
 	Original Author:	Michael Ahrendt (TriageIR v.851 last uploaded\modified 9 Nov 2012)
                            https://storage.googleapis.com/google-code-archive-downloads/v2/code.google.com/triage-ir/TriageIR%20v.851.zip
@@ -118,7 +118,7 @@
 #include <Array.au3>
 
 
-Global  $Version = "2.16.03.21"                                      ;Added to facilitate display of version info (MajorVer.YY.MM.DD)
+Global  $Version = "2.16.03.22"                                      ;Added to facilitate display of version info (MajorVer.YY.MM.DD)
 Global 	$tStamp = @YEAR & @MON & @MDAY & @HOUR & @MIN & @SEC
 Global	$RptsDir = @ScriptDir & "\" & $tStamp & "-" & @ComputerName
 Global	$EvDir = $RptsDir & "\Evidence\"
@@ -2055,43 +2055,28 @@ Func MFTgrab()							;Use iCat to rip a file from NTFS file system
 	  FileWriteLine($Log, @YEAR&"-"&@MON&"-"&@MDAY&@TAB&@HOUR&":"&@MIN&":"&@SEC&":"&@MSEC&@TAB&"Executed command:" &@TAB& $MFTc & @CRLF)
    EndFunc
 
-Func GetShadowNames()					;Query WMIC for list of Volume Shadow Copy mount points
+Func GetShadowNames()					;Query WMIC for list of Volume Shadow Copy mount points (FIX THIS)
+                                        ;You must run VSClist.vbs manually for VSC to work
+Local $code=          'strComputer = "."'
+$code=$code & @CRLF & 'Set objWMIService = GetObject("winmgmts:{impersonationLevel=impersonate}!\\" & strComputer & "\root\cimv2")'
+$code=$code & @CRLF & 'set colAdapters = objWMIService.ExecQuery("Select * from Win32_ShadowCopy")'
+$code=$code & @CRLF
+$code=$code & @CRLF & 'For Each objList In colAdapters'
+$code=$code & @CRLF & '   strVSC = objList.DeviceObject'
+$code=$code & @CRLF & '   WriteLineToFile()'
+$code=$code & @CRLF & 'Next'
+$code=$code & @CRLF
+$code=$code & @CRLF & 'Function WriteLineToFile'
+$code=$code & @CRLF & '   Dim fso, f'
+$code=$code & @CRLF & '   Set fso = CreateObject("Scripting.FileSystemObject")'
+$code=$code & @CRLF & '   Set f = fso.OpenTextFile("VSCmnts.txt", 8, True)'
+$code=$code & @CRLF & '   f.WriteLine strVSC'
+$code=$code & @CRLF & 'End Function'
 
-   Local	$strComputer = "."
-   Local	$objWMIService = ObjGet("winmgmts:" _
-			   & "{impersonationLevel=impersonate}!\\" & $strComputer & "\root\cimv2")
-   Local	$colAdapters = $objWMIService.ExecQuery _
-			   ("Select * from Win32_ShadowCopy")
+FileWrite("VSClist.vbs", $code)
 
-   $n = 1
-   $strVSC = ''
-   For $objList In $colAdapters
-	  $strVSC &= $objList.DeviceObject & @CRLF
-   Next
-
-   FileWrite("VSCmnts.txt", $strVSC)
-
-
-;The following works as a standalone vbs script
-;
-;	strComputer = "."
-;	Set objWMIService = GetObject("winmgmts:{impersonationLevel=impersonate}!\\" & strComputer & "\root\cimv2")
-;	set colAdapters = objWMIService.ExecQuery("Select * from Win32_ShadowCopy")
-
-;	For Each objList In colAdapters
-;		strVSC = objList.DeviceObject
-;		WriteLineToFile()
-;	Next
-
-;	Function WriteLineToFile
-;	   Const ForReading = 1, ForWriting = 2, ForAppending = 8
-;	   Dim fso, f
-;	   Set fso = CreateObject("Scripting.FileSystemObject")
-;	   Set f = fso.OpenTextFile("VSCmnts.txt", ForAppending, True)
-;	   f.WriteLine strVSC
-;	   Set f = fso.OpenTextFile("VSCmnts.txt", ForReading)
-;	   WriteLineToFile = f.ReadAll
-;	End Function
+;RunWait('%WINDIR%\SysWOW64\Cmd.exe' & ' /c c:\windows\SysWOW64\wscript.exe "' & @ScriptDir & '\VSClist.vbs"', @ScriptDir, @SW_HIDE) ;32 bit
+;RunWait('%WINDIR%\System32\Cmd.exe /c' & ' /c c:\windows\System32\wscript.exe "' & @ScriptDir & '\VSClist.vbs"', @ScriptDir, @SW_HIDE) ;64 bit
 
 EndFunc
 
@@ -3264,6 +3249,23 @@ wmic diskdrive list brief
 wmic shadowcopy list brief
 
 C:\windows\system32\wbem\wmic.exe
+
+
+#include <Constants.au3>
+ConsoleWrite( _GetDOSOutput("ping 4.2.2.2") & @CRLF)
+Func _GetDOSOutput($sCommand)
+    Local $iPID, $sOutput = ""
+
+    $iPID = Run('"' & @ComSpec & '" /c ' & $sCommand, "", @SW_HIDE, $STDERR_CHILD + $STDOUT_CHILD)
+    While 1
+        $sOutput &= StdoutRead($iPID, False, False)
+        If @error Then
+            ExitLoop
+        EndIf
+        Sleep(10)
+    WEnd
+    Return $sOutput
+EndFunc   ;==>_GetDOSOutput
 
 #comments-end
 
