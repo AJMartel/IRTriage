@@ -7,13 +7,13 @@
 #pragma compile(FileDescription, IRTriage - Digital Forensic Incident Response Triage Tool)
 #pragma compile(ProductName, IRTriage)
 #pragma compile(ProductVersion, 2)
-#pragma compile(FileVersion, 2.16.03.22)
+#pragma compile(FileVersion, 2.16.03.23)
 #pragma compile(InternalName, "IRTriage")
 #pragma compile(LegalCopyright, © Alain Martel)
 #pragma compile(LegalTrademarks, 'Released under GPL 3, Free Open Source Software')
 #pragma compile(OriginalFilename, IRTriage.exe)
 #pragma compile(ProductName, Incident Response Triage)
-#pragma compile(ProductVersion, 2.16.03.22)
+#pragma compile(ProductVersion, 2.16.03.23)
 #AutoIt3Wrapper_icon=IRTriage.ico
 ;#Compiler_Res_Language=1033
 ;#AutoIt3Wrapper_Res_Language=1033
@@ -23,7 +23,7 @@
 
 	Script Function:	Forensic Triage Application
 
-	Version:		2.16.03.22       (Version 2, Last updated: 2016 Mar 22)
+	Version:		2.16.03.23       (Version 2, Last updated: 2016 Mar 23)
 
 	Original Author:	Michael Ahrendt (TriageIR v.851 last uploaded\modified 9 Nov 2012)
                            https://storage.googleapis.com/google-code-archive-downloads/v2/code.google.com/triage-ir/TriageIR%20v.851.zip
@@ -116,9 +116,10 @@
 #Include <Date.au3>
 #Include <File.au3>
 #include <Array.au3>
+#include <Process.au3>
 
 
-Global  $Version = "2.16.03.22"                                      ;Added to facilitate display of version info (MajorVer.YY.MM.DD)
+Global  $Version = "2.16.03.23"                                      ;Added to facilitate display of version info (MajorVer.YY.MM.DD)
 Global 	$tStamp = @YEAR & @MON & @MDAY & @HOUR & @MIN & @SEC
 Global	$RptsDir = @ScriptDir & "\" & $tStamp & "-" & @ComputerName
 Global	$EvDir = $RptsDir & "\Evidence\"
@@ -2057,26 +2058,32 @@ Func MFTgrab()							;Use iCat to rip a file from NTFS file system
 
 Func GetShadowNames()					;Query WMIC for list of Volume Shadow Copy mount points (FIX THIS)
                                         ;You must run VSClist.vbs manually for VSC to work
-Local $code=          'strComputer = "."'
-$code=$code & @CRLF & 'Set objWMIService = GetObject("winmgmts:{impersonationLevel=impersonate}!\\" & strComputer & "\root\cimv2")'
-$code=$code & @CRLF & 'set colAdapters = objWMIService.ExecQuery("Select * from Win32_ShadowCopy")'
-$code=$code & @CRLF
-$code=$code & @CRLF & 'For Each objList In colAdapters'
-$code=$code & @CRLF & '   strVSC = objList.DeviceObject'
-$code=$code & @CRLF & '   WriteLineToFile()'
-$code=$code & @CRLF & 'Next'
-$code=$code & @CRLF
-$code=$code & @CRLF & 'Function WriteLineToFile'
-$code=$code & @CRLF & '   Dim fso, f'
-$code=$code & @CRLF & '   Set fso = CreateObject("Scripting.FileSystemObject")'
-$code=$code & @CRLF & '   Set f = fso.OpenTextFile("VSCmnts.txt", 8, True)'
-$code=$code & @CRLF & '   f.WriteLine strVSC'
-$code=$code & @CRLF & 'End Function'
+Local $vbsCode=             'strComputer = "."'
+$vbsCode=$vbsCode & @CRLF & 'Set objWMIService = GetObject("winmgmts:{impersonationLevel=impersonate}!\\" & strComputer & "\root\cimv2")'
+$vbsCode=$vbsCode & @CRLF & 'set colAdapters = objWMIService.ExecQuery("Select * from Win32_ShadowCopy")'
+$vbsCode=$vbsCode & @CRLF
+$vbsCode=$vbsCode & @CRLF & 'For Each objList In colAdapters'
+$vbsCode=$vbsCode & @CRLF & '   strVSC = objList.DeviceObject'
+$vbsCode=$vbsCode & @CRLF & '   WriteLineToFile()'
+$vbsCode=$vbsCode & @CRLF & 'Next'
+$vbsCode=$vbsCode & @CRLF
+$vbsCode=$vbsCode & @CRLF & 'Function WriteLineToFile'
+$vbsCode=$vbsCode & @CRLF & '   Dim fso, f'
+$vbsCode=$vbsCode & @CRLF & '   Set fso = CreateObject("Scripting.FileSystemObject")'
+$vbsCode=$vbsCode & @CRLF & '   Set f = fso.OpenTextFile("VSCmnts.txt", 8, True)'
+$vbsCode=$vbsCode & @CRLF & '   f.WriteLine strVSC'
+$vbsCode=$vbsCode & @CRLF & 'End Function'
 
-FileWrite("VSClist.vbs", $code)
+FileWrite("VSClist.vbs", $vbsCode)     ;VBS not working
 
-;RunWait('%WINDIR%\SysWOW64\Cmd.exe' & ' /c c:\windows\SysWOW64\wscript.exe "' & @ScriptDir & '\VSClist.vbs"', @ScriptDir, @SW_HIDE) ;32 bit
-;RunWait('%WINDIR%\System32\Cmd.exe /c' & ' /c c:\windows\System32\wscript.exe "' & @ScriptDir & '\VSClist.vbs"', @ScriptDir, @SW_HIDE) ;64 bit
+Local $batCode=             'vssadmin list shadows | findstr GLOBALROOT | tools\cut -d: -f 2 > VSCmnts.txt'
+
+FileWrite("VSClist.bat", $batCode)     ;batch file not working
+
+;Runwait(@ComSpec & " /K " & "vssadmin list shadows | findstr GLOBALROOT | tools\cut -d: -f 2 > VSCmnts.txt", @ScriptDir, @SW_SHOW)
+;vssadmin list shadows | findstr GLOBALROOT | cut -d: -f 2 > VSCmnts.txt
+;RunWait('"%WINDIR%\SysWOW64\Cmd.exe"' & ' /c vssadmin list shadows | findstr GLOBALROOT | tools\cut -d: -f 2 > ' & @ScriptDir & "\VSCmnts.txt", @ScriptDir, @SW_HIDE)
+;RunWait('%WINDIR%\SysWOW64\Cmd.exe' & ' /c c:\windows\SysWOW64\wscript.exe /B"' & @ScriptDir & '\VSClist.vbs"', @ScriptDir, @SW_HIDE)
 
 EndFunc
 
@@ -2087,7 +2094,7 @@ Func MountVSCs()						;Mount any Volume Shadow Copies found on the PC
    Do
 	  $mntpt = FileReadLine("VSCmnts.txt", $v)
 	  If $mntpt = "" Then ExitLoop
-	  $mntvsccmd = @ComSpec & ' /c mklink /D C:\VSC_' & $v & " " & $mntpt & "\"
+	  $mntvsccmd = @ComSpec & ' /c mklink /D C:\VSC_' & $v & $mntpt & "\"
 	  Run($mntvsccmd, "", @SW_HIDE)
 	  $v = $v + 1
    Until $v = _FileCountLines("VSCmnts.txt") + 1
