@@ -20,7 +20,7 @@ ConsoleWrite($Filename & " ver " & $sVersion & @CR)
 Local $sHeaderLine
 ; get version for non-compiled script (get the script version (#AutoIt3Wrapper_Res_Fileversion=1.0.1.0)
 If $sVersion = "0.0.0.0" And StringInStr($Filename,".au3") > 0 Then
-	For $i = 2 to 10
+	For $i = 2 to 15
 		$sHeaderLine = FileReadLine($Filename, $i)
 		If StringLeft($sHeaderLine, 10) = "#EndRegion" Then ExitLoop ; not found
 		If StringInStr($sHeaderLine, "FileVersion") > 0 Then
