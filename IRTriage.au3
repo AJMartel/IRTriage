@@ -7,13 +7,13 @@
 #pragma compile(FileDescription, IRTriage - Digital Forensic Incident Response Triage Tool)
 #pragma compile(ProductName, IRTriage)
 #pragma compile(ProductVersion, 2)
-#pragma compile(FileVersion, 2.16.03.23)
+#pragma compile(FileVersion, 2.16.03.24)
 #pragma compile(InternalName, "IRTriage")
 #pragma compile(LegalCopyright, © Alain Martel)
 #pragma compile(LegalTrademarks, 'Released under GPL 3, Free Open Source Software')
 #pragma compile(OriginalFilename, IRTriage.exe)
 #pragma compile(ProductName, Incident Response Triage)
-#pragma compile(ProductVersion, 2.16.03.23)
+#pragma compile(ProductVersion, 2.16.03.24)
 #AutoIt3Wrapper_icon=IRTriage.ico
 ;#Compiler_Res_Language=1033
 ;#AutoIt3Wrapper_Res_Language=1033
@@ -23,7 +23,7 @@
 
 	Script Function:	Forensic Triage Application
 
-	Version:		2.16.03.23       (Version 2, Last updated: 2016 Mar 23)
+	Version:		2.16.03.24       (Version 2, Last updated: 2016 Mar 24)
 
 	Original Author:	Michael Ahrendt (TriageIR v.851 last uploaded\modified 9 Nov 2012)
                            https://storage.googleapis.com/google-code-archive-downloads/v2/code.google.com/triage-ir/TriageIR%20v.851.zip
@@ -77,7 +77,7 @@
  	Fixes/Changes:
  			-Changed name of project from Triage-IR to IRTriage (Triage-IR is no longer under development)
  			-Fixed broken command logging = Now logs all commands that were executed to TAB delimited csv file
- 			-Updated software = all software packages are updated 10 Feb 2016 (no longer using software from Nov 2012)
+ 			-Updated software = all software packages are updated 24 Mar 2016 (no longer using software from Nov 2012)
  			-Using FDpro if available otherwise defaults to win[32|64]dd community edition
  			-Fixed issues with software not running (*=Main Package, **=Changes)
 					*Sleuthkit (icat, ifind) not functioning due to miss-matched dlls (64 vs 32bit) and known dlls (local files no first)
@@ -108,6 +108,40 @@
 						**CSVFileView.exe IncidentLog.csv ;Added Checkbox to view IncidentLog after Acquisition
 						**CMD.exe                         ;Added Checkbox to open custom IRtriage command prompt after Acquisition
 
+	Bugs
+		Func GetShadowNames();Does NOT work!
+			Problems encountered on 64 bit systems (not tested on 32 bit systems yet)
+				*VBS script Fails when executed from within Autoit
+					VBSList.vbs
+					*******************************************************************************************************************
+					*	strComputer = "."                                                                                             *
+					*	Set objWMIService = GetObject("winmgmts:{impersonationLevel=impersonate}!\\" & strComputer & "\root\cimv2")   *
+					*	set colAdapters = objWMIService.ExecQuery("Select * from Win32_ShadowCopy")                                   *
+					*                                                                                                                 *
+					*	For Each objList In colAdapters                                                                               *
+					*		strVSC = objList.DeviceObject                                                                             *
+					*		WriteLineToFile()                                                                                         *
+					*	Next                                                                                                          *
+					*                                                                                                                 *
+					*	Function WriteLineToFile                                                                                      *
+					*		Dim fso, f                                                                                                *
+					*		Set fso = CreateObject("Scripting.FileSystemObject")                                                      *
+					*		Set f = fso.OpenTextFile("VSCmnts.txt", 8, True)                                                          *
+					*		f.WriteLine strVSC                                                                                        *
+					*	End Function                                                                                                  *
+					*******************************************************************************************************************
+
+				*Batch file Fails when executed from within Autoit
+					VSClist.bat
+					*******************************************************************************************************************
+					*	vssadmin list shadows | findstr GLOBALROOT | Tools\UnixUtils\cut.exe -d: -f 2 > VSCmnts.txt                   *
+					*******************************************************************************************************************
+
+			Current workaround for Func GetShadowNames()
+				* Open Cmd.exe as Administrator
+				* Run VSClist.bat in IRTriage script directory
+				* Execute IRTriage.exe
+
 #comments-end================================================================================================================================
 
 #Include <GUIConstantsEx.au3>
@@ -119,7 +153,7 @@
 #include <Process.au3>
 
 
-Global  $Version = "2.16.03.23"                                      ;Added to facilitate display of version info (MajorVer.YY.MM.DD)
+Global  $Version = "2.16.03.24"                                      ;Added to facilitate display of version info (MajorVer.YY.MM.DD)
 Global 	$tStamp = @YEAR & @MON & @MDAY & @HOUR & @MIN & @SEC
 Global	$RptsDir = @ScriptDir & "\" & $tStamp & "-" & @ComputerName
 Global	$EvDir = $RptsDir & "\Evidence\"
@@ -2058,32 +2092,31 @@ Func MFTgrab()							;Use iCat to rip a file from NTFS file system
 
 Func GetShadowNames()					;Query WMIC for list of Volume Shadow Copy mount points (FIX THIS)
                                         ;You must run VSClist.vbs manually for VSC to work
-Local $vbsCode=             'strComputer = "."'
-$vbsCode=$vbsCode & @CRLF & 'Set objWMIService = GetObject("winmgmts:{impersonationLevel=impersonate}!\\" & strComputer & "\root\cimv2")'
-$vbsCode=$vbsCode & @CRLF & 'set colAdapters = objWMIService.ExecQuery("Select * from Win32_ShadowCopy")'
-$vbsCode=$vbsCode & @CRLF
-$vbsCode=$vbsCode & @CRLF & 'For Each objList In colAdapters'
-$vbsCode=$vbsCode & @CRLF & '   strVSC = objList.DeviceObject'
-$vbsCode=$vbsCode & @CRLF & '   WriteLineToFile()'
-$vbsCode=$vbsCode & @CRLF & 'Next'
-$vbsCode=$vbsCode & @CRLF
-$vbsCode=$vbsCode & @CRLF & 'Function WriteLineToFile'
-$vbsCode=$vbsCode & @CRLF & '   Dim fso, f'
-$vbsCode=$vbsCode & @CRLF & '   Set fso = CreateObject("Scripting.FileSystemObject")'
-$vbsCode=$vbsCode & @CRLF & '   Set f = fso.OpenTextFile("VSCmnts.txt", 8, True)'
-$vbsCode=$vbsCode & @CRLF & '   f.WriteLine strVSC'
-$vbsCode=$vbsCode & @CRLF & 'End Function'
+	Local $vbsCode=             'strComputer = "."'
+	$vbsCode=$vbsCode & @CRLF & 'Set objWMIService = GetObject("winmgmts:{impersonationLevel=impersonate}!\\" & strComputer & "\root\cimv2")'
+	$vbsCode=$vbsCode & @CRLF & 'set colAdapters = objWMIService.ExecQuery("Select * from Win32_ShadowCopy")'
+	$vbsCode=$vbsCode & @CRLF
+	$vbsCode=$vbsCode & @CRLF & 'For Each objList In colAdapters'
+	$vbsCode=$vbsCode & @CRLF & '   strVSC = objList.DeviceObject'
+	$vbsCode=$vbsCode & @CRLF & '   WriteLineToFile()'
+	$vbsCode=$vbsCode & @CRLF & 'Next'
+	$vbsCode=$vbsCode & @CRLF
+	$vbsCode=$vbsCode & @CRLF & 'Function WriteLineToFile'
+	$vbsCode=$vbsCode & @CRLF & '   Dim fso, f'
+	$vbsCode=$vbsCode & @CRLF & '   Set fso = CreateObject("Scripting.FileSystemObject")'
+	$vbsCode=$vbsCode & @CRLF & '   Set f = fso.OpenTextFile("VSCmnts.txt", 8, True)'
+	$vbsCode=$vbsCode & @CRLF & '   f.WriteLine strVSC'
+	$vbsCode=$vbsCode & @CRLF & 'End Function'
+		FileWrite("VSClist.vbs", $vbsCode)     ;VBS not working
 
-FileWrite("VSClist.vbs", $vbsCode)     ;VBS not working
+	Local $batCode=             'vssadmin list shadows | findstr GLOBALROOT | Tools\UnixUtils\cut.exe -d: -f 2 > VSCmnts.txt'
+		FileWrite("VSClist.bat", $batCode)     ;batch file not working
+			UnixUtils()                        ;Install cut.exe
 
-Local $batCode=             'vssadmin list shadows | findstr GLOBALROOT | tools\cut -d: -f 2 > VSCmnts.txt'
-
-FileWrite("VSClist.bat", $batCode)     ;batch file not working
-
-;Runwait(@ComSpec & " /K " & "vssadmin list shadows | findstr GLOBALROOT | tools\cut -d: -f 2 > VSCmnts.txt", @ScriptDir, @SW_SHOW)
-;vssadmin list shadows | findstr GLOBALROOT | cut -d: -f 2 > VSCmnts.txt
-;RunWait('"%WINDIR%\SysWOW64\Cmd.exe"' & ' /c vssadmin list shadows | findstr GLOBALROOT | tools\cut -d: -f 2 > ' & @ScriptDir & "\VSCmnts.txt", @ScriptDir, @SW_HIDE)
-;RunWait('%WINDIR%\SysWOW64\Cmd.exe' & ' /c c:\windows\SysWOW64\wscript.exe /B"' & @ScriptDir & '\VSClist.vbs"', @ScriptDir, @SW_HIDE)
+;	Runwait(@ComSpec & " /K " & "vssadmin list shadows | findstr GLOBALROOT | tools\cut -d: -f 2 > VSCmnts.txt", @ScriptDir, @SW_SHOW)
+;	vssadmin list shadows | findstr GLOBALROOT | cut -d: -f 2 > VSCmnts.txt
+;	RunWait('"%WINDIR%\SysWOW64\Cmd.exe"' & ' /c vssadmin list shadows | findstr GLOBALROOT | tools\cut -d: -f 2 > ' & @ScriptDir & "\VSCmnts.txt", @ScriptDir, @SW_HIDE)
+;	RunWait('%WINDIR%\SysWOW64\Cmd.exe' & ' /c c:\windows\SysWOW64\wscript.exe /B"' & @ScriptDir & '\VSClist.vbs"', @ScriptDir, @SW_HIDE)
 
 EndFunc
 
@@ -2466,7 +2499,8 @@ Func VSC_rmVSC()						;Remove the mounted VSC directories
 	  EndIf
    Until $dirchk = 0
 
-   FileDelete("VSCmnts.txt")
+   ;FileDelete("VSCmnts.txt")
+   FileMove("VSCmnts.txt", $EvDir, $FC_OVERWRITE)
 
 EndFunc
 
@@ -2901,6 +2935,7 @@ Func RegRipperTools()
 			   FileInstall(".\Compile\Tools\RegRipper2.8\plugins\compdesc.pl", @ScriptDir & "\Tools\RegRipper\plugins\", 0)
 			   FileInstall(".\Compile\Tools\RegRipper2.8\plugins\compname.pl", @ScriptDir & "\Tools\RegRipper\plugins\", 0)
 			   FileInstall(".\Compile\Tools\RegRipper2.8\plugins\controlpanel.pl", @ScriptDir & "\Tools\RegRipper\plugins\", 0)
+			   FileInstall(".\Compile\Tools\RegRipper2.8\plugins\cortana.pl", @ScriptDir & "\Tools\RegRipper\plugins\", 0)
 			   FileInstall(".\Compile\Tools\RegRipper2.8\plugins\cpldontload.pl", @ScriptDir & "\Tools\RegRipper\plugins\", 0)
 			   FileInstall(".\Compile\Tools\RegRipper2.8\plugins\crashcontrol.pl", @ScriptDir & "\Tools\RegRipper\plugins\", 0)
 			   FileInstall(".\Compile\Tools\RegRipper2.8\plugins\ctrlpnl.pl", @ScriptDir & "\Tools\RegRipper\plugins\", 0)
@@ -3222,6 +3257,25 @@ Func PrefetchParseTools()
 			   FileInstall(".\Compile\Tools\NirSoft\WinPrefetchView.exe", @ScriptDir & "\Tools\NirSoft\", 0)
 ;			   FileInstall(".\Compile\Tools\NirSoft\WinPrefetchView.chm", @ScriptDir & "\Tools\NirSoft\", 0)
 ;			   FileInstall(".\Compile\Tools\NirSoft\WinPrefetchViewReadme.txt", @ScriptDir & "\Tools\NirSoft\", 0)
+
+EndFunc
+
+Func UnixUtils()
+
+			If Not FileExists(@ScriptDir & "\Tools\UnixUtils\") Then
+			   Do
+				  DirCreate(@ScriptDir & "\Tools\UnixUtils\")
+			   Until FileExists(@ScriptDir & "\Tools\UnixUtils\")
+			EndIf
+			   FileInstall(".\Compile\Tools\UnixUtils\cut.exe", @ScriptDir & "\Tools\UnixUtils\", 0)
+;			   FileInstall(".\Compile\Tools\UnixUtils\dd.exe", @ScriptDir & "\Tools\UnixUtils\", 0)
+;			   FileInstall(".\Compile\Tools\UnixUtils\grep.exe", @ScriptDir & "\Tools\UnixUtils\", 0)
+;			   FileInstall(".\Compile\Tools\UnixUtils\sed.exe", @ScriptDir & "\Tools\UnixUtils\", 0)
+;			   FileInstall(".\Compile\Tools\UnixUtils\sort.exe", @ScriptDir & "\Tools\UnixUtils\", 0)
+;			   FileInstall(".\Compile\Tools\UnixUtils\tee.exe", @ScriptDir & "\Tools\UnixUtils\", 0)
+;			   FileInstall(".\Compile\Tools\UnixUtils\tr.exe", @ScriptDir & "\Tools\UnixUtils\", 0)
+;			   FileInstall(".\Compile\Tools\UnixUtils\uniq.exe", @ScriptDir & "\Tools\UnixUtils\", 0)
+;			   FileInstall(".\Compile\Tools\UnixUtils\wc.exe", @ScriptDir & "\Tools\UnixUtils\", 0)
 
 EndFunc
 
