@@ -8,13 +8,13 @@
 #pragma compile(FileDescription, IRTriage - Digital Forensic Incident Response Triage Tool)
 #pragma compile(ProductName, IRTriage)
 #pragma compile(ProductVersion, 2)
-#pragma compile(FileVersion, 2.16.03.24)
+#pragma compile(FileVersion, 2.16.03.28)
 #pragma compile(InternalName, "IRTriage")
 #pragma compile(LegalCopyright, © 2016 Alain Martel)
 #pragma compile(LegalTrademarks, 'Released under GPL 3, Free Open Source Software')
 #pragma compile(OriginalFilename, IRTriage.exe)
 #pragma compile(ProductName, Incident Response Triage)
-#pragma compile(ProductVersion, 2.16.03.24)
+#pragma compile(ProductVersion, 2.16.03.28)
 #AutoIt3Wrapper_icon=IRTriage.ico
 ;#Compiler_Res_Language=1033
 ;#AutoIt3Wrapper_Res_Language=1033
@@ -25,7 +25,7 @@
 
 	Script Function:	Forensic Triage Application
 
-	Version:		2.16.03.24       (Version 2, Last updated: 2016 Mar 24)
+	Version:		2.16.03.28       (Version 2, Last updated: 2016 Mar 28)
 
 	Original Author:	Michael Ahrendt (TriageIR v.851 last uploaded\modified 9 Nov 2012)
                            https://storage.googleapis.com/google-code-archive-downloads/v2/code.google.com/triage-ir/TriageIR%20v.851.zip
@@ -158,7 +158,7 @@
 #include <StringConstants.au3>   ;Update
 #Include <WindowsConstants.au3>
 
-Global  $Version = "2.16.03.24"                                      ;Added to facilitate display of version info (MajorVer.YY.MM.DD)
+Global  $Version = "2.16.03.28"                                      ;Added to facilitate display of version info (MajorVer.YY.MM.DD)
 Global 	$tStamp = @YEAR & @MON & @MDAY & @HOUR & @MIN & @SEC
 Global	$RptsDir = @ScriptDir & "\" & $tStamp & "-" & @ComputerName
 Global	$EvDir = $RptsDir & "\Evidence\"
@@ -185,7 +185,7 @@ Global $sVersion = FileGetVersion(@ScriptName)
 Local $sHeaderLine
 ; get version for non-compiled script (get the script version (#AutoIt3Wrapper_Res_Fileversion=1.0.1.0)
 If Not @Compiled Then
-	For $i = 2 to 10
+	For $i = 2 to 15
 		$sHeaderLine = FileReadLine(@ScriptDir & "\" & @ScriptName, $i)
 		If StringLeft($sHeaderLine, 10) = "#EndRegion" Then ExitLoop ; not found
 		If StringInStr($sHeaderLine, "FileVersion") > 0 Then
@@ -3410,9 +3410,9 @@ Func CheckUpdate($sFileToUpdate, $sCurrentVersion, $sUpdateINI, $InetForceReload
 			; Update only to a newer version
 			If $sNewVersion > $sCurrentVersion Then
 				While "loop view History"
-					$Return = MsgBoxEx("|No, Continue||||View Changes|Download", 32 + 3, "Update " & $sFileToUpdate & " ver " & $sCurrentVersion, "A new version of " & $sFileToUpdate & " has been available since " & $sDate & "." & @CRLF & "Download version " & $sNewVersion & " now? ")
+					$Return = MsgBoxEx("Download|View Changes|Cancel", 3, "Update " & $sFileToUpdate & " ver " & $sCurrentVersion, "A new version of " & $sFileToUpdate & " has been available since " & $sDate & "." & @CRLF & "Download version " & $sNewVersion & " now? ")
 					; Escape = 2, No = 2, View Changes = 6, Download = 7 (No is Default)
-					If $Return <> 6 Then ExitLoop
+					If $Return <> 7 Then ExitLoop
 					If $sChangesURL = "" Then
 						MsgBox(0,"History of changes " & $sFileToUpdate,"Sorry but release information is not available at the moment.")
 					Else
@@ -3426,7 +3426,7 @@ Func CheckUpdate($sFileToUpdate, $sCurrentVersion, $sUpdateINI, $InetForceReload
 					EndIf
 				WEnd
 
-				If $Return = 7 Then ;  download
+				If $Return = 6 Then ;  download
 					_PathSplit($sFileToUpdate, $szDrive, $szDir, $szFName, $szExt)
 					If Not @Compiled Then ConsoleWrite("@@ Debug(" & @ScriptLineNumber & ") : Downloading " & @ScriptDir & "\" & $szFName &"_" & $sNewVersion & $szExt & @CRLF)
 					InetgetProgress($sURL, @ScriptDir & "\" & $szFName &"_" & $sNewVersion & $szExt )
