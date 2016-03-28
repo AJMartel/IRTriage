@@ -2,7 +2,7 @@
 
 	Script Function:	Forensic Triage Application
 
-	Version:		2.16.03.24       (Version 2, Last updated: 2016 Mar 24)
+	Version:		2.16.03.28       (Version 2, Last updated: 2016 Mar 28)
 
 	Original Author:	Michael Ahrendt (TriageIR v.851 last uploaded\modified 9 Nov 2012)
                            https://storage.googleapis.com/google-code-archive-downloads/v2/code.google.com/triage-ir/TriageIR%20v.851.zip
