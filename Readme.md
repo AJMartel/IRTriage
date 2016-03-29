@@ -111,6 +111,12 @@ Version 2016.03.11
     
 Version 2016.03.14
    - Added Prefetch parce to CSV
+   
+Version 2016.03.24
+   - Added IRTriage Update in tools menu (Update buttons mixed up)
+   
+Version 2016.03.28
+   - Fixed IRTriage Update (Yes=Download Update, No=Display Update Info, Cancel=Cancel Update)
 
 Future Updates\Features will be based on this report: [On-scene Triage open source forensic tool chests are they effective.](http://www.researchgate.net/profile/Stavros_Shiaeles/publication/236681282_On-scene_Triage_open_source_forensic_tool_chests_Are_they_effective/links/00b4953ac91d0d0086000000.pdf?inViewer=true&pdfJsDownload=true&disableCoverPage=true&origin=publication_detail)
 
