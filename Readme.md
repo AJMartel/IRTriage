@@ -91,9 +91,6 @@ Version 2016.03.08
      - sleep = pause
      - uname = ver, version
      - vmstat = memory, mem
-     - # = rem
-
-Just to name a few.
 
 Version 2016.03.08
    - Started to cleanup the code, trying to make it easier to modualarize.
