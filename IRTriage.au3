@@ -8,13 +8,13 @@
 #pragma compile(FileDescription, IRTriage - Digital Forensic Incident Response Triage Tool)
 #pragma compile(ProductName, IRTriage)
 #pragma compile(ProductVersion, 2)
-#pragma compile(FileVersion, 2.16.03.28)
+#pragma compile(FileVersion, 2.16.03.29)
 #pragma compile(InternalName, "IRTriage")
 #pragma compile(LegalCopyright, © 2016 Alain Martel)
 #pragma compile(LegalTrademarks, 'Released under GPL 3, Free Open Source Software')
 #pragma compile(OriginalFilename, IRTriage.exe)
 #pragma compile(ProductName, Incident Response Triage)
-#pragma compile(ProductVersion, 2.16.03.28)
+#pragma compile(ProductVersion, 2.16.03.29)
 #AutoIt3Wrapper_icon=IRTriage.ico
 ;#Compiler_Res_Language=1033
 ;#AutoIt3Wrapper_Res_Language=1033
@@ -25,7 +25,7 @@
 
 	Script Function:	Forensic Triage Application
 
-	Version:		2.16.03.28       (Version 2, Last updated: 2016 Mar 28)
+	Version:		2.16.03.29       (Version 2, Last updated: 2016 Mar 29)
 
 	Original Author:	Michael Ahrendt (TriageIR v.851 last uploaded\modified 9 Nov 2012)
                            https://storage.googleapis.com/google-code-archive-downloads/v2/code.google.com/triage-ir/TriageIR%20v.851.zip
@@ -76,6 +76,10 @@
 			CSVFileView by NirSoft
 				-http://www.nirsoft.net/utils/csvfileview.zip
 
+			Custom build of ReactOS's cmd.exe
+				-https://github.com/AJMartel/IRTriageCMD
+				 Integrated Privilege and Info functions from http://blog.didierstevens.com/2015/12/13/windows-backup-privilege-cmd-exe/
+
  	Fixes/Changes:
  			-Changed name of project from Triage-IR to IRTriage (Triage-IR is no longer under development)
  			-Fixed broken command logging = Now logs all commands that were executed to TAB delimited csv file
@@ -109,6 +113,8 @@
 					*GUI
 						**CSVFileView.exe IncidentLog.csv ;Added Checkbox to view IncidentLog after Acquisition
 						**CMD.exe                         ;Added Checkbox to open custom IRtriage command prompt after Acquisition
+			-Added IRTriage Update under Tools Menu (Now updating IRTriage is easy!!)
+			-Updated IRTriageCMD with Didier Stevens's new commands: privilege and info
 
 	Bugs
 		Func GetShadowNames();Does NOT work!
@@ -158,7 +164,7 @@
 #include <StringConstants.au3>   ;Update
 #Include <WindowsConstants.au3>
 
-Global  $Version = "2.16.03.28"                                      ;Added to facilitate display of version info (MajorVer.YY.MM.DD)
+Global  $Version = "2.16.03.29"                                      ;Added to facilitate display of version info (MajorVer.YY.MM.DD)
 Global 	$tStamp = @YEAR & @MON & @MDAY & @HOUR & @MIN & @SEC
 Global	$RptsDir = @ScriptDir & "\" & $tStamp & "-" & @ComputerName
 Global	$EvDir = $RptsDir & "\Evidence\"
@@ -3529,10 +3535,10 @@ EndFunc	;==>CheckUpdate
 ; Link ..........:
 ; Example .......:
 ; ===========================================================================================
-Func Text_Viewer($s_Title, $s_Text, $i_FontSize = 8.5)
+Func Text_Viewer($s_Title, $s_Text, $i_FontSize = 8)
 	Local $iMsg
-	Local $iWindow_width = 700
-	Local $iWindow_heigth = 500
+	Local $iWindow_width = 800
+	Local $iWindow_heigth = 600
 	Local $hGUI_Viewer = GUICreate($s_Title, $iWindow_width, $iWindow_heigth, -1, -1, $WS_CAPTION, $WS_EX_TOPMOST)
 	GUICtrlCreateEdit($s_Text, 5, 5, $iWindow_width - 10, $iWindow_heigth - 35, BitOR($ES_AUTOVSCROLL, $ES_AUTOHSCROLL, $ES_READONLY, $ES_WANTRETURN, $WS_HSCROLL, $WS_VSCROLL))
 	GUICtrlSetFont ( -1, $i_FontSize)

@@ -1,122 +1,113 @@
-	Tool:			Incident Respone Triage:    (GUI)
+Tool:			Incident Respone Triage:    (GUI)
 
-	Script Function:	Forensic Triage Application
+Script Function:	Forensic Triage Application
 
-	Version:		2.16.03.28       (Version 2, Last updated: 2016 Mar 28)
+Version:		2.16.03.29       (Version 2, Last updated: 2016 Mar 29)
 
-	Original Author:	Michael Ahrendt (TriageIR v.851 last uploaded\modified 9 Nov 2012)
-                           https://storage.googleapis.com/google-code-archive-downloads/v2/code.google.com/triage-ir/TriageIR%20v.851.zip
+Original Author:	Michael Ahrendt (TriageIR v.851 last uploaded\modified 9 Nov 2012)
+                        https://storage.googleapis.com/google-code-archive-downloads/v2/code.google.com/triage-ir/TriageIR%20v.851.zip
 
-	Forked and Currently
-	Maintained by:      Alain Martel (Oct 2015)
-						https://github.com/AJMartel/IRTriage
+Forked and Currently
+Maintained by:      Alain Martel (Oct 2015)
+		    https://github.com/AJMartel/IRTriage
 
-	Description:	IRTriage is intended for incident responders who need to gather host data rapidly.
-			The tool will run a plethora of commands automatically based on selection.
-			Data will copy to wherever the script is stored.
-			IRTriage is intended to be run from a flash drive locally on the machine, or
-			via a network share (example: connected via RDP).
+Description:	IRTriage is intended for incident responders who need to gather host data rapidly.
+		The tool will run a plethora of commands automatically based on selection.
+		Data will copy to wherever the script is stored.
+		IRTriage is intended to be run from a flash drive locally on the machine, or
+		via a network share (example: connected via RDP).
 
- 	Tools used:	Fast Dump pro by HBGary
-				-FDPro is included with Responderâ„¢ Professional. FDPro is the most complete memory acquisition software in the industry.
-					FDPro is the only application that can preserve Windowsâ„¢ physical memory and Pagefile for information security and
-					computer forensic purposes.
-				-http://www.countertack.com/
+Changes from triage-ir v0.851 Michael Ahrendt (last uploaded\modified 9 Nov 2012)
 
-				**Win(32|64)DD from MoonSols (IRTriage will default to the free Memory Acquasition software if FDpro is unavailable)
-				 - win32dd works for Microsoft Windows XP, 2003, 2008, Vista, 2008 R2, 7 32-bits Edition.
-				 - win64dd works for Microsoft Windows XP, 2003, 2008, Vista, 2008 R2, 7 64-bits (x64) Edition.
-				Download from the following:
-				-http://www.moonsols.com/downloads/1
-				Tested working on Windows up to Win7
+•Renamed project to IRTriage
+•Versioning has changed to v2.[YY.MM.DD] for easier identification of last changes.
+•Updated the project to currently available tools.
+•Fixed the "commands executed" logging errors
+•Changed "Incident Log.txt" to "IncidentLog.csv" (TAB delimited)
+•Changed Compile time tools folder to ".\Compile\Tools\" (Local to script)
+•Fixed ini file open dialog to open in local script directory
 
-			Sysinternals Suite from Microsoft and Mark Russinovich
-				-http://technet.microsoft.com/en-us/sysinternals/bb842062
-               -https://download.sysinternals.com/files/sysinternalssuite.zip
 
-			The SleuthKit
-                -http://sourceforge.net/projects/sleuthkit/files/sleuthkit/4.2.0/sleuthkit-4.2.0-win32.zip/download
-                 Using custom icat.exe and ifind.exe, compiled without any external DLLs
+Version 2016.02.24 
+IRTriage is now truly compatible with the following versions of Windows:
+•Windows Workstations "WIN_10", "WIN_81", "WIN_8", "WIN_7", "WIN_VISTA", "WIN_XP", "WIN_XPe",
+•Windows Servers: "WIN_2016", "WIN_2012R2", "WIN_2012", "WIN_2008R2", "WIN_2008", "WIN_2003".
 
-			RegRipper by Harlan Carvey
-				-https://github.com/keydet89/RegRipper2.8/archive/master.zip
 
-			MFTDump by Michael G. Spohn @ malware-hunters.net
-				-http://malware-hunters.net/wp-content/downloads/MFTDump_V.1.3.0.zip
+Version 2016.02.26 
+Started to add new funtions:
 
-			md5deep and sha1deep from Jesse Kornblum
-				-http://sourceforge.net/projects/md5deep/files/md5deep/md5deep-4.3/md5deep-4.3.zip/download?use_mirror=kent
+*Processes()
+    - tcpvcon -anc -accepteula > Process2PortMap.csv
+    - tasklist /SVC /FO CSV > Processe2exeMap.csv
+    - wmic /output:ProcessesCmd.csv process get Caption,Commandline,Processid,ParentProcessId,SessionId /format:csv
 
-			7zip Command Line
-				-http://www.7-zip.org/download.html  (standalone console version)
+*SystemInfo()
+    - wmic /output:InstallList.csv product get /format:csv
+    - wmic /output:InstallHotfix.csv qfe get caption,csname,description,hotfixid,installedby,installedon /format:csv
 
-			CSVFileView by NirSoft
-				-http://www.nirsoft.net/utils/csvfileview.zip
+*Prefetch
+    **WinPrefetchView /Folder Prefetch /stab Prefetch.csv 
 
- 	Fixes/Changes:
- 			-Changed name of project from Triage-IR to IRTriage (Triage-IR is no longer under development)
- 			-Fixed broken command logging = Now logs all commands that were executed to TAB delimited csv file
- 			-Updated software = all software packages are updated 24 Mar 2016 (no longer using software from Nov 2012)
- 			-Using FDpro if available otherwise defaults to win[32|64]dd community edition
- 			-Fixed issues with software not running (*=Main Package, **=Changes)
-					*Sleuthkit (icat, ifind) not functioning due to miss-matched dlls (64 vs 32bit) and known dlls (local files no first)
-						**Using custom compiled executables compiled with static libraries
-					*RegRipper not able to find plugins due to working directory issue
-						**RegRipper's working directory is now set to .\Tools\RegRipper\
-					*Windows utilities
-						**nbtstat -no longer fails to log output
-						**net view -logs the errorlevel in the output file (at least now you will know why there is no output)
- 			-Separation of output from commands (no longer appending to same file from multiple commands, easier to automate parsing)
-			-Using csv as output whenever possible (**Future import into database will be easier)
- 			-Fixed compatability now works with WinXP through to Win10 and Windows Servers 2003 through to Server 2016
-			-Using custom cmd.exe slightly modified version of ReactOS v0.4.0 Command Line Interpreter (recognizes some Linux commands)
-			-Added funtionality (*=Function, **=Command added)
-					*Processes
-						**tcpvcon -anc -accepteula > Process2PortMap.csv
-						**tasklist /SVC /FO CSV > Processe2exeMap.csv
-						**wmic /output:ProcessesCmd.csv process get Caption,Commandline,Processid,ParentProcessId,SessionId /format:csv
-					*SystemInfo
-						**wmic /output:InstallList.csv product get /format:csv
-						**wmic /output:InstallHotfix.csv qfe get caption,csname,description,hotfixid,installedby,installedon /format:csv
-						**wmic /output:InstallList.csv product get /format:csv
-					*Prefetch
-						**WinPrefetchView /Folder Prefetch /stab Prefetch.csv
-					*Options
-						**mftdump.exe /l /m ComputerName /o ComputerName-MFT_Dump.csv $MFTcopy
-					*GUI
-						**CSVFileView.exe IncidentLog.csv ;Added Checkbox to view IncidentLog after Acquisition
-						**CMD.exe                         ;Added Checkbox to open custom IRtriage command prompt after Acquisition
+*Options()
+    - mftdump.exe /l /m ComputerName /o ComputerName-MFT_Dump.csv $MFTcopy
 
-	Bugs
-		Func GetShadowNames();Does NOT work!
-			Problems encountered on 64 bit systems (not tested on 32 bit systems yet)
-				*VBS script Fails when executed from within Autoit
-					VBSList.vbs
-					*******************************************************************************************************************
-					*	strComputer = "."                                                                                             *
-					*	Set objWMIService = GetObject("winmgmts:{impersonationLevel=impersonate}!\\" & strComputer & "\root\cimv2")   *
-					*	set colAdapters = objWMIService.ExecQuery("Select * from Win32_ShadowCopy")                                   *
-					*                                                                                                                 *
-					*	For Each objList In colAdapters                                                                               *
-					*		strVSC = objList.DeviceObject                                                                             *
-					*		WriteLineToFile()                                                                                         *
-					*	Next                                                                                                          *
-					*                                                                                                                 *
-					*	Function WriteLineToFile                                                                                      *
-					*		Dim fso, f                                                                                                *
-					*		Set fso = CreateObject("Scripting.FileSystemObject")                                                      *
-					*		Set f = fso.OpenTextFile("VSCmnts.txt", 8, True)                                                          *
-					*		f.WriteLine strVSC                                                                                        *
-					*	End Function                                                                                                  *
-					*******************************************************************************************************************
+TriageGUI()
+    - CSVFileView.exe IncidentLog.csv ;Added Checkbox to view IncidentLog after Acquisition
+    - cmd.exe                         ;Added Checkbox to open IRTriage commandline after Acquisition
 
-				*Batch file Fails when executed from within Autoit
-					VSClist.bat
-					*******************************************************************************************************************
-					*	vssadmin list shadows | findstr GLOBALROOT | Tools\UnixUtils\cut.exe -d: -f 2 > VSCmnts.txt                   *
-					*******************************************************************************************************************
 
-			Current workaround for Func GetShadowNames()
-				* Open Cmd.exe as Administrator
-				* Run VSClist.bat in IRTriage script directory
-				* Execute IRTriage.exe
+Version 2016.03.08
+•Added a custom compiled version of ReactOS's "cmd.exe" based on v0.4.0
+It can now use Linux equivalent commands: 
+clear = cls
+cp = copy
+df = free
+env = set
+ln = mklink
+ls = dir
+mv = move
+pwd = cd, chdir
+rm = delete, del, erase
+sleep = pause
+uname = ver, version
+vmstat = memory, mem
+
+
+Version 2016.03.08
+•Started to cleanup the code, trying to make it easier to modualarize.
+•Added the option at compile time to use HBGary's FDpro (Commercial) or Moonsol's (Free) memory acquisition software. ?If you have HBGary's FDpro place it under the .\Compile\Tools folder in place of the "Zero byte" size file, is easy to switch back to Moonsol's memory acquisition software by replacing the FDpro.exe with a "less than 100 byte" sized file:-)
+
+
+Version 2016.03.10
+•Continued cleanup of the code, removed unused Function CommandROSLOG()
+•Added $MFT parce to CSV
+•Added ability to view IncidentLog.csv after acquisition completed.
+
+
+Version 2016.03.11
+•Updated cmd.exe
+•Added ability to open IRTriage's cmd.exe after acquisition completed.
+
+
+Version 2016.03.14
+•Added Prefetch parce to CSV
+
+
+Version 2016.03.24
+•Added IRTriage Update in tools menu (Update buttons mixed up)
+
+
+Version 2016.03.28
+•Fixed IRTriage Update (Yes=Download Update, No=Display Update Info, Cancel=Cancel Update)
+
+
+Version 2016.03.29
+•Integrate Didier Stevens's new commands into the latest version of ReactOS's "cmd.exe".: 
+ privilege:  This command enables the backup privilege. 
+             "To be able to enable a privilege, you need to have the privilege" 
+             If you’re an administrator, you have the backup privilege; 
+             and can elevate the process (cmd.exe).
+ info:       This command gives the MAC timestamps, file attributes and SDDL of the given file/folder.
+ Both new commands are invaluable for a Forensic Analyst.
+•Source for IRTriage command processor. https://github.com/AJMartel/IRTriageCMD
