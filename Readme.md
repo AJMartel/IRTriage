@@ -119,5 +119,9 @@ Version 2016.03.29
    - Integrate [Didier Stevens](http://blog.didierstevens.com/2015/12/13/windows-backup-privilege-cmd-exe/)'s new commands: privilege and info into the latest version of ReactOS's "cmd.exe".
      Both new commands are invaluable for a Forensic Analyst.
    - Source for [IRTriage command processor.](https://github.com/AJMartel/IRTriageCMD)
+    
+Version 2016.03.30
+   - Fixed Volume Shadow Copy Functions
+   - Minor Update to cmd.exe ver 4.1
 
 Future Updates\Features will be based on this report: [On-scene Triage open source forensic tool chests are they effective.](http://www.researchgate.net/profile/Stavros_Shiaeles/publication/236681282_On-scene_Triage_open_source_forensic_tool_chests_Are_they_effective/links/00b4953ac91d0d0086000000.pdf?inViewer=true&pdfJsDownload=true&disableCoverPage=true&origin=publication_detail)
