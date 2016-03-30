@@ -111,3 +111,8 @@ Version 2016.03.29
  info:       This command gives the MAC timestamps, file attributes and SDDL of the given file/folder.
  Both new commands are invaluable for a Forensic Analyst.
 •Source for IRTriage command processor. https://github.com/AJMartel/IRTriageCMD
+
+
+Version 2016.03.30
+•Fixed Volume Shadow Copy Functions
+•Updated IRTriage command processor (Version 4.1-20160330-Release)

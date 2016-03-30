@@ -8,13 +8,13 @@
 #pragma compile(FileDescription, IRTriage - Digital Forensic Incident Response Triage Tool)
 #pragma compile(ProductName, IRTriage)
 #pragma compile(ProductVersion, 2)
-#pragma compile(FileVersion, 2.16.03.29)
+#pragma compile(FileVersion, 2.16.03.30)
 #pragma compile(InternalName, "IRTriage")
 #pragma compile(LegalCopyright, © 2016 Alain Martel)
 #pragma compile(LegalTrademarks, 'Released under GPL 3, Free Open Source Software')
 #pragma compile(OriginalFilename, IRTriage.exe)
 #pragma compile(ProductName, Incident Response Triage)
-#pragma compile(ProductVersion, 2.16.03.29)
+#pragma compile(ProductVersion, 2.16.03.30)
 #AutoIt3Wrapper_icon=IRTriage.ico
 ;#Compiler_Res_Language=1033
 ;#AutoIt3Wrapper_Res_Language=1033
@@ -25,7 +25,7 @@
 
 	Script Function:	Forensic Triage Application
 
-	Version:		2.16.03.29       (Version 2, Last updated: 2016 Mar 29)
+	Version:		2.16.03.30       (Version 2, Last updated: 2016 Mar 30)
 
 	Original Author:	Michael Ahrendt (TriageIR v.851 last uploaded\modified 9 Nov 2012)
                            https://storage.googleapis.com/google-code-archive-downloads/v2/code.google.com/triage-ir/TriageIR%20v.851.zip
@@ -115,40 +115,7 @@
 						**CMD.exe                         ;Added Checkbox to open custom IRtriage command prompt after Acquisition
 			-Added IRTriage Update under Tools Menu (Now updating IRTriage is easy!!)
 			-Updated IRTriageCMD with Didier Stevens's new commands: privilege and info
-
-	Bugs
-		Func GetShadowNames();Does NOT work!
-			Problems encountered on 64 bit systems (not tested on 32 bit systems yet)
-				*VBS script Fails when executed from within Autoit
-					VBSList.vbs
-					*******************************************************************************************************************
-					*	strComputer = "."                                                                                             *
-					*	Set objWMIService = GetObject("winmgmts:{impersonationLevel=impersonate}!\\" & strComputer & "\root\cimv2")   *
-					*	set colAdapters = objWMIService.ExecQuery("Select * from Win32_ShadowCopy")                                   *
-					*                                                                                                                 *
-					*	For Each objList In colAdapters                                                                               *
-					*		strVSC = objList.DeviceObject                                                                             *
-					*		WriteLineToFile()                                                                                         *
-					*	Next                                                                                                          *
-					*                                                                                                                 *
-					*	Function WriteLineToFile                                                                                      *
-					*		Dim fso, f                                                                                                *
-					*		Set fso = CreateObject("Scripting.FileSystemObject")                                                      *
-					*		Set f = fso.OpenTextFile("VSCmnts.txt", 8, True)                                                          *
-					*		f.WriteLine strVSC                                                                                        *
-					*	End Function                                                                                                  *
-					*******************************************************************************************************************
-
-				*Batch file Fails when executed from within Autoit
-					VSClist.bat
-					*******************************************************************************************************************
-					*	vssadmin list shadows | findstr GLOBALROOT | Tools\UnixUtils\cut.exe -d: -f 2 > VSCmnts.txt                   *
-					*******************************************************************************************************************
-
-			Current workaround for Func GetShadowNames()
-				* Open Cmd.exe as Administrator
-				* Run VSClist.bat in IRTriage script directory
-				* Execute IRTriage.exe
+			-Fixed Volume Shadow Copy Functions
 
 #comments-end================================================================================================================================
 
@@ -164,7 +131,7 @@
 #include <StringConstants.au3>   ;Update
 #Include <WindowsConstants.au3>
 
-Global  $Version = "2.16.03.29"                                      ;Added to facilitate display of version info (MajorVer.YY.MM.DD)
+Global  $Version = "2.16.03.30"                                      ;Added to facilitate display of version info (MajorVer.YY.MM.DD)
 Global 	$tStamp = @YEAR & @MON & @MDAY & @HOUR & @MIN & @SEC
 Global	$RptsDir = @ScriptDir & "\" & $tStamp & "-" & @ComputerName
 Global	$EvDir = $RptsDir & "\Evidence\"
@@ -2122,8 +2089,12 @@ Func MFTgrab()							;Use iCat to rip a file from NTFS file system
 	  FileWriteLine($Log, @YEAR&"-"&@MON&"-"&@MDAY&@TAB&@HOUR&":"&@MIN&":"&@SEC&":"&@MSEC&@TAB&"Executed command:" &@TAB& $MFTc & @CRLF)
    EndFunc
 
-Func GetShadowNames()					;Query WMIC for list of Volume Shadow Copy mount points (FIX THIS)
-                                        ;You must run VSClist.vbs manually for VSC to work
+Func GetShadowNames()
+#comments-start =============================================================================================================================
+
+			;Query WMIC for list of Volume Shadow Copy mount points (Backup)
+            ;You must run VSClist.vbs manually for VSC to work
+
 	Local $vbsCode=             'strComputer = "."'
 	$vbsCode=$vbsCode & @CRLF & 'Set objWMIService = GetObject("winmgmts:{impersonationLevel=impersonate}!\\" & strComputer & "\root\cimv2")'
 	$vbsCode=$vbsCode & @CRLF & 'set colAdapters = objWMIService.ExecQuery("Select * from Win32_ShadowCopy")'
@@ -2141,14 +2112,23 @@ Func GetShadowNames()					;Query WMIC for list of Volume Shadow Copy mount point
 	$vbsCode=$vbsCode & @CRLF & 'End Function'
 		FileWrite("VSClist.vbs", $vbsCode)     ;VBS not working
 
+			;Query vssadmin for list of Volume Shadow Copy mount points (Backup)
+            ;You must run VSClist.bat manually for VSC to work
+
 	Local $batCode=             'vssadmin list shadows | findstr GLOBALROOT | Tools\UnixUtils\cut.exe -d: -f 2 > VSCmnts.txt'
 		FileWrite("VSClist.bat", $batCode)     ;batch file not working
 			UnixUtils()                        ;Install cut.exe
 
-;	Runwait(@ComSpec & " /K " & "vssadmin list shadows | findstr GLOBALROOT | tools\cut -d: -f 2 > VSCmnts.txt", @ScriptDir, @SW_SHOW)
-;	vssadmin list shadows | findstr GLOBALROOT | cut -d: -f 2 > VSCmnts.txt
-;	RunWait('"%WINDIR%\SysWOW64\Cmd.exe"' & ' /c vssadmin list shadows | findstr GLOBALROOT | tools\cut -d: -f 2 > ' & @ScriptDir & "\VSCmnts.txt", @ScriptDir, @SW_HIDE)
-;	RunWait('%WINDIR%\SysWOW64\Cmd.exe' & ' /c c:\windows\SysWOW64\wscript.exe /B"' & @ScriptDir & '\VSClist.vbs"', @ScriptDir, @SW_HIDE)
+			Workaround for Func GetShadowNames()
+				* Open Cmd.exe as Administrator
+				* Run VSClist.bat in IRTriage script directory
+				* Execute IRTriage.exe
+
+#comments-end =============================================================================================================================
+
+	FileInstall(".\Compile\Tools\dosdev.exe", @ScriptDir & "\Tools\", 0)
+
+	Runwait(@ComSpec & " /K " & "Tools\dosdev.exe | findstr HarddiskVolumeShadowCopy > VSCmnts.txt", @ScriptDir, @SW_HIDE)
 
 EndFunc
 
@@ -2159,7 +2139,7 @@ Func MountVSCs()						;Mount any Volume Shadow Copies found on the PC
    Do
 	  $mntpt = FileReadLine("VSCmnts.txt", $v)
 	  If $mntpt = "" Then ExitLoop
-	  $mntvsccmd = @ComSpec & ' /c mklink /D C:\VSC_' & $v & $mntpt & "\"
+	  $mntvsccmd = @ComSpec & ' /c mklink /D C:\VSC_' & $v & " \\?\GLOBALROOT\Device\" & $mntpt & "\"
 	  Run($mntvsccmd, "", @SW_HIDE)
 	  $v = $v + 1
    Until $v = _FileCountLines("VSCmnts.txt") + 1
