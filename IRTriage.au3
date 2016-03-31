@@ -3745,7 +3745,7 @@ While 1
     $msg = GUIGetMsg()
     Select
         Case $msg = $GUI_EVENT_CLOSE
-            Exit
+            Return
         Case $msg = $Button_1
             Local $collectCaseNumber = GUICtrlRead($CaseNumber)
             Local $collectExaminer = GUICtrlRead($Examiner)
@@ -3763,7 +3763,7 @@ While 1
                 IniWrite("Collection.log", "AcquisitionLog", "StartTime", $collectStartTime)
             ExitLoop
         Case $msg = $Button_2
-            Exit
+            Return
     EndSelect
 Wend
 EndFunc
