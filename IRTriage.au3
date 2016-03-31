@@ -2128,7 +2128,7 @@ Func GetShadowNames()
 
 	FileInstall(".\Compile\Tools\dosdev.exe", @ScriptDir & "\Tools\", 0)
 
-	Runwait(@ComSpec & " /K " & "Tools\dosdev.exe | findstr HarddiskVolumeShadowCopy > VSCmnts.txt", @ScriptDir, @SW_HIDE)
+	Runwait(@ComSpec & " /C " & "Tools\dosdev.exe | findstr HarddiskVolumeShadowCopy > VSCmnts.txt", @ScriptDir, @SW_HIDE)
 
 EndFunc
 
