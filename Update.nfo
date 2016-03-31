@@ -1,16 +1,16 @@
 [IRTriage.exe]
-version=2.16.3.30
-date=2016/03/31 07:14
-Filesize=10696192
-CRC=614B7F51
+version=2.16.3.31
+date=2016/03/31 15:09
+Filesize=10697216
+CRC=EAB7BFED
 download=https://github.com/AJMartel/IRTriage/raw/master/IRTriage.exe
 changes=https://github.com/AJMartel/IRTriage/raw/master/Changes.txt
 
 
 [IRTriage.au3]
-version=2.16.03.30
-date=2016/03/31 07:16
-Filesize=189508
-CRC=F3C85DB5
+version=2.16.03.31
+date=2016/03/31 15:09
+Filesize=192116
+CRC=9D64DBF7
 download=https://github.com/AJMartel/IRTriage/raw/master/IRTriage.au3
 changes=https://github.com/AJMartel/IRTriage/raw/master/Changes.txt
