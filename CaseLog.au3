@@ -31,13 +31,13 @@ While 1
             Exit
         Case $msg = $Button_1
 ;            $check = GUICtrlRead($checkbox)
-            GLOBAL $collectCaseNumber = GUICtrlRead($CaseNumber)
-            GLOBAL $collectExaminer = GUICtrlRead($Examiner)
-            GLOBAL $collectTargetSystem = GUICtrlRead($TargetSystem)
-            GLOBAL $collectUserAccount = GUICtrlRead($UserAccount)
-            GLOBAL $collectScriptDrive = GUICtrlRead($ScriptDrive)
-            GLOBAL $collectTimeZone = GUICtrlRead($TimeZone)
-            GLOBAL $collectStartTime = GUICtrlRead($StartTime)
+            Local $collectCaseNumber = GUICtrlRead($CaseNumber)
+            Local $collectExaminer = GUICtrlRead($Examiner)
+            Local $collectTargetSystem = GUICtrlRead($TargetSystem)
+            Local $collectUserAccount = GUICtrlRead($UserAccount)
+            Local $collectScriptDrive = GUICtrlRead($ScriptDrive)
+            Local $collectTimeZone = GUICtrlRead($TimeZone)
+            Local $collectStartTime = GUICtrlRead($StartTime)
  ;           If $check = $GUI_CHECKED Then
                 IniWrite("Collection.log", "AcquisitionLog", "Case", $collectCaseNumber)
                 IniWrite("Collection.log", "AcquisitionLog", "Examiner", $collectExaminer)
