@@ -2162,8 +2162,8 @@ Func VSC_Prefetch()						;Copy Prefetch data from any Volume Shadow Copies
    Do
 	  If FileExists("C:\VSC_" & $v) = 1 Then
 		 If Not FileExists($EvDir & "\VSC_" & $v &"\Prefetch") Then DirCreate($EvDir & "\VSC_" & $v &"\Prefetch")
-;			ShellExecuteWait($robocopy, ' "C:\VSC_' & $v & '\Windows\Prefetch" "' & $EvDir & '\VSC_' & $v & '\Prefetch" /copyall /ZB /TS /r:4 /w:3 /FP /NP /log:"' & $CpDir & '\VSC_' & $v & ' Prefetch Copy Log.txt"', $tools, "",@SW_HIDE)
-			ShellExecuteWait($vscpf1, $tools, "",@SW_HIDE)
+			ShellExecuteWait($robocopy, ' "C:\VSC_' & $v & '\Windows\Prefetch" "' & $EvDir & '\VSC_' & $v & '\Prefetch" /copyall /ZB /TS /r:4 /w:3 /FP /NP /log:"' & $CpDir & '\VSC_' & $v & ' Prefetch Copy Log.txt"', $tools, "",@SW_HIDE)
+;			ShellExecuteWait($vscpf1, $tools, "",@SW_HIDE)
 			   FileWriteLine($Log, @YEAR&"-"&@MON&"-"&@MDAY&@TAB&@HOUR&":"&@MIN&":"&@SEC&":"&@MSEC&@TAB&"Executed command:" &@TAB& $vscpf1 & @CRLF)
 		 $v = $v + 1
 	  Else
