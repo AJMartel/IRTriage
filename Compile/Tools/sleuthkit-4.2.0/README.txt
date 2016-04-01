@@ -1,3 +1,5 @@
+Custom compiled not external DLLs
+
 # [The Sleuth Kit](http://www.sleuthkit.org/sleuthkit)
 README File
 
