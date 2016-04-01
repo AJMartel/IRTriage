@@ -1,4 +1,4 @@
-Custom compiled not external DLLs
+# Custom compiled NO external DLLs
 
 # [The Sleuth Kit](http://www.sleuthkit.org/sleuthkit)
 README File
