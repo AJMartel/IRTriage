@@ -3722,6 +3722,8 @@ Func CaseLog()
 ;Create GUI
 $Main = GUICreate('Case Log', 300, 280)
 
+$CurrentTimeZone = RegRead("HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Control\TimeZoneInformation", "TimeZoneKeyName")
+
 Opt("GUICoordMode",1)
 $CaseNumber = GUICtrlCreateInput('',100,20,160)
 $CaseNumberLabel = GUICtrlCreateLabel('Case Number',20,23)
@@ -3733,7 +3735,7 @@ $UserAccount = GUICtrlCreateInput(@UserName,100,110,160)
 $UserAccountLabel = GUICtrlCreateLabel('Login Account',20,113)
 $ScriptDrive = GUICtrlCreateInput(@ScriptDir,100,140,160)
 $ScriptDriveLabel = GUICtrlCreateLabel('Save Drive',20,143)
-$TimeZone = GUICtrlCreateInput('',100,170,160)
+$TimeZone = GUICtrlCreateInput($CurrentTimeZone,100,170,160)
 $TimeZoneLabel = GUICtrlCreateLabel('Time Zone',20,173)
 $StartTime = GUICtrlCreateInput(@YEAR&'/'&@MON&'/'&@MDAY&' '&@HOUR&':'&@MIN&':'&@SEC,100,200,160)
 $StartTimeLabel = GUICtrlCreateLabel('Start Time',20,203)
@@ -3769,6 +3771,7 @@ While 1
     EndSelect
 Wend
 EndFunc
+
 
 #comments-start
 
