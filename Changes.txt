@@ -127,3 +127,4 @@ Version 2016.03.31
 Version 2016.04.01
 •Added CaseLog() Creates Collection.log with Acquisition information 
 •Fixed Popups when collecting Volume Shadow Copy Prefetch files
+•Updated cmd.exe
