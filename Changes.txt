@@ -19,19 +19,19 @@ Description:	IRTriage is intended for incident responders who need to gather hos
 
 Changes from triage-ir v0.851 Michael Ahrendt (last uploaded\modified 9 Nov 2012)
 
-•Renamed project to IRTriage
-•Versioning has changed to v2.[YY.MM.DD] for easier identification of last changes.
-•Updated the project to currently available tools.
-•Fixed the "commands executed" logging errors
-•Changed "Incident Log.txt" to "IncidentLog.csv" (TAB delimited)
-•Changed Compile time tools folder to ".\Compile\Tools\" (Local to script)
-•Fixed ini file open dialog to open in local script directory
+â€¢Renamed project to IRTriage
+â€¢Versioning has changed to v2.[YY.MM.DD] for easier identification of last changes.
+â€¢Updated the project to currently available tools.
+â€¢Fixed the "commands executed" logging errors
+â€¢Changed "Incident Log.txt" to "IncidentLog.csv" (TAB delimited)
+â€¢Changed Compile time tools folder to ".\Compile\Tools\" (Local to script)
+â€¢Fixed ini file open dialog to open in local script directory
 
 
 Version 2016.02.24 
 IRTriage is now truly compatible with the following versions of Windows:
-•Windows Workstations "WIN_10", "WIN_81", "WIN_8", "WIN_7", "WIN_VISTA", "WIN_XP", "WIN_XPe",
-•Windows Servers: "WIN_2016", "WIN_2012R2", "WIN_2012", "WIN_2008R2", "WIN_2008", "WIN_2003".
+â€¢Windows Workstations "WIN_10", "WIN_81", "WIN_8", "WIN_7", "WIN_VISTA", "WIN_XP", "WIN_XPe",
+â€¢Windows Servers: "WIN_2016", "WIN_2012R2", "WIN_2012", "WIN_2008R2", "WIN_2008", "WIN_2003".
 
 
 Version 2016.02.26 
@@ -58,7 +58,7 @@ TriageGUI()
 
 
 Version 2016.03.08
-•Added a custom compiled version of ReactOS's "cmd.exe" based on v0.4.0
+â€¢Added a custom compiled version of ReactOS's "cmd.exe" based on v0.4.0
 It can now use Linux equivalent commands: 
 clear = cls
 cp = copy
@@ -75,44 +75,55 @@ vmstat = memory, mem
 
 
 Version 2016.03.08
-•Started to cleanup the code, trying to make it easier to modualarize.
-•Added the option at compile time to use HBGary's FDpro (Commercial) or Moonsol's (Free) memory acquisition software. ?If you have HBGary's FDpro place it under the .\Compile\Tools folder in place of the "Zero byte" size file, is easy to switch back to Moonsol's memory acquisition software by replacing the FDpro.exe with a "less than 100 byte" sized file:-)
+â€¢Started to cleanup the code, trying to make it easier to modualarize.
+â€¢Added the option at compile time to use HBGary's FDpro (Commercial) or Moonsol's (Free) memory acquisition software. ?If you have HBGary's FDpro place it under the .\Compile\Tools folder in place of the "Zero byte" size file, is easy to switch back to Moonsol's memory acquisition software by replacing the FDpro.exe with a "less than 100 byte" sized file:-)
 
 
 Version 2016.03.10
-•Continued cleanup of the code, removed unused Function CommandROSLOG()
-•Added $MFT parce to CSV
-•Added ability to view IncidentLog.csv after acquisition completed.
+â€¢Continued cleanup of the code, removed unused Function CommandROSLOG()
+â€¢Added $MFT parce to CSV
+â€¢Added ability to view IncidentLog.csv after acquisition completed.
 
 
 Version 2016.03.11
-•Updated cmd.exe
-•Added ability to open IRTriage's cmd.exe after acquisition completed.
+â€¢Updated cmd.exe
+â€¢Added ability to open IRTriage's cmd.exe after acquisition completed.
 
 
 Version 2016.03.14
-•Added Prefetch parce to CSV
+â€¢Added Prefetch parce to CSV
 
 
 Version 2016.03.24
-•Added IRTriage Update in tools menu (Update buttons mixed up)
+â€¢Added IRTriage Update in tools menu (Update buttons mixed up)
 
 
 Version 2016.03.28
-•Fixed IRTriage Update (Yes=Download Update, No=Display Update Info, Cancel=Cancel Update)
+â€¢Fixed IRTriage Update (Yes=Download Update, No=Display Update Info, Cancel=Cancel Update)
 
 
 Version 2016.03.29
-•Integrate Didier Stevens's new commands into the latest version of ReactOS's "cmd.exe".: 
+â€¢Integrate Didier Stevens's new commands into the latest version of ReactOS's "cmd.exe".: 
  privilege:  This command enables the backup privilege. 
              "To be able to enable a privilege, you need to have the privilege" 
-             If you’re an administrator, you have the backup privilege; 
+             If youâ€™re an administrator, you have the backup privilege; 
              and can elevate the process (cmd.exe).
  info:       This command gives the MAC timestamps, file attributes and SDDL of the given file/folder.
  Both new commands are invaluable for a Forensic Analyst.
-•Source for IRTriage command processor. https://github.com/AJMartel/IRTriageCMD
+â€¢Source for IRTriage command processor. https://github.com/AJMartel/IRTriageCMD
 
 
 Version 2016.03.30
-•Fixed Volume Shadow Copy Functions
-•Updated IRTriage command processor (Version 4.1-20160330-Release)
+â€¢Fixed Volume Shadow Copy Functions
+â€¢Updated IRTriage command processor (Version 4.1-20160330-Release)
+â€¢Source for IRTriage command processor. https://github.com/AJMartel/IRTriageCMD
+
+
+Version 2016.03.31
+â€¢Fixed Hanging while doing Volume Shadow Copy Functions
+â€¢Source for IRTriage command processor. https://github.com/AJMartel/IRTriageCMD
+
+
+Version 2016.04.01
+â€¢Added CaseLog() Creates Collection.log with Acquisition information 
+â€¢Fixed Popups when collecting Volume Shadow Copy Prefetch files
