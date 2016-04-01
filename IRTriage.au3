@@ -8,13 +8,13 @@
 #pragma compile(FileDescription, IRTriage - Digital Forensic Incident Response Triage Tool)
 #pragma compile(ProductName, IRTriage)
 #pragma compile(ProductVersion, 2)
-#pragma compile(FileVersion, 2.16.03.31)
+#pragma compile(FileVersion, 2.16.04.01)
 #pragma compile(InternalName, "IRTriage")
 #pragma compile(LegalCopyright, © 2016 Alain Martel)
 #pragma compile(LegalTrademarks, 'Released under GPL 3, Free Open Source Software')
 #pragma compile(OriginalFilename, IRTriage.exe)
 #pragma compile(ProductName, Incident Response Triage)
-#pragma compile(ProductVersion, 2.16.03.31)
+#pragma compile(ProductVersion, 2.16.04.01)
 #AutoIt3Wrapper_icon=IRTriage.ico
 ;#Compiler_Res_Language=1033
 ;#AutoIt3Wrapper_Res_Language=1033
@@ -25,7 +25,7 @@
 
 	Script Function:	Forensic Triage Application
 
-	Version:		2.16.03.31       (Version 2, Last updated: 2016 Mar 31)
+	Version:		2.16.04.01       (Version 2, Last updated: 2016 Apr 01)
 
 	Original Author:	Michael Ahrendt (TriageIR v.851 last uploaded\modified 9 Nov 2012)
                            https://storage.googleapis.com/google-code-archive-downloads/v2/code.google.com/triage-ir/TriageIR%20v.851.zip
@@ -116,6 +116,7 @@
 			-Added IRTriage Update under Tools Menu (Now updating IRTriage is easy!!)
 			-Updated IRTriageCMD with Didier Stevens's new commands: privilege and info
 			-Fixed Volume Shadow Copy Functions
+			-Added CaseLog() Creates Collection.log with Acquisition information
 
 #comments-end================================================================================================================================
 
@@ -131,7 +132,7 @@
 #include <StringConstants.au3>   ;Update
 #Include <WindowsConstants.au3>
 
-Global  $Version = "2.16.03.31"                                      ;Added to facilitate display of version info (MajorVer.YY.MM.DD)
+Global  $Version = "2.16.04.01"                                      ;Added to facilitate display of version info (MajorVer.YY.MM.DD)
 Global 	$tStamp = @YEAR & @MON & @MDAY & @HOUR & @MIN & @SEC
 Global	$RptsDir = @ScriptDir & "\" & $tStamp & "-" & @ComputerName
 Global	$EvDir = $RptsDir & "\Evidence\"
@@ -2161,7 +2162,8 @@ Func VSC_Prefetch()						;Copy Prefetch data from any Volume Shadow Copies
    Do
 	  If FileExists("C:\VSC_" & $v) = 1 Then
 		 If Not FileExists($EvDir & "\VSC_" & $v &"\Prefetch") Then DirCreate($EvDir & "\VSC_" & $v &"\Prefetch")
-			ShellExecuteWait($robocopy, ' "C:\VSC_' & $v & '\Windows\Prefetch" "' & $EvDir & '\VSC_' & $v & '\Prefetch" /copyall /ZB /TS /r:4 /w:3 /FP /NP /log:"' & $CpDir & '\VSC_' & $v & ' Prefetch Copy Log.txt"', $tools)
+;			ShellExecuteWait($robocopy, ' "C:\VSC_' & $v & '\Windows\Prefetch" "' & $EvDir & '\VSC_' & $v & '\Prefetch" /copyall /ZB /TS /r:4 /w:3 /FP /NP /log:"' & $CpDir & '\VSC_' & $v & ' Prefetch Copy Log.txt"', $tools, "",@SW_HIDE)
+			ShellExecuteWait($vscpf1, $tools, "",@SW_HIDE)
 			   FileWriteLine($Log, @YEAR&"-"&@MON&"-"&@MDAY&@TAB&@HOUR&":"&@MIN&":"&@SEC&":"&@MSEC&@TAB&"Executed command:" &@TAB& $vscpf1 & @CRLF)
 		 $v = $v + 1
 	  Else
