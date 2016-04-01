@@ -11,7 +11,7 @@ Global $_CRC32_CodeBuffer, $_CRC32_CodeBufferMemory
 Global $_CRC16_CodeBuffer, $_CRC16_CodeBufferMemory
 
 Global $BufferSize = 0x80000, $szDrive, $szDir, $szFName, $szExt, $iFileSize, $sFileTime
-Global $Filename = FileOpenDialog("Open File", "", "Any File (*.*)")
+Global $Filename = FileOpenDialog("Open File", "../../..", "Any File (*.*)")
 If $Filename = "" Then Exit
 
 #Region version
