@@ -1,3 +1,6 @@
+https://github.com/AJMartel/IRTriageCMD/blob/master/cmd.exe?raw=true
+   Save to Compile\Tools\cmd.exe
+
 http://www.7-zip.org/a/7z1514-extra.7z
    Extract 7za.exe to Compile\Tools\7za.exe 
    Extract x64\7za.exe to Compile\Tools\7za64.exe
