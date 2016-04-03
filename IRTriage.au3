@@ -8,13 +8,13 @@
 #pragma compile(FileDescription, IRTriage - Digital Forensic Incident Response Triage Tool)
 #pragma compile(ProductName, IRTriage)
 #pragma compile(ProductVersion, 2)
-#pragma compile(FileVersion, 2.16.04.01)
+#pragma compile(FileVersion, 2.16.04.03)
 #pragma compile(InternalName, "IRTriage")
 #pragma compile(LegalCopyright, © 2016 Alain Martel)
 #pragma compile(LegalTrademarks, 'Released under GPL 3, Free Open Source Software')
 #pragma compile(OriginalFilename, IRTriage.exe)
 #pragma compile(ProductName, Incident Response Triage)
-#pragma compile(ProductVersion, 2.16.04.01)
+#pragma compile(ProductVersion, 2.16.04.03)
 #AutoIt3Wrapper_icon=IRTriage.ico
 ;#Compiler_Res_Language=1033
 ;#AutoIt3Wrapper_Res_Language=1033
@@ -25,7 +25,7 @@
 
 	Script Function:	Forensic Triage Application
 
-	Version:		2.16.04.01       (Version 2, Last updated: 2016 Apr 01)
+	Version:		2.16.04.03       (Version 2, Last updated: 2016 Apr 03)
 
 	Original Author:	Michael Ahrendt (TriageIR v.851 last uploaded\modified 9 Nov 2012)
                            https://storage.googleapis.com/google-code-archive-downloads/v2/code.google.com/triage-ir/TriageIR%20v.851.zip
@@ -132,7 +132,7 @@
 #include <StringConstants.au3>   ;Update
 #Include <WindowsConstants.au3>
 
-Global  $Version = "2.16.04.01"                                      ;Added to facilitate display of version info (MajorVer.YY.MM.DD)
+Global  $Version = "2.16.04.03"                                      ;Added to facilitate display of version info (MajorVer.YY.MM.DD)
 Global 	$tStamp = @YEAR & @MON & @MDAY & @HOUR & @MIN & @SEC
 Global	$RptsDir = @ScriptDir & "\" & $tStamp & "-" & @ComputerName
 Global	$EvDir = $RptsDir & "\Evidence\"
@@ -3720,7 +3720,7 @@ EndFunc	;==>InetgetProgress
 
 Func CaseLog()
 ;Create GUI
-$Main = GUICreate('Case Log', 300, 280)
+$Main = GUICreate('Case Log', 800, 280)
 
 $CurrentTimeZone = RegRead("HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Control\TimeZoneInformation", "TimeZoneKeyName")
 
@@ -3739,9 +3739,10 @@ $TimeZone = GUICtrlCreateInput($CurrentTimeZone,100,170,160)
 $TimeZoneLabel = GUICtrlCreateLabel('Time Zone',20,173)
 $StartTime = GUICtrlCreateInput(@YEAR&'/'&@MON&'/'&@MDAY&' '&@HOUR&':'&@MIN&':'&@SEC,100,200,160)
 $StartTimeLabel = GUICtrlCreateLabel('Start Time',20,203)
-$Button_1 = GUICtrlCreateButton ("OK", 170, 240, 0, 0, 0x0001)
-$Button_2 = GUICtrlCreateButton ("Exit", 225, 240, 0, 0)
-;$checkbox = GUICtrlCreateCheckbox("Save", 20, 240)
+$CaseNotes = GUICtrlCreateInput('',370,20, 410, 200)
+$CaseNotesLabel = GUICtrlCreateLabel('Case Notes',300,23)
+$Button_1 = GUICtrlCreateButton ("OK", 370, 240, 0, 0, 0x0001)
+$Button_2 = GUICtrlCreateButton ("Exit", 435, 240, 0, 0)
 
 GUISetState ()
 ; Run the GUI until the dialog is closed
@@ -3758,6 +3759,7 @@ While 1
             Local $collectScriptDrive = GUICtrlRead($ScriptDrive)
             Local $collectTimeZone = GUICtrlRead($TimeZone)
             Local $collectStartTime = GUICtrlRead($StartTime)
+			Local $collectCaseNotes = GUICtrlRead($CaseNotes)
                 IniWrite("Collection.log", "AcquisitionLog", "Case", $collectCaseNumber)
                 IniWrite("Collection.log", "AcquisitionLog", "Examiner", $collectExaminer)
                 IniWrite("Collection.log", "AcquisitionLog", "Computername", $collectTargetSystem)
@@ -3765,6 +3767,7 @@ While 1
 				IniWrite("Collection.log", "AcquisitionLog", "SaveDrive", $collectScriptDrive)
                 IniWrite("Collection.log", "AcquisitionLog", "TimeZone", $collectTimeZone)
                 IniWrite("Collection.log", "AcquisitionLog", "StartTime", $collectStartTime)
+				IniWrite("Collection.log", "AcquisitionLog", "CaseNotes", $collectCaseNotes)
             ExitLoop
         Case $msg = $Button_2
             Return
