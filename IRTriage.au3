@@ -10,12 +10,12 @@
 #pragma compile(ProductVersion, 2)
 #pragma compile(FileVersion, 2.16.04.03)
 #pragma compile(InternalName, "IRTriage")
-#pragma compile(LegalCopyright, © 2016 Alain Martel)
+#pragma compile(LegalCopyright, Â© 2016 Alain Martel)
 #pragma compile(LegalTrademarks, 'Released under GPL 3, Free Open Source Software')
 #pragma compile(OriginalFilename, IRTriage.exe)
 #pragma compile(ProductName, Incident Response Triage)
 #pragma compile(ProductVersion, 2.16.04.03)
-#AutoIt3Wrapper_icon=IRTriage.ico
+#AutoIt3Wrapper_icon=Compile\IRTriage.ico
 ;#Compiler_Res_Language=1033
 ;#AutoIt3Wrapper_Res_Language=1033
 #EndRegion
@@ -41,8 +41,8 @@
 			via a network share (example: connected via RDP).
 
  	Tools used:	Fast Dump pro by HBGary
-				-FDPro is included with Responder™ Professional. FDPro is the most complete memory acquisition software in the industry.
-					FDPro is the only application that can preserve Windows™ physical memory and Pagefile for information security and
+				-FDPro is included with Responderâ„¢ Professional. FDPro is the most complete memory acquisition software in the industry.
+					FDPro is the only application that can preserve Windowsâ„¢ physical memory and Pagefile for information security and
 					computer forensic purposes.
 				-http://www.countertack.com/
 
