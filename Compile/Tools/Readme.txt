@@ -14,7 +14,7 @@ https://sourceforge.net/projects/md5deep/files/md5deep/md5deep-4.3/md5deep-4.3.z
    Extract md5deep-4.3\sha1deep.exe to Compile\Tools\sha1deep.exe
    Extract md5deep-4.3\sha1deep64.exe to Compile\Tools\sha1deep64.exe
    
-https://storage.googleapis.com/google-code-archive-downloads/v2/code.google.com/triage-ir/TriageIR%20v.851.zip   
+https://www.microsoft.com/en-us/download/confirmation.aspx?id=17657   
    Extract robocopy.exe to Compile\Tools\robocopy.exe
-   Extract x64\robocopy.exe to Compile\Tools\robo7.exe
+   Extract x64\robocopy.exe to Compile\Tools\robo7.exe?
   
