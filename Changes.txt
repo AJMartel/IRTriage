@@ -2,7 +2,7 @@ Tool:			Incident Respone Triage:    (GUI)
 
 Script Function:	Forensic Triage Application
 
-Version:		2.16.03.29       (Version 2, Last updated: 2016 Mar 29)
+Version:		2.16.04.03       (Version 2, Last updated: 2016 Apr 03)
 
 Original Author:	Michael Ahrendt (TriageIR v.851 last uploaded\modified 9 Nov 2012)
                         https://storage.googleapis.com/google-code-archive-downloads/v2/code.google.com/triage-ir/TriageIR%20v.851.zip
