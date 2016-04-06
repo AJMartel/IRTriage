@@ -8,13 +8,13 @@
 #pragma compile(FileDescription, IRTriage - Digital Forensic Incident Response Triage Tool)
 #pragma compile(ProductName, IRTriage)
 #pragma compile(ProductVersion, 2)
-#pragma compile(FileVersion, 2.16.04.03)
+#pragma compile(FileVersion, 2.16.04.06)
 #pragma compile(InternalName, "IRTriage")
-#pragma compile(LegalCopyright, Â© 2016 Alain Martel)
+#pragma compile(LegalCopyright, © 2016 Alain Martel)
 #pragma compile(LegalTrademarks, 'Released under GPL 3, Free Open Source Software')
 #pragma compile(OriginalFilename, IRTriage.exe)
 #pragma compile(ProductName, Incident Response Triage)
-#pragma compile(ProductVersion, 2.16.04.03)
+#pragma compile(ProductVersion, 2.16.04.06)
 #AutoIt3Wrapper_icon=Compile\IRTriage.ico
 ;#Compiler_Res_Language=1033
 ;#AutoIt3Wrapper_Res_Language=1033
@@ -25,7 +25,7 @@
 
 	Script Function:	Forensic Triage Application
 
-	Version:		2.16.04.03       (Version 2, Last updated: 2016 Apr 03)
+	Version:		2.16.04.06       (Version 2, Last updated: 2016 Apr 06)
 
 	Original Author:	Michael Ahrendt (TriageIR v.851 last uploaded\modified 9 Nov 2012)
                            https://storage.googleapis.com/google-code-archive-downloads/v2/code.google.com/triage-ir/TriageIR%20v.851.zip
@@ -41,8 +41,8 @@
 			via a network share (example: connected via RDP).
 
  	Tools used:	Fast Dump pro by HBGary
-				-FDPro is included with Responderâ„¢ Professional. FDPro is the most complete memory acquisition software in the industry.
-					FDPro is the only application that can preserve Windowsâ„¢ physical memory and Pagefile for information security and
+				-FDPro is included with Responder™ Professional. FDPro is the most complete memory acquisition software in the industry.
+					FDPro is the only application that can preserve Windows™ physical memory and Pagefile for information security and
 					computer forensic purposes.
 				-http://www.countertack.com/
 
@@ -101,11 +101,14 @@
 					*Processes
 						**tcpvcon -anc -accepteula > Process2PortMap.csv
 						**tasklist /SVC /FO CSV > Processe2exeMap.csv
+						**tasklist /M /FO CSV > ProcesseDLL.csv
 						**wmic /output:ProcessesCmd.csv process get Caption,Commandline,Processid,ParentProcessId,SessionId /format:csv
 					*SystemInfo
 						**wmic /output:InstallList.csv product get /format:csv
 						**wmic /output:InstallHotfix.csv qfe get caption,csname,description,hotfixid,installedby,installedon /format:csv
 						**wmic /output:InstallList.csv product get /format:csv
+					*AccountInfo
+						**net localgroup administrators
 					*Prefetch
 						**WinPrefetchView /Folder Prefetch /stab Prefetch.csv
 					*Options
@@ -132,7 +135,7 @@
 #include <StringConstants.au3>   ;Update
 #Include <WindowsConstants.au3>
 
-Global  $Version = "2.16.04.03"                                      ;Added to facilitate display of version info (MajorVer.YY.MM.DD)
+Global  $Version = "2.16.04.06"                                      ;Added to facilitate display of version info (MajorVer.YY.MM.DD)
 Global 	$tStamp = @YEAR & @MON & @MDAY & @HOUR & @MIN & @SEC
 Global	$RptsDir = @ScriptDir & "\" & $tStamp & "-" & @ComputerName
 Global	$EvDir = $RptsDir & "\Evidence\"
@@ -1372,14 +1375,14 @@ Func MemDump()
 		If @OSArch = "X86" Then
 			Global $windd = "win32dd.exe"
 			If Not FileExists(@ScriptDir & "\Tools\Moonsols\") Then DirCreate(@ScriptDir & "\Tools\Moonsols\")
-			If Not FileExists(@ScriptDir & "\Tools\win32dd.exe") Then
+			If Not FileExists(@ScriptDir & "\Tools\Moonsols\win32dd.exe") Then
 				FileInstall(".\Compile\Tools\Moonsols\win32dd.exe", @ScriptDir & "\Tools\Moonsols\", 0)
 				FileInstall(".\Compile\Tools\Moonsols\win32dd.sys", @ScriptDir & "\Tools\Moonsols\", 0)
 			EndIf
 		Else
 			Global $windd = "win64dd.exe"
 			If Not FileExists(@ScriptDir & "\Tools\Moonsols\") Then DirCreate(@ScriptDir & "\Tools\Moonsols\")
-			If Not FileExists(@ScriptDir & "\Tools\win64dd.exe") Then
+			If Not FileExists(@ScriptDir & "\Tools\Moonsols\win64dd.exe") Then
 				FileInstall(".\Compile\Tools\Moonsols\win64dd.exe", @ScriptDir & "\Tools\Moonsols\", 0)
 				FileInstall(".\Compile\Tools\Moonsols\win64dd.sys", @ScriptDir & "\Tools\Moonsols\", 0)
 			EndIf
@@ -1412,10 +1415,11 @@ EndFunc
 
 Func Processes()						;Gather running process information
    Local $proc1 = $shellex & 'tasklist /V /FO CSV > "' & $ColDir & '\Processes.csv"'
-   Local $proc2 = $shellex & '.\Tools\SysinternalsSuite\pslist -accepteula >> "' & $ColDir & '\Processes.txt"'
-   Local $proc3 = $shellex & '.\Tools\SysinternalsSuite\pslist -t -accepteula >> "' & $ColDir & '\ProcessTree.txt"'
-   Local $proc4 = $shellex & '.\Tools\SysinternalsSuite\tcpvcon -anc -accepteula >> "' & $ColDir & '\Process2PortMap.csv"'
-   Local $proc5 = $shellex & 'tasklist /SVC /FO CSV > "' & $ColDir & '\Processe2exeMap.csv"'
+   Local $proc2 = $shellex & 'tasklist /SVC /FO CSV > "' & $ColDir & '\Processe2exeMap.csv"'
+   Local $proc3 = $shellex & 'tasklist /M /FO CSV > "' & $ColDir & '\ProcesseDLL.csv"'
+   Local $proc4 = $shellex & '.\Tools\SysinternalsSuite\pslist -accepteula >> "' & $ColDir & '\Processes.txt"'
+   Local $proc5 = $shellex & '.\Tools\SysinternalsSuite\pslist -t -accepteula >> "' & $ColDir & '\ProcessTree.txt"'
+   Local $proc7 = $shellex & '.\Tools\SysinternalsSuite\tcpvcon -anc -accepteula >> "' & $ColDir & '\Process2PortMap.csv"'
    Local $proc6 = $shellex & 'wmic /output:"' & $ColDir & '\ProcessesCmd.csv" process get Caption,Commandline,Processid,ParentProcessId,SessionId /format:csv'
 
    RunWait($proc1, "", @SW_HIDE)
@@ -1429,8 +1433,10 @@ Func Processes()						;Gather running process information
    RunWait($proc5, "", @SW_HIDE)
 	  FileWriteLine($Log, @YEAR&"-"&@MON&"-"&@MDAY&@TAB&@HOUR&":"&@MIN&":"&@SEC&":"&@MSEC&@TAB&"Executed command:" &@TAB& $proc5 & @CRLF)
    RunWait($proc6, "", @SW_HIDE)
-		;Fix for IncidentLog.csv "," in commands replaced with "." fixing issue when importing into Excel
-	  Local $sString = StringReplace ( $proc6, "Caption,Commandline,Processid,ParentProcessId,SessionId", "Caption.Commandline.Processid.ParentProcessId.SessionId" , 0 )
+	  FileWriteLine($Log, @YEAR&"-"&@MON&"-"&@MDAY&@TAB&@HOUR&":"&@MIN&":"&@SEC&":"&@MSEC&@TAB&"Executed command:" &@TAB& $proc6 & @CRLF)
+   RunWait($proc7, "", @SW_HIDE)
+		;Fix for IncidentLog.csv "," in commands replaced with ";" fixing issue when importing into Excel
+	  Local $sString = StringReplace ( $proc7, "Caption,Commandline,Processid,ParentProcessId,SessionId", "Caption;Commandline;Processid;ParentProcessId;SessionId" , 0 )
 	  FileWriteLine($Log, @YEAR&"-"&@MON&"-"&@MDAY&@TAB&@HOUR&":"&@MIN&":"&@SEC&":"&@MSEC&@TAB&"Executed command:" &@TAB& $sString & @CRLF)
 EndFunc
 
@@ -1597,9 +1603,12 @@ EndFunc
 
 Func AccountInfo()						;Gather information pertaining to the user accounts
    Local $acctinfo1 = $shellex & 'net accounts > "' & $ColDir & '\AccountDetails.txt"'
+   Local $acctinfo2 = $shellex & 'net localgroup administrators > "' & $ColDir & '\AccountAdminList.txt"'
 
    RunWait($acctinfo1, "", @SW_HIDE)
 	  FileWriteLine($Log, @YEAR&"-"&@MON&"-"&@MDAY&@TAB&@HOUR&":"&@MIN&":"&@SEC&":"&@MSEC&@TAB&"Executed command:" &@TAB& $acctinfo1 & @CRLF)
+   RunWait($acctinfo2, "", @SW_HIDE)
+	  FileWriteLine($Log, @YEAR&"-"&@MON&"-"&@MDAY&@TAB&@HOUR&":"&@MIN&":"&@SEC&":"&@MSEC&@TAB&"Executed command:" &@TAB& $acctinfo2 & @CRLF)
 EndFunc
 
 Func Hostname()							;Gather information on the hostname
@@ -3810,6 +3819,8 @@ Func _GetDOSOutput($sCommand)
     WEnd
     Return $sOutput
 EndFunc   ;==>_GetDOSOutput
+
+NTDS.DIT
 
 #comments-end
 
