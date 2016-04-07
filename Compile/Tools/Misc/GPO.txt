@@ -1,3 +1,5 @@
+CVE-2014-1812, MS14-025 
+
 For Group Policy Objects applied to the local computer: 
  HKEY_LOCAL_MACHINE\Software\Microsoft\Windows\CurrentVersion\Group Policy\History
  
