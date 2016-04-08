@@ -132,3 +132,9 @@ Version 2016.04.01
 Version 2016.04.06
 •Added Proceses() tasklist /M /FO CSV > ProcesseDLL.csv 
 •Added AccountInfo() net localgroup administrators > AccountAdminList.txt
+
+Version 2016.04.07
+•Added LogFilegrab() icat.exe \\.\c: 2 > $LogFilecopy 
+
+Version 2016.04.08
+•Added CVE_2014_1812() gp3finder_v4.0.exe -A -l -o CVE_2014_1812.txt 
