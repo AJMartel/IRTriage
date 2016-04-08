@@ -8,13 +8,13 @@
 #pragma compile(FileDescription, IRTriage - Digital Forensic Incident Response Triage Tool)
 #pragma compile(ProductName, IRTriage)
 #pragma compile(ProductVersion, 2)
-#pragma compile(FileVersion, 2.16.04.06)
+#pragma compile(FileVersion, 2.16.04.08)
 #pragma compile(InternalName, "IRTriage")
 #pragma compile(LegalCopyright, © 2016 Alain Martel)
 #pragma compile(LegalTrademarks, 'Released under GPL 3, Free Open Source Software')
 #pragma compile(OriginalFilename, IRTriage.exe)
 #pragma compile(ProductName, Incident Response Triage)
-#pragma compile(ProductVersion, 2.16.04.06)
+#pragma compile(ProductVersion, 2.16.04.08)
 #AutoIt3Wrapper_icon=Compile\IRTriage.ico
 ;#Compiler_Res_Language=1033
 ;#AutoIt3Wrapper_Res_Language=1033
@@ -25,7 +25,7 @@
 
 	Script Function:	Forensic Triage Application
 
-	Version:		2.16.04.06       (Version 2, Last updated: 2016 Apr 06)
+	Version:		2.16.04.08       (Version 2, Last updated: 2016 Apr 08)
 
 	Original Author:	Michael Ahrendt (TriageIR v.851 last uploaded\modified 9 Nov 2012)
                            https://storage.googleapis.com/google-code-archive-downloads/v2/code.google.com/triage-ir/TriageIR%20v.851.zip
@@ -108,9 +108,11 @@
 						**wmic /output:InstallHotfix.csv qfe get caption,csname,description,hotfixid,installedby,installedon /format:csv
 						**wmic /output:InstallList.csv product get /format:csv
 					*AccountInfo
-						**net localgroup administrators
+						**net localgroup administrators > AccountAdminList.txt
 					*Prefetch
 						**WinPrefetchView /Folder Prefetch /stab Prefetch.csv
+					*LogFilegrab
+						**icat.exe \\.\c: 2 > $LogFilecopy
 					*Options
 						**mftdump.exe /l /m ComputerName /o ComputerName-MFT_Dump.csv $MFTcopy
 					*GUI
@@ -135,7 +137,7 @@
 #include <StringConstants.au3>   ;Update
 #Include <WindowsConstants.au3>
 
-Global  $Version = "2.16.04.06"                                      ;Added to facilitate display of version info (MajorVer.YY.MM.DD)
+Global  $Version = "2.16.04.08"                                      ;Added to facilitate display of version info (MajorVer.YY.MM.DD)
 Global 	$tStamp = @YEAR & @MON & @MDAY & @HOUR & @MIN & @SEC
 Global	$RptsDir = @ScriptDir & "\" & $tStamp & "-" & @ComputerName
 Global	$EvDir = $RptsDir & "\Evidence\"
@@ -143,7 +145,9 @@ Global	$MemDir = $EvDir & "Memory\"                                 ;added to ma
 Global	$RegDir = $EvDir & "Registry\"                               ;added to make finding the registry files easier
 Global	$RegReportDir = $EvDir & "Registry\Report\"                  ;added to make finding the RegRipper Reports easier
 Global  $ColDir = $EvDir & "Collected\"                              ;added to make finding the collected files easier
-Global  $MFTDir = $EvDir & "MFT\"                                    ;added to make finding the MFT record files easier
+Global  $MFTDir = $EvDir & "MFT\"                                    ;added to make finding the MFT record file easier
+Global  $LogFileDir = $EvDir & "LogFile\"                            ;added to make finding the LogFile record file easier
+Global  $CVEDir = $EvDir & "CVE\"                                    ;added to make finding the LogFile record file easier
 Global  $CpDir  = $RptsDir & "\CopyLogs"
 Global 	$HashDir = $RptsDir & "\Evidence"
 Global	$JmpLst = $EvDir & "JumpLists"
@@ -213,7 +217,7 @@ Func INI_Check($ini_file)				;Check the INI file included in triage for function
    Global 	$sysrrp_ini, $sftrrp_ini, $hkcurrp_ini, $secrrp_ini, $samrrp_ini, $ntusrrp_ini, $usrc_ini
    Global	$VS_PF_ini, $VS_RF_ini, $VS_JmpLst_ini, $VS_EvtCpy_ini, $VS_SYSREG_ini, $VS_SECREG_ini, $VS_SAMREG_ini, $VS_SOFTREG_ini, $VS_USERREG_ini
    Global 	$SysIntAdd_ini
-   Global 	$MFT_ini
+   Global 	$MFT_ini, $LogFile_ini, $CVE_2014_1812_ini
    Global 	$IPs_ini, $DNS_ini, $Arp_ini, $ConnS_ini, $routes_ini, $ntBIOS_ini, $conn_ini
    Global 	$share_ini, $shfile_ini, $fw_ini, $host_ini, $wrkgrp_ini
    Global 	$pf_ini, $rf_ini, $JL_ini, $evt_ini
@@ -236,6 +240,8 @@ Func INI_Check($ini_file)				;Check the INI file included in triage for function
    $ntusrrp_ini = IniRead($ini_file, "Function", "NTUserRRip", "Yes")
    $usrc_ini = IniRead($ini_file, "Function", "Userclass", "Yes")
    $MFT_ini = IniRead($ini_file, "Function", "MFTcopy", "Yes")
+   $LogFile_ini = IniRead($ini_file, "Function", "LogFilecopy", "Yes")
+   $CVE_2014_1812_ini = IniRead($ini_file, "Function", "CVE-2014-1812", "Yes")
    $VS_PF_ini = IniRead($ini_file, "Function", "VSprefetch", "No")
    $VS_RF_ini = IniRead($ini_file, "Function", "VSrecent", "No")
    $VS_JmpLst_ini = IniRead($ini_file, "Function", "VSjumplist", "No")
@@ -309,7 +315,7 @@ Func TriageGUI()						;Creates a graphical user interface for Triage
    Global 	$PF_chk, $RF_chk, $sysint_chk
    Global 	$md5_chk, $sha1_chk, $regrip_chk, $MFTDump_chk, $compress_chk
    Global	$VS_PF_chk, $VS_RF_chk, $VS_JmpLst_chk, $VS_EvtCpy_chk, $VS_SYSREG_chk, $VS_SECREG_chk, $VS_SAMREG_chk, $VS_SOFTREG_chk, $VS_USERREG_chk
-   Global	$MFTg_chk
+   Global	$MFTg_chk, $LogFileg_chk, $CVE_2014_1812g_chk
 
    GUICreate("Incident Response Triage: version "& $Version, 810, 300)
 
@@ -442,6 +448,10 @@ Func TriageGUI()						;Creates a graphical user interface for Triage
 			GUICtrlSetTip($UsrC_chk, "Copy the USERCLASS portion of registry for analysis of Windows Shell.")
 		 $MFTg_chk = GUICtrlCreateCheckbox("Collect a copy of the MFT", 10, 150)
 			GUICtrlSetTip($MFTg_chk, "Collect a copy of the Master File Table for analysis.")
+		 $LogFileg_chk = GUICtrlCreateCheckbox("Collect a copy of the LogFile", 10, 170)
+			GUICtrlSetTip($LogFileg_chk, "Collect a copy of the LogFile for analysis.")
+		 $CVE_2014_1812g_chk = GUICtrlCreateCheckbox("Verify CVE-2014-1812", 10, 210)
+			GUICtrlSetTip($CVE_2014_1812g_chk, "Verify CVE-2014-1812 for stored passwords.")
 
 	  GUICtrlCreateTabItem("Volume Shadow Copies (VSCs)")
 
@@ -587,67 +597,79 @@ Func TriageGUI()						;Creates a graphical user interface for Triage
 			   Prefetch()
 			   $fcnt = $fcnt + 1
 			   GUICtrlSetData($progress, (($fcnt/$p_chkc)*100))
-			   EndIf
+			EndIf
 
 			If (GUICtrlRead($RF_chk) = 1) Then
 			   RecentFolder()
 			   $fcnt = $fcnt + 1
 			   GUICtrlSetData($progress, (($fcnt/$p_chkc)*100))
-			   EndIf
+			EndIf
 
 			If (GUICtrlRead($JmpLst_chk) = 1) Then
 			   JumpLists()
 			   $fcnt = $fcnt + 1
 			   GUICtrlSetData($progress, (($fcnt/$p_chkc)*100))
-			   EndIf
+			EndIf
 
 			If (GUICtrlRead($SYSTEM_chk) = 1) Then
 			   SystemRRip()
 			   $fcnt = $fcnt + 1
 			   GUICtrlSetData($progress, (($fcnt/$p_chkc)*100))
-			   EndIf
+			EndIf
 
 			If (GUICtrlRead($SOFTWARE_chk) = 1) Then
 			   SoftwareRRip()
 			   $fcnt = $fcnt + 1
 			   GUICtrlSetData($progress, (($fcnt/$p_chkc)*100))
-			   EndIf
+			EndIf
 
 			If (GUICtrlRead($HKCU_chk) = 1) Then
 			   HKCURRip()
 			   $fcnt = $fcnt + 1
 			   GUICtrlSetData($progress, (($fcnt/$p_chkc)*100))
-			   EndIf
+			EndIf
 
 			If (GUICtrlRead($HKU_chk) = 1) Then
 			   NTUserRRip()
 			   $fcnt = $fcnt + 1
 			   GUICtrlSetData($progress, (($fcnt/$p_chkc)*100))
-			   EndIf
+			EndIf
 
 			If (GUICtrlRead($UsrC_chk) = 1) Then
 			   UsrclassE()
 			   $fcnt = $fcnt + 1
 			   GUICtrlSetData($progress, (($fcnt/$p_chkc)*100))
-			   EndIf
+			EndIf
 
 			If (GUICtrlRead($SECURITY_chk) = 1) Then
 			   SecurityRRip()
 			   $fcnt = $fcnt + 1
 			   GUICtrlSetData($progress, (($fcnt/$p_chkc)*100))
-			   EndIf
+			EndIf
 
 			If (GUICtrlRead($SAM_chk) = 1) Then
 			   SAMRRip()
 			   $fcnt = $fcnt + 1
 			   GUICtrlSetData($progress, (($fcnt/$p_chkc)*100))
-			   EndIf
+			EndIf
 
 			If (GUICtrlRead($MFTg_chk) = 1) Then
 			   MFTgrab()
 			   $fcnt = $fcnt + 1
 			   GUICtrlSetData($progress, (($fcnt/$p_chkc)*100))
-			   EndIf
+			EndIf
+
+			If (GUICtrlRead($LogFileg_chk) = 1) Then
+			   LogFilegrab()
+			   $fcnt = $fcnt + 1
+			   GUICtrlSetData($progress, (($fcnt/$p_chkc)*100))
+			EndIf
+
+			If (GUICtrlRead($CVE_2014_1812g_chk) = 1) Then
+			   CVE_2014_1812()
+			   $fcnt = $fcnt + 1
+			   GUICtrlSetData($progress, (($fcnt/$p_chkc)*100))
+			EndIf
 
 			VSC_ChkCount()
 
@@ -1164,6 +1186,18 @@ Func _Ini2GUI()							;Correlate the INI into checking the boxes of the GUI to e
 	  GUICtrlSetState($MFTg_chk, $GUI_UNCHECKED)
    EndIf
 
+   If $LogFile_ini = "Yes" Then
+	  GUICtrlSetState($LogFileg_chk, $GUI_CHECKED)
+   Else
+	  GUICtrlSetState($LogFileg_chk, $GUI_UNCHECKED)
+   EndIf
+
+   If $CVE_2014_1812_ini = "Yes" Then
+	  GUICtrlSetState($CVE_2014_1812g_chk, $GUI_CHECKED)
+   Else
+	  GUICtrlSetState($CVE_2014_1812g_chk, $GUI_UNCHECKED)
+   EndIf
+
    If $VS_PF_ini = "Yes" Then
 	  GUICtrlSetState($VS_PF_chk, $GUI_CHECKED)
    Else
@@ -1251,6 +1285,10 @@ Func INI2Command()						;Correlate the INI file into executing the selected func
    If $usrc_ini = "Yes" Then UsrclassE()
 
    If $MFT_ini = "Yes" Then MFTgrab()
+
+   If $LogFile_ini = "Yes" Then LogFilegrab()
+
+   If $CVE_2014_1812_ini = "Yes" Then CVE_2014_1812()
 
    If $secrrp_ini = "Yes" Then SecurityRRip()
 
@@ -2103,7 +2141,25 @@ Func MFTgrab()							;Use iCat to rip a file from NTFS file system
 
    RunWait($MFTc, "", @SW_HIDE)
 	  FileWriteLine($Log, @YEAR&"-"&@MON&"-"&@MDAY&@TAB&@HOUR&":"&@MIN&":"&@SEC&":"&@MSEC&@TAB&"Executed command:" &@TAB& $MFTc & @CRLF)
+EndFunc
+
+Func LogFilegrab()							;Use iCat to rip a file from NTFS file system
+
+   Local $LogFilec = $shellex & '.\Tools\sleuthkit-4.2.0\bin\icat.exe \\.\c: 2 > "' & $LogFileDir & '$LogFilecopy"'
+
+   RunWait($LogFilec, "", @SW_HIDE)
+	  FileWriteLine($Log, @YEAR&"-"&@MON&"-"&@MDAY&@TAB&@HOUR&":"&@MIN&":"&@SEC&":"&@MSEC&@TAB&"Executed command:" &@TAB& $LogFilec & @CRLF)
    EndFunc
+
+Func CVE_2014_1812()							;Verify for CVE-2014-1812 GPO Stored Passwords
+
+   CVETools()
+
+   Local $CVE_2014_1812v = $shellex & '.\Tools\Misc\gp3finder_v4.0.exe -A -l -o "' & $CVEDir & 'CVE_2014_1812.txt"'
+
+   RunWait($CVE_2014_1812v, "", @SW_HIDE)
+	  FileWriteLine($Log, @YEAR&"-"&@MON&"-"&@MDAY&@TAB&@HOUR&":"&@MIN&":"&@SEC&":"&@MSEC&@TAB&"Executed command:" &@TAB& $CVE_2014_1812v & @CRLF)
+EndFunc
 
 Func GetShadowNames()
 #comments-start =============================================================================================================================
@@ -2551,6 +2607,8 @@ Func ProgChkCount()						;Count number of functions executing for GUI Progress B
    If (GUICtrlRead($SECURITY_chk) = 1) Then $p_chkc = $p_chkc + 1
    If (GUICtrlRead($SAM_chk) = 1) Then $p_chkc = $p_chkc + 1
    If (GUICtrlRead($MFTg_chk) = 1) Then $p_chkc = $p_chkc + 1
+   If (GUICtrlRead($LogFileg_chk) = 1) Then $p_chkc = $p_chkc + 1
+   If (GUICtrlRead($CVE_2014_1812g_chk) = 1) Then $p_chkc = $p_chkc + 1
    If (GUICtrlRead($VS_PF_chk) = 1) Then $p_chkc = $p_chkc + 1
    If (GUICtrlRead($VS_RF_chk) = 1) Then $p_chkc = $p_chkc + 1
    If (GUICtrlRead($VS_JmpLst_chk) = 1) Then $p_chkc = $p_chkc + 1
@@ -2606,6 +2664,8 @@ Func SelectAll()						;Function to select all functions within a GUI
    GUICtrlSetState($SECURITY_chk, $GUI_CHECKED)
    GUICtrlSetState($SAM_chk, $GUI_CHECKED)
    GUICtrlSetState($MFTg_chk, $GUI_CHECKED)
+   GUICtrlSetState($LogFileg_chk, $GUI_CHECKED)
+   GUICtrlSetState($CVE_2014_1812g_chk, $GUI_CHECKED)
    GUICtrlSetState($VS_PF_chk, $GUI_CHECKED)
    GUICtrlSetState($VS_RF_chk, $GUI_CHECKED)
    GUICtrlSetState($VS_JmpLst_chk, $GUI_CHECKED)
@@ -2661,6 +2721,8 @@ Func SelectNone()						;Function to deselect all functions within the GUI
    GUICtrlSetState($SECURITY_chk, $GUI_UNCHECKED)
    GUICtrlSetState($SAM_chk, $GUI_UNCHECKED)
    GUICtrlSetState($MFTg_chk, $GUI_UNCHECKED)
+   GUICtrlSetState($LogFileg_chk, $GUI_UNCHECKED)
+   GUICtrlSetState($CVE_2014_1812g_chk, $GUI_UNCHECKED)
    GUICtrlSetState($VS_PF_chk, $GUI_UNCHECKED)
    GUICtrlSetState($VS_RF_chk, $GUI_UNCHECKED)
    GUICtrlSetState($VS_JmpLst_chk, $GUI_UNCHECKED)
@@ -3275,6 +3337,17 @@ Func LogViewTools()
 
 EndFunc
 
+Func CVETools()
+
+			If Not FileExists(@ScriptDir & "\Tools\Misc\") Then
+			   Do
+				  DirCreate(@ScriptDir & "\Tools\Misc\")
+			   Until FileExists(@ScriptDir & "\Tools\Misc\")
+			EndIf
+			   FileInstall(".\Compile\Tools\Misc\gp3finder_v4.0.exe", @ScriptDir & "\Tools\Misc\", 0)
+
+EndFunc
+
 Func PrefetchParseTools()
 
 			If Not FileExists(@ScriptDir & "\Tools\NirSoft\") Then
@@ -3317,6 +3390,8 @@ Func InitDir()
 			If Not FileExists($ColDir) Then DirCreate($ColDir)
 			If Not FileExists($CpDir) Then DirCreate($CpDir)
 			If Not FileExists($MFTDir) Then DirCreate($MFTDir)
+			If Not FileExists($LogFileDir) Then DirCreate($LogFileDir)
+			If Not FileExists($CVEDir) Then DirCreate($CVEDir)
 			If Not FileExists(@ScriptDir & "\Tools\") Then DirCreate(@ScriptDir & "\Tools\")
 
 EndFunc
