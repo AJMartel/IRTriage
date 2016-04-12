@@ -8,13 +8,13 @@
 #pragma compile(FileDescription, IRTriage - Digital Forensic Incident Response Triage Tool)
 #pragma compile(ProductName, IRTriage)
 #pragma compile(ProductVersion, 2)
-#pragma compile(FileVersion, 2.16.04.11)
+#pragma compile(FileVersion, 2.16.04.12)
 #pragma compile(InternalName, "IRTriage")
 #pragma compile(LegalCopyright, © 2016 Alain Martel)
 #pragma compile(LegalTrademarks, 'Released under GPL 3, Free Open Source Software')
 #pragma compile(OriginalFilename, IRTriage.exe)
 #pragma compile(ProductName, Incident Response Triage)
-#pragma compile(ProductVersion, 2.16.04.11)
+#pragma compile(ProductVersion, 2.16.04.12)
 #AutoIt3Wrapper_icon=Compile\IRTriage.ico
 ;#Compiler_Res_Language=1033
 ;#AutoIt3Wrapper_Res_Language=1033
@@ -25,7 +25,7 @@
 
 	Script Function:	Forensic Triage Application
 
-	Version:		2.16.04.11       (Version 2, Last updated: 2016 Apr 11)
+	Version:		2.16.04.12       (Version 2, Last updated: 2016 Apr 12)
 
 	Original Author:	Michael Ahrendt (TriageIR v.851 last uploaded\modified 9 Nov 2012)
                            https://storage.googleapis.com/google-code-archive-downloads/v2/code.google.com/triage-ir/TriageIR%20v.851.zip
@@ -137,7 +137,7 @@
 #include <StringConstants.au3>   ;Update
 #Include <WindowsConstants.au3>
 
-Global  $Version = "2.16.04.11"                                      ;Added to facilitate display of version info (MajorVer.YY.MM.DD)
+Global  $Version = "2.16.04.12"                                      ;Added to facilitate display of version info (MajorVer.YY.MM.DD)
 Global 	$tStamp = @YEAR & @MON & @MDAY & @HOUR & @MIN & @SEC
 Global	$RptsDir = @ScriptDir & "\" & $tStamp & "-" & @ComputerName
 Global	$EvDir = $RptsDir & "\Evidence\"
@@ -1661,13 +1661,13 @@ EndFunc
 
 Func Prefetch()							;Copy any prefecth data while maintaining metadata
    Local $robocopy = '"' & @ScriptDir & '\Tools\robocopy.exe"'
-   Local $pf1 = $shellex & $robocopy & ' "' & @WindowsDir & '\Prefetch" "' & $EvDir & '\Prefetch" /copyall /ZB /TS /r:4 /w:3 /FP /NP /log:"' & $CpDir & '\PrefetchCopyLog.txt"'
+   Local $pf1 = $shellex & $robocopy & ' "' & @WindowsDir & 'Prefetch" "' & $EvDir & '\Prefetch" /copyall /ZB /TS /r:4 /w:3 /FP /NP /log:"' & $CpDir & '\PrefetchCopyLog.txt"'
    Local $WinPrefetchView = '"' & @ScriptDir & '\Tools\NirSoft\WinPrefetchView.exe"'
    Local $pf2 = $shellex & $WinPrefetchView & ' /Folder "' & $EvDir & 'Prefetch" /stab "' & $ColDir & 'Prefetch.csv"'
 
    PrefetchParseTools()
 
-   If Not FileExists($EvDir & "\Prefetch") Then DirCreate($EvDir & "\Prefetch")
+   If Not FileExists($EvDir & "Prefetch") Then DirCreate($EvDir & "Prefetch")
 
    ShellExecuteWait($robocopy, ' "' & @WindowsDir & '\Prefetch" "' & $EvDir & '\Prefetch" /copyall /ZB /TS /r:4 /w:3 /FP /NP /log:"' & $CpDir & '\PrefetchCopyLog.txt"', $tools, "", @SW_HIDE)
 	  FileWriteLine($Log, @YEAR&"-"&@MON&"-"&@MDAY&@TAB&@HOUR&":"&@MIN&":"&@SEC&":"&@MSEC&@TAB&"Executed command:" &@TAB& $pf1 & @CRLF)
@@ -1707,7 +1707,7 @@ Func _RobocopyRF($path, $output)		;Copy Recent folder from all profiles while ma
    Local $robocopy
    Local $robocmd
 
-   If Not FileExists($EvDir & '\RecentLNKs\' & $output) Then DirCreate($EvDir & '\RecentLNKs\' & $output)
+   If Not FileExists($EvDir & 'RecentLNKs\' & $output) Then DirCreate($EvDir & 'RecentLNKs\' & $output)
 
    $robocopy = '"' & @ScriptDir & '\Tools\robocopy.exe"'
 
@@ -1717,7 +1717,7 @@ Func _RobocopyRF($path, $output)		;Copy Recent folder from all profiles while ma
 			$recPATH = '"' & $path & '\Recent"'
 		 EndIf
 
-   Local $recF1 = $robocopy & " " & $recPATH & ' "' & $EvDir & '\RecentLNKs\' & $output & '" /copyall /ZB /TS /r:4 /w:3 /FP /NP /log:"' & $CpDir & '\' & $output & '_Recent_Copy.txt"'
+   Local $recF1 = $robocopy & " " & $recPATH & ' "' & $EvDir & 'RecentLNKs\' & $output & '" /copyall /ZB /TS /r:4 /w:3 /FP /NP /log:"' & $CpDir & '\' & $output & '_Recent_Copy.txt"'
 
    RunWait($recF1, "", @SW_HIDE)
 		 FileWriteLine($Log, @YEAR&"-"&@MON&"-"&@MDAY&@TAB&@HOUR&":"&@MIN&":"&@SEC&":"&@MSEC&@TAB&"Executed command:" &@TAB& $recF1 & @CRLF)
@@ -1757,8 +1757,8 @@ Func _RobocopyJL($path, $output)		;Copy Jumplist information while maintaining m
    Local $autodest
    Local $customdest
    Local $shellex = '"' & @ScriptDir & '\Tools\cmd.exe" /c '
-   Local $autodest = $EvDir & '\JumpLists\' & $output & '\Automatic'
-   Local $customdest = $EvDir & '\JumpLists\' & $output & '\Custom'
+   Local $autodest = $EvDir & 'JumpLists\' & $output & '\Automatic'
+   Local $customdest = $EvDir & 'JumpLists\' & $output & '\Custom'
 
    If Not FileExists($autodest) Then DirCreate($autodest)
    If Not FileExists($customdest) Then DirCreate($customdest)
@@ -1895,9 +1895,9 @@ Func HKCURRip()							;Copy the HKCU HIV for analysis
    Local $hkcurip
 
    If @OSVersion = "WIN_XP" Then
-	  $hkcurip = $shellex & 'REG SAVE HKCU "' & $RegDir & '\HKCU_' & @ComputerName & '.hiv"'
+	  $hkcurip = $shellex & 'REG SAVE HKCU "' & $RegDir & 'HKCU_' & @ComputerName & '.hiv"'
    Else
-	  $hkcurip = $shellex & 'REG SAVE HKCU "' & $RegDir & '\HKCU_' & @ComputerName & '.hiv" /y'
+	  $hkcurip = $shellex & 'REG SAVE HKCU "' & $RegDir & 'HKCU_' & @ComputerName & '.hiv" /y'
    EndIf
 
    RunWait($hkcurip, "", @SW_HIDE)
@@ -1925,9 +1925,9 @@ Func NTUserRRip()						;Copy all NTUSER.dat files from each profile
 			Local $nturip
 
 			If @OSVersion = "WIN_XP" Then
-			   $nturip = $shellex & 'REG SAVE ' & $s_Val & ' "' & $RegDir & '\' & @ComputerName &'_USER_' & $i+1 & '.dat"'
+			   $nturip = $shellex & 'REG SAVE ' & $s_Val & ' "' & $RegDir & @ComputerName &'_USER_' & $i+1 & '.dat"'
 			Else
-			   $nturip = $shellex & 'REG SAVE ' & $s_Val & ' "' & $RegDir & '\' & @ComputerName &'_USER_' & $i+1 & '.dat" /y'
+			   $nturip = $shellex & 'REG SAVE ' & $s_Val & ' "' & $RegDir & @ComputerName &'_USER_' & $i+1 & '.dat" /y'
 			EndIf
 
 			RunWait($nturip, "", @SW_HIDE)
@@ -2222,12 +2222,12 @@ Func VSC_Prefetch()						;Copy Prefetch data from any Volume Shadow Copies
 
    Local $robocopy = '"' & @ScriptDir & '\Tools\Robocopy.exe"'
    Local $v = 1
-   Local $vscpf1 = $shellex & $robocopy & ' "C:\VSC_' & $v & '\Windows\Prefetch" "' & $EvDir & '\VSC_' & $v & '\Prefetch" /copyall /ZB /TS /r:4 /w:3 /FP /NP /log:"' & $CpDir & '\VSC_' & $v & ' Prefetch Copy Log.txt"'
+   Local $vscpf1 = $shellex & $robocopy & ' "C:\VSC_' & $v & '\Windows\Prefetch" "' & $EvDir & 'VSC_' & $v & '\Prefetch" /copyall /ZB /TS /r:4 /w:3 /FP /NP /log:"' & $CpDir & '\VSC_' & $v & ' Prefetch Copy Log.txt"'
 
    Do
 	  If FileExists("C:\VSC_" & $v) = 1 Then
-		 If Not FileExists($EvDir & "\VSC_" & $v &"\Prefetch") Then DirCreate($EvDir & "\VSC_" & $v &"\Prefetch")
-			ShellExecuteWait($robocopy, ' "C:\VSC_' & $v & '\Windows\Prefetch" "' & $EvDir & '\VSC_' & $v & '\Prefetch" /copyall /ZB /TS /r:4 /w:3 /FP /NP /log:"' & $CpDir & '\VSC_' & $v & ' Prefetch Copy Log.txt"', $tools, "",@SW_HIDE)
+		 If Not FileExists($EvDir & "\VSC_" & $v &"\Prefetch") Then DirCreate($EvDir & "VSC_" & $v &"\Prefetch")
+			ShellExecuteWait($robocopy, ' "C:\VSC_' & $v & '\Windows\Prefetch" "' & $EvDir & 'VSC_' & $v & '\Prefetch" /copyall /ZB /TS /r:4 /w:3 /FP /NP /log:"' & $CpDir & '\VSC_' & $v & ' Prefetch Copy Log.txt"', $tools, "",@SW_HIDE)
 ;			ShellExecuteWait($vscpf1, $tools, "",@SW_HIDE)
 			   FileWriteLine($Log, @YEAR&"-"&@MON&"-"&@MDAY&@TAB&@HOUR&":"&@MIN&":"&@SEC&":"&@MSEC&@TAB&"Executed command:" &@TAB& $vscpf1 & @CRLF)
 		 $v = $v + 1
