@@ -138,3 +138,7 @@ Version 2016.04.07
 
 Version 2016.04.08
 •Added CVE_2014_1812() gp3finder_v4.0.exe -A -l -o CVE_2014_1812.txt 
+
+Version 2016.04.18 
+•Added software to remote chat through text file
+
