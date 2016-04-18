@@ -8,13 +8,13 @@
 #pragma compile(FileDescription, IRTriage - Digital Forensic Incident Response Triage Tool)
 #pragma compile(ProductName, IRTriage)
 #pragma compile(ProductVersion, 2)
-#pragma compile(FileVersion, 2.16.04.12)
+#pragma compile(FileVersion, 2.16.04.18)
 #pragma compile(InternalName, "IRTriage")
 #pragma compile(LegalCopyright, © 2016 Alain Martel)
 #pragma compile(LegalTrademarks, 'Released under GPL 3, Free Open Source Software')
 #pragma compile(OriginalFilename, IRTriage.exe)
 #pragma compile(ProductName, Incident Response Triage)
-#pragma compile(ProductVersion, 2.16.04.12)
+#pragma compile(ProductVersion, 2.16.04.18)
 #AutoIt3Wrapper_icon=Compile\IRTriage.ico
 ;#Compiler_Res_Language=1033
 ;#AutoIt3Wrapper_Res_Language=1033
@@ -25,7 +25,7 @@
 
 	Script Function:	Forensic Triage Application
 
-	Version:		2.16.04.12       (Version 2, Last updated: 2016 Apr 12)
+	Version:		2.16.04.18       (Version 2, Last updated: 2016 Apr 18)
 
 	Original Author:	Michael Ahrendt (TriageIR v.851 last uploaded\modified 9 Nov 2012)
                            https://storage.googleapis.com/google-code-archive-downloads/v2/code.google.com/triage-ir/TriageIR%20v.851.zip
@@ -137,7 +137,7 @@
 #include <StringConstants.au3>   ;Update
 #Include <WindowsConstants.au3>
 
-Global  $Version = "2.16.04.12"                                      ;Added to facilitate display of version info (MajorVer.YY.MM.DD)
+Global  $Version = "2.16.04.18"                                      ;Added to facilitate display of version info (MajorVer.YY.MM.DD)
 Global 	$tStamp = @YEAR & @MON & @MDAY & @HOUR & @MIN & @SEC
 Global	$RptsDir = @ScriptDir & "\" & $tStamp & "-" & @ComputerName
 Global	$EvDir = $RptsDir & "\Evidence\"
@@ -315,7 +315,7 @@ Func TriageGUI()						;Creates a graphical user interface for Triage
    Global 	$PF_chk, $RF_chk, $sysint_chk
    Global 	$md5_chk, $sha1_chk, $regrip_chk, $MFTDump_chk, $compress_chk
    Global	$VS_PF_chk, $VS_RF_chk, $VS_JmpLst_chk, $VS_EvtCpy_chk, $VS_SYSREG_chk, $VS_SECREG_chk, $VS_SAMREG_chk, $VS_SOFTREG_chk, $VS_USERREG_chk
-   Global	$MFTg_chk, $LogFileg_chk, $CVE_2014_1812g_chk
+   Global	$MFTg_chk, $LogFileg_chk, $CVE_2014_1812g_chk, $analystMsgr
 
    GUICreate("Incident Response Triage: version "& $Version, 810, 300)
 
@@ -488,6 +488,8 @@ Func TriageGUI()						;Creates a graphical user interface for Triage
 			GUICtrlSetTip($compress_chk, "Use 7-zip to compress all collected evidence into one zipped archive.")
 		 $sysint_chk = GUICtrlCreateCheckbox("Add Registry Entry for SysInternals Suite.", 10, 130)
 			GUICtrlSetTip($sysint_chk, "Add registry entry to eliminate any risk of EULA stopping Sysinternals from running properly.")
+	  $analystMsgr = GUICtrlCreateCheckbox("Remote Forensic Analyst Messenger", 10,190)
+		GUICtrlSetTip($analystMsgr, "Open Analyst Messenger after acquisition completed.")
 
 	  GUICtrlCreateTabItem("") ; end tabitem definition
 
@@ -929,6 +931,12 @@ Func TriageGUI()						;Creates a graphical user interface for Triage
 				;Open IncidentLog.csv after completion
 				LogViewTools()
 				ShellExecute(@ScriptDir & '\Tools\NirSoft\CSVFileView.exe', ' "' & $Log &'"')
+			EndIf
+
+			If(GUICtrlRead($analystMsgr) = 1) Then
+				AnalystMsgrTools()
+				;Open Analyst Messenger after completion
+				ShellExecute(@ScriptDir & '\Tools\Misc\IRTriageMsgr.exe', ' "' & $RptsDir &'\AnalystMsg.txt"')
 			EndIf
 
 			If(GUICtrlRead($OpenCMD) = 1) Then
@@ -3345,6 +3353,18 @@ Func CVETools()
 			   Until FileExists(@ScriptDir & "\Tools\Misc\")
 			EndIf
 			   FileInstall(".\Compile\Tools\Misc\gp3finder_v4.0.exe", @ScriptDir & "\Tools\Misc\", 0)
+
+EndFunc
+
+Func AnalystMsgrTools()
+
+			If Not FileExists(@ScriptDir & "\Tools\Misc\") Then
+			   Do
+				  DirCreate(@ScriptDir & "\Tools\Misc\")
+			   Until FileExists(@ScriptDir & "\Tools\Misc\")
+			EndIf
+			   FileInstall(".\Compile\Tools\Misc\AnalystMsgr.exe", @ScriptDir & "\", 0)
+			   FileInstall(".\Compile\Tools\Misc\IRTriageMsgr.exe", @ScriptDir & "\Tools\Misc\", 0)
 
 EndFunc
 
