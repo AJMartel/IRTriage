@@ -1,6 +1,3 @@
-;Coded by UEZ Build 2010-06-30, tweaked by KaFu ;-)
-;https://www.autoitscript.com/forum/topic/116468-choosedisplay-log-file-in-real-time/?do=findComment&comment=812827
-
 #include <GUIConstantsEx.au3>
 #include <WindowsConstants.au3>
 #include <File.au3>
